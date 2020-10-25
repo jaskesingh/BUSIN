@@ -1,0 +1,44 @@
+---
+title: "Kaggle_data"
+author: "Jaske"
+date: "10/25/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(readr)
+library(forcats)
+library(lubridate)
+```
+
+```{r}
+evshare_eu <- read.csv("~/1st_Master_BI/BUSIN/Project/ev_share_europe.csv")
+View(evshare_eu)
+```
+
+```{r}
+str(evshare_eu)
+```
+
+```{r}
+evshare_eu %>% group_by(country, time) %>% summarise(elec_percent)
+```
+
+```{r}
+evshare_eu %>% group_by(country) %>% summarise(mean(elec_percent))
+```
+
+```{r}
+evshare_eu %>% group_by(time) %>% summarise(mean(elec_percent))
+```
+```{r}
+
+```
+

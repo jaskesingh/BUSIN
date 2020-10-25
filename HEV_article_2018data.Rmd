@@ -1,0 +1,60 @@
+---
+title: "HEV_dataset"
+author: "Jaske"
+date: "10/25/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(readr)
+library(forcats)
+library(lubridate)
+```
+```{r}
+hev <- read.csv2("~/1st_Master_BI/BUSIN/Project/HEV_article_2018_filtered.csv")
+View(hev)
+```
+
+```{r}
+str(hev)
+```
+
+```{r}
+hev1 <- hev %>% mutate(Gender = as.factor(Gender),
+                       Education_level = as.factor(Education_level),
+                       Employment_status = as.factor(Employment_status),
+                       Income_group = as.factor(Income_group),
+                       Country = as.character(Country),
+                       buy_electric = as.logical(buy_electric))
+```
+
+```{r}
+levels(hev1$Gender) <- c("M", "F")
+```
+
+```{r}
+hev1 %>% summary()
+```
+
+```{r}
+hev1 %>% ggplot(aes(Age)) + geom_bar(aes(fill = buy_electric), position = "fill")
+```
+
+```{r}
+hev1 %>% ggplot(aes(Gender)) + geom_bar(aes(fill = buy_electric), position = "dodge")
+```
+
+```{r}
+hev1 %>% ggplot(aes(Income_group)) + geom_bar(aes(fill = buy_electric), position = "dodge")
+```
+```{r}
+hev1 %>% group_by(Income_group, Gender, buy_electric) %>% summarise(n = n(), median(Age)) %>% arrange(desc(n))
+```
+

@@ -1,0 +1,35 @@
+---
+title: "EAFO_data"
+author: "Jaske"
+date: "10/25/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(readr)
+library(forcats)
+library(lubridate)
+```
+```{r}
+ev2019 <- read.csv2("~/1st_Master_BI/BUSIN/Project/EAFO_data_evs2019.csv")
+pev_pcp <- read.csv2("~/1st_Master_BI/BUSIN/Project/EAFO_pev_per_pcp.csv")
+
+View(ev2019)
+View(pev_pcp)
+
+```
+
+```{r}
+str(ev2019)
+```
+```{r}
+ev2019 >%> 
+```
+
