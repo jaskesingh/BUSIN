@@ -1,0 +1,28 @@
+---
+title: 'Verkoop: periodieke analyse over de jaren heen'
+author: "Caro Haesen"
+date: "28-10-2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readxl)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+data <- read_xlsx("Monthly Tesla Vehicle Sales.xlsx")
+```
+
+```{r}
+data$September <- as.integer(data$September)
+data$October <- as.integer(data$October)
+data$November <- as.integer(data$November)
+data$December <- as.integer(data$December)
+Data <- data %>% gather(January:December, key="Month", value="Sales")
+summary(data)
+```
+
