@@ -1,0 +1,34 @@
+---
+title: 'Groei: verkoop alle merken per segment'
+author: "Caro Haesen"
+date: "29-10-2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readxl)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+VPS <- read_xlsx("New cars sold in the EU by segment in million units.xlsx")
+```
+
+```{r}
+VPS <- VPS %>% gather('2008':'2019', key=  "Year", value="Sales")
+
+```
+
+```{r}
+VPS$Year <- as.numeric(VPS$Year)
+VPS$Sales <- as.double(VPS$Sales)
+VPS %>% ggplot(aes(x=Year, y=Sales)) + geom_line(aes(color = Segment)) + labs(title = "New cars sold in the EU by segment in million units over the years.") #x-as moet gaan van 2008-2019
+```
+
+```{r}
+VPS %>% ggplot(aes(x = Segment, y = Sales)) + geom_col() + facet_wrap(Year~.) + labs(title = "New cars sold in the EU by segment in million units for each year.") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+```
+
