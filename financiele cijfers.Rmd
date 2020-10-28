@@ -7,22 +7,51 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+```{r}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(readxl)
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Revenue <- read_xlsx("C:/Users/Lien/Documents/Unief 2/1e Master/Business intelligence/Project/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Revenues (automotive)", col_types = c("text", "text", "numeric", "numeric"))
+summary(Revenue)
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+Gross_Margin <- read_xlsx("C:/Users/Lien/Documents/Unief 2/1e Master/Business intelligence/Project/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Gross margin", col_types = c("text", "text", "numeric", "numeric"))
+summary(Gross_Margin)
 
-```{r cars}
-summary(cars)
+Gross_profit <- read_xlsx("C:/Users/Lien/Documents/Unief 2/1e Master/Business intelligence/Project/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Gross profit", col_types = c("text", "text", "numeric", "numeric", "numeric"))
+summary(Gross_profit)
+
+Free_cashflow <- read_xlsx("C:/Users/Lien/Documents/Unief 2/1e Master/Business intelligence/Project/Tesla's free cash flow by quarter 2020 world wide.xlsx", skip = 3 , sheet = "Data", col_types = c("text", "text", "numeric"))
+summary(Free_cashflow)
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+Revenue %>% ggplot(aes(x = Year, y = `1000_revenue`, fill= Quarter)) + geom_col(position="dodge") + labs(title = 'Yearly automotive Revenue', subtitle = 'Per quarter and in thousends', y = 'Automotive revenue')  + scale_y_continuous(breaks = seq(0,8000, by= 1000))
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+Gross_Margin %>% ggplot(aes(x = Year, y = `Gross margin Automotive GAAP`, fill= Quarter)) + geom_col(position="dodge") + labs(title = 'Yearly gross margin for automotive GAAP', subtitle = 'Per quarter and in %', y= 'Gross margin') + scale_y_continuous(breaks = seq(0,30, by= 2))
+```
+
+
+```{r}
+Gross_Margin %>% ggplot(aes(x = Year, y = `Gross margin Automotive non-GAAP`, fill= Quarter)) + geom_col(position="dodge") + labs(title = 'Yearly gross margin for automotive non-GAAP', subtitle = 'Per quarter and in %', y='Gross margin')  + scale_y_continuous(breaks = seq(0,30, by= 2))
+```
+
+
+```{r}
+Gross_profit %>% ggplot(aes(x = Year, y = `Automotive gross profit GAAP`, fill= Quarter)) + geom_col(position="dodge") + labs(title = 'Yearly gross profit for automotive GAAP', subtitle = 'Per quarter', y= 'Gross profit') + scale_y_continuous(breaks = seq(0,2500000, by= 500000))
+```
+
+```{r}
+Gross_profit %>% ggplot(aes(x = Year, y = `Automotive gross profit non-GAAP`, fill= Quarter)) + geom_col(position="dodge") + labs(title = 'Yearly gross profit for automotive GAAP', subtitle = 'Per quarter', y= 'Gross profit')
+```
+
+```{r}
+Free_cashflow %>% ggplot(aes(x= Year, y= `free cash flow`, fill = Quarter)) + geom_col(position="dodge") + labs(title = 'Yearly free cash flow', subtitle = 'Per quarter and in thousends', y = 'Free cash flow')
+```
+
+
+
