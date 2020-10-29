@@ -26,3 +26,8 @@ Data <- data %>% gather(January:December, key="Month", value="Sales")
 summary(data)
 ```
 
+```{r}
+#grafiek met maanden op x as en jaren als fill
+
+```
+
