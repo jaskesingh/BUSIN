@@ -1,0 +1,127 @@
+---
+title: "Uitbreiding EU"
+author: "Lien"
+date: "29 oktober 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(readxl)
+library(tidyr)
+
+numAFvehicles <- read_xlsx("C:/Users/Lien/Documents/Unief 2/1e Master/Business intelligence/Project/Uitbreiding EU/Total number AF vehicles.xlsx", skip = 2 , col_types = c("text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))
+summary(numAFvehicles)
+```
+
+```{r}
+numAFvehicles <- numAFvehicles %>% gather('BEV', 'CNG', 'H2', 'LNG', 'PHEV', 'LPG', 'Total', key = 'brandstof', value = 'waardes')
+```
+
+
+```{r}
+numAFvehicles %>% filter(brandstof != 'Total') %>% ggplot(aes(x = Year, y = waardes, fill = brandstof)) + geom_col(position = "stack") + labs(title = 'Total number AF vehicles', subtitle = 'Total fleet of passenger cars per alternative fuel', y = '')  + scale_y_continuous(breaks = seq(0,11000000, by= 1000000)) + theme(axis.text.x = element_text(angle = 45))
+
+```
+
+```{r}
+numAFinfrastructure <- read_xlsx("C:/Users/Lien/Documents/Unief 2/1e Master/Business intelligence/Project/Uitbreiding EU/Total number AF infrastructure.xlsx", skip = 2 , col_types = c("text", "numeric", "numeric", "numeric", "numeric", "numeric"))
+summary(numAFinfrastructure)
+```
+
+```{r}
+numAFinfrastructure <- numAFinfrastructure %>% gather('Electricity', 'H2', 'Natural Gas', 'LPG', 'Total', key = 'brandstof', value = 'waardes')
+```
+
+Total number AF infrastructure stack
+```{r}
+numAFinfrastructure %>% filter(brandstof != 'Total') %>% ggplot(aes(x = Year, y = waardes, fill = brandstof)) + geom_col(position = "stack") + labs(title = 'Total number AF infrastructure', subtitle = 'Total number of AF infrastructure per type of fuel', y = '')  + scale_y_continuous(breaks = seq(0,300000, by= 50000)) + theme(axis.text.x = element_text(angle = 45))
+```
+
+Total number AF infrastructure dodge
+```{r}
+numAFinfrastructure %>% filter(brandstof != 'Total') %>% ggplot(aes(x = Year, y = waardes, fill = brandstof)) + geom_col(position = "dodge") + labs(title = 'Total number AF infrastructure', subtitle = 'Total number of AF infrastructure per type of fuel', y = '')  + scale_y_continuous(breaks = seq(0,300000, by= 50000)) + theme(axis.text.x = element_text(angle = 45))
+```
+
+
+```{r}
+pevchargingpoint <- read_xlsx("C:/Users/Lien/Documents/Unief 2/1e Master/Business intelligence/Project/Uitbreiding EU/PEV's per public charging point.xlsx", skip = 2 , col_types = c("text", "numeric", "numeric"))
+summary(pevchargingpoint)
+```
+
+```{r}
+pevchargingpoint <- pevchargingpoint %>% gather('Vehicle per charging points', 'Total', key = 'aantalperchargingpoint', value = 'waardes')
+```
+
+```{r}
+pevchargingpoint %>% filter(aantalperchargingpoint != 'Total') %>% ggplot(aes(x = Year, y = waardes)) + geom_col() + labs(title = 'PEVs per public charging point', subtitle = 'Plugin Electric Vehicles per public charging point', y = 'Amount of vehicles per public charging point')  + scale_y_continuous(breaks = seq(0,20, by= 2)) + theme(axis.text.x = element_text(angle = 45))
+```
+
+```{r}
+growthAFvehiclesfeet <- read_xlsx("C:/Users/Lien/Documents/Unief 2/1e Master/Business intelligence/Project/Uitbreiding EU/Growth AF vehicles fleet.xlsx", skip = 2 , col_types = c("text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))
+summary(growthAFvehiclesfeet)
+```
+
+```{r}
+growthAFvehiclesfeet <- growthAFvehiclesfeet %>% gather('BEV', 'CNG', 'H2', 'LNG', 'PHEV', 'LPG', 'Total', key = 'brandstof', value = 'waardes')
+```
+
+Total growth AF vehicles feet stack
+```{r}
+growthAFvehiclesfeet %>% filter(brandstof != 'Total') %>% ggplot(aes(x = Year, y = waardes, fill = brandstof)) + geom_col(position = "stack") + labs(title = 'Growth AF vehicles fleet', subtitle = 'Growth of total fleet passenger car per alternative fuel', y = '')  + scale_y_continuous(breaks = seq(0, 500, by= 50)) + theme(axis.text.x = element_text(angle = 45))
+```
+
+Total growth AF vehicles feet dodge
+```{r}
+growthAFvehiclesfeet %>% filter(brandstof != 'Total') %>% ggplot(aes(x = Year, y = waardes, fill = brandstof)) + geom_col(position = "dodge") + labs(title = 'Growth AF vehicles fleet', subtitle = 'Growth of total fleet passenger car per alternative fuel', y = '')  + scale_y_continuous(breaks = seq(0, 500, by= 50)) + theme(axis.text.x = element_text(angle = 45))
+```
+
+Total growth AF vehicles feet line graph
+```{r}
+growthAFvehiclesfeet %>% filter(brandstof != 'Total') %>% ggplot(aes(x = Year, y = waardes, group = brandstof, color = brandstof)) + geom_line() + labs(title = 'Growth AF vehicles fleet', subtitle = 'Growth of total fleet passenger car per alternative fuel', y = '')  + scale_y_continuous(breaks = seq(0, 500, by= 50)) + theme(axis.text.x = element_text(angle = 45))
+```
+
+
+```{r}
+growthAFinfrastructure <- read_xlsx("C:/Users/Lien/Documents/Unief 2/1e Master/Business intelligence/Project/Uitbreiding EU/Growth AF infrastructure.xlsx", skip = 2 , col_types = c("text", "numeric", "numeric", "numeric", "numeric", "numeric"))
+summary(growthAFinfrastructure)
+```
+
+```{r}
+growthAFinfrastructure <- growthAFinfrastructure %>% gather('Electricity', 'H2', 'Natural Gas', 'LPG', 'Total', key = 'brandstof', value = 'waardes')
+```
+
+Total growth AF infrastructure stack
+```{r}
+growthAFinfrastructure %>% filter(brandstof != 'Total') %>% ggplot(aes(x = Year, y = waardes, fill = brandstof)) + geom_col(position = "stack") + labs(title = 'Growth AF infrastructure', subtitle = 'Growth of charging/filling points per alternative fuel in percentage', y = '')  + scale_y_continuous(breaks = seq(0, 200, by= 50)) + theme(axis.text.x = element_text(angle = 45))
+```
+
+Total growth AF infrastructure dodge
+```{r}
+growthAFinfrastructure %>% filter(brandstof != 'Total') %>% ggplot(aes(x = Year, y = waardes, fill = brandstof)) + geom_col(position = "dodge") + labs(title = 'Growth AF infrastructure', subtitle = 'Growth of charging/filling points per alternative fuel in percentage', y = '')  + scale_y_continuous(breaks = seq(0, 200, by= 50)) + theme(axis.text.x = element_text(angle = 45))
+```
+
+Total growth AF infrastructure line graph
+```{r}
+growthAFinfrastructure %>% filter(brandstof != 'Total') %>% ggplot(aes(x = Year, y = waardes, group = brandstof, color = brandstof)) + geom_line() + labs(title = 'Growth AF infrastructure', subtitle = 'Growth of charging/filling points per alternative fuel in percentage', y = '')  + scale_y_continuous(breaks = seq(0, 200, by= 50)) + theme(axis.text.x = element_text(angle = 45))
+```
+
+```{r}
+fastpublicchargingpoint <- read_xlsx("C:/Users/Lien/Documents/Unief 2/1e Master/Business intelligence/Project/Uitbreiding EU/Fast public charging points per 100 km highway.xlsx", skip = 2 , col_types = c("text", "numeric", "numeric"))
+summary(fastpublicchargingpoint)
+```
+
+```{r}
+fastpublicchargingpoint <- fastpublicchargingpoint %>% gather('Charging points', 'Total', key = 'chargingpoints', value = 'waardes')
+```
+
+Fast public charging point
+```{r}
+fastpublicchargingpoint %>% filter(chargingpoints != 'Total') %>% ggplot(aes(x = Year, y = waardes)) + geom_col() + labs(title = 'Fast public charging points per 100 km highway', subtitle = 'Fast public charging points (>=22kW) per 100 km highway', y = 'Amount of charging points')  + scale_y_continuous(breaks = seq(0, 30, by= 5)) + theme(axis.text.x = element_text(angle = 45))
+```
