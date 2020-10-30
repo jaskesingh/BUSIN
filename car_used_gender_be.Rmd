@@ -1,0 +1,39 @@
+---
+title: "Car_used_based_on_gender"
+author: "Jaske"
+date: "10/30/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(readr)
+library(forcats)
+library(lubridate)
+```
+
+```{r}
+car_gender_be <- read.csv2("~/1st_Master_BI/BUSIN/Project/Statista/surveys/Car used based on gender Belgium.csv", skip = 3)
+
+```
+
+```{r}
+str(car_gender_be)
+```
+
+```{r}
+levels(car_gender_be$X)
+```
+
+```{r}
+levels(car_gender_be$X)[1] <- "Skoda"
+
+car_gender_be <- car_gender_be %>% rename("brand" = "X")
+```
+

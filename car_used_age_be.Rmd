@@ -1,0 +1,38 @@
+---
+title: "Car_used_age_be"
+author: "Jaske"
+date: "10/30/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(readr)
+library(forcats)
+library(lubridate)
+```
+
+```{r}
+car_age_be <- read.csv2("~/1st_Master_BI/BUSIN/Project/Statista/surveys/Car used based on age Belgium.csv", skip=3)
+```
+
+```{r}
+str(car_age_be)
+```
+
+```{r}
+car_age_be <- car_age_be %>% rename("18-19y" = "X18...19.years", "20-29y" = "X20...29.years",
+                      "30-39y" = "X30...39.years", "40-49y" = "X40...49.years",
+                      "50-59y" = "X50...59.years", "60-64y" = "X60...64.years", "brand" = "X")
+```
+
+```{r}
+levels(car_age_be$brand)[1] -> "Skoda"
+```
+
