@@ -14,20 +14,30 @@ library(readxl)
 library(tidyr)
 library(dplyr)
 library(ggplot2)
+library(stringr)
 data <- read_xlsx("Monthly Tesla Vehicle Sales.xlsx")
 ```
 
 ```{r}
+data$January <- as.integer(data$January)
+data$February <- as.integer(data$February)
+data$March <- as.integer(data$March)
+data$April <- as.integer(data$April)
+data$May <- as.integer(data$May)
+data$June <- as.integer(data$June)
+data$July <- as.integer(data$July)
+data$August <- as.integer(data$August)
 data$September <- as.integer(data$September)
 data$October <- as.integer(data$October)
 data$November <- as.integer(data$November)
 data$December <- as.integer(data$December)
-Data <- data %>% gather(January:December, key="Month", value="Sales")
+Data <- data %>% gather(January:December, key=  "Month", value="Sales") %>% mutate(Month = str_replace(Month, "January", "1"), Month = str_replace(Month, "February", "2"), Month = str_replace(Month, "March", "3"), Month = str_replace(Month, "April", "4"), Month = str_replace(Month, "May", "5"), Month = str_replace(Month, "June", "6"), Month = str_replace(Month, "July", "7"), Month = str_replace(Month, "August", "8"), Month = str_replace(Month, "September", "9"), Month = str_replace(Month, "October", "10"), Month = str_replace(Month, "November", "11"), Month = str_replace(Month, "December", "12"))
+Data$Month <- as.integer(Data$Month)
 summary(data)
+structure(Data)
 ```
 
 ```{r}
-#grafiek met maanden op x as en jaren als fill
-
+Data %>% ggplot(aes(x= Month, y = Sales)) + geom_line(aes(color = Year))
 ```
 
