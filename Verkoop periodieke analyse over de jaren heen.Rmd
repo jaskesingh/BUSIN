@@ -33,11 +33,15 @@ data$November <- as.integer(data$November)
 data$December <- as.integer(data$December)
 Data <- data %>% gather(January:December, key=  "Month", value="Sales") %>% mutate(Month = str_replace(Month, "January", "1"), Month = str_replace(Month, "February", "2"), Month = str_replace(Month, "March", "3"), Month = str_replace(Month, "April", "4"), Month = str_replace(Month, "May", "5"), Month = str_replace(Month, "June", "6"), Month = str_replace(Month, "July", "7"), Month = str_replace(Month, "August", "8"), Month = str_replace(Month, "September", "9"), Month = str_replace(Month, "October", "10"), Month = str_replace(Month, "November", "11"), Month = str_replace(Month, "December", "12"))
 Data$Month <- as.integer(Data$Month)
-summary(data)
+Data$Year <- as.integer(Data$Year)
 structure(Data)
 ```
 
 ```{r}
-Data %>% ggplot(aes(x= Month, y = Sales)) + geom_line(aes(color = Year))
+Data %>% ggplot(aes(x= Month, y = Sales)) + geom_line(aes(color = Year)) 
+```
+
+```{r}
+Data %>% ggplot(aes(x = Month, y = Sales)) + geom_col() + facet_wrap(Year~.) + labs(title = "Periodic Tesla sales over the years.") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
