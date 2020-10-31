@@ -1,0 +1,69 @@
+---
+title: "Snellaadpalen Vergelijken met Tesla verkoop"
+author: "Caro Haesen"
+date: "31-10-2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readxl)
+library(tidyr)
+library(plyr)
+library(dplyr)
+library(ggplot2)
+library(rvest)
+snellaadpalen <- read_xlsx("Superchargers.xlsx")
+verkoop <- read_xlsx("Yearly Tesla Sales Country Split (Europe).xlsx")
+str(snellaadpalen)
+
+```
+
+```{r}
+verkoop$'2013' <- as.integer(verkoop$'2013')
+verkoop$'2014' <- as.integer(verkoop$'2014')
+verkoop$'2015' <- as.integer(verkoop$'2015')
+verkoop$'2016' <- as.integer(verkoop$'2016')
+verkoop$'2017' <- as.integer(verkoop$'2017')
+verkoop$'2018' <- as.integer(verkoop$'2018')
+verkoop$'2019' <- as.integer(verkoop$'2019')
+```
+```{r}
+verkoop <- verkoop %>% select('Country', '2019')
+
+```
+
+```{r}
+snellaadpalen$Year <- format(snellaadpalen$'Open Date', format="%Y")
+```
+
+```{r}
+list <- c("Austria", "Belgium", "Czech Republic", "Denmark", "Finland", "France", "Germany", "Greece", "Ireland", "Italy", "Luxembourg", "Netherlands", "Norway", "Portugal", "Romania", "Slovenia", "Spain", "Sweden", "Switzerland")
+snellaadpalen <- snellaadpalen %>% filter(Year < 2020, Status == 'OPEN', Country %in% list)
+```
+
+
+```{r}
+snellaadpalen <- count(snellaadpalen, "Country")
+
+```
+
+```{r}
+ratio <- full_join(snellaadpalen, verkoop, by = 'Country')
+```
+
+```{r}
+ratio$freq <- as.integer(ratio$freq)
+ratio$sales <- ratio$'2019'
+ratio$Country <- as.factor(ratio$Country)
+ratio <- ratio %>% mutate(Teslas_per_Supercharger = sales/freq)
+ratio$Teslas_per_Supercharger <- as.double(ratio$Teslas_per_Supercharger)
+```
+
+```{r}
+ratio %>% ggplot(aes(x= Country, y = Teslas_per_Supercharger)) + geom_col() + labs(title = "Teslas/supercharger in 2019.") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
