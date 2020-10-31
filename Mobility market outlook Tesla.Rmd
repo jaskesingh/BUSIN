@@ -1,0 +1,33 @@
+---
+title: "Mobility market outlook Tesla"
+author: "Lien"
+date: "31 oktober 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(readxl)
+library(tidyr)
+
+RevenueTeslaEurope <- read_xlsx("revenue_tesla_europe_Statista.xlsx", skip = 3 , col_types = c("text", "numeric"))
+summary(RevenueTeslaEurope)
+```
+
+```{r}
+RevenueTeslaEurope <- RevenueTeslaEurope %>% mutate('Revenue' = Total*0.8563)
+
+RevenueTeslaEurope %>% ggplot(aes(x = Country, y = Revenue))+ geom_col() + labs(title = 'Mobility market outlook Tesla', subtitle = 'Europe revenue per country', y = '')  + scale_y_continuous(breaks = seq(0,1000000, by= 100000)) + theme(axis.text.x = element_text(angle = 90))
+
+```
+
+```{r}
+RevenueTeslaEurope %>% group_by(Revenue, Country) %>% select(Revenue, Country)
+```
+
