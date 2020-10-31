@@ -15,7 +15,52 @@ library(tidyr)
 library(plyr)
 library(dplyr)
 library(ggplot2)
+library(lubridate)
 teslapalen <- read_xlsx("Superchargers.xlsx")
 ionity <- read_xlsx("ionity_locations.xlsx")
+str(ionity)
+```
+
+```{r}
+ionity$Supercharger <- ionity$name
+ionity$Stalls <- ionity$charger_count
+ionity$'Open Date' <- ionity$golive
+ionity$Latitude <- ionity$coords.lat
+ionity$Longitude <- ionity$coords.lng
+ionity$Status <- ionity$description
+ionity$Description <- ionity$title
+ionity$Country <- ionity$geo_state.country
+ionity$City <- ionity$city
+ionity$State <- ionity$geo_state.name_en
+ionity <- ionity %>% filter(Status != 'now building' | Status != 'Now building')
+ionity <- ionity %>% select(Supercharger, Stalls, `Open Date`, Latitude, Longitude, Description, City, State, Country)
+teslapalen <- teslapalen %>% separate(GPS, sep = ",", into = c("Latitude", "Longitude"))
+teslapalen$Longitude <- as.integer(teslapalen$Longitude)
+teslapalen$Latitude <- as.integer(teslapalen$Latitude)
+teslapalen <- teslapalen %>% mutate(Description = 'Tesla') %>% filter(Status == 'OPEN') %>% select(Supercharger, Stalls, `Open Date`, Latitude, Longitude, Description, City, State, Country)
+```
+
+```{r}
+ionity$`Open Date` <- as.POSIXct(ionity$`Open Date`, format = "%Y-%m-%d %H:%M")
+laadpalen <- bind_rows(ionity, teslapalen)
+```
+
+```{r}
+laadpalen$Country <- as.factor(laadpalen$Country)
+taart <- count(laadpalen, "Description")
+laadpalen <- count(laadpalen, c("Description", "Country"))
+```
+
+```{r}
+laadpalen %>% ggplot(aes(x = Description, y = freq)) + geom_col() + labs(title = "Superchargers per country") + facet_wrap(Country~.)+ theme(axis.text.x = element_text(angle = 45, hjust = 1))
+laadpalen %>% ggplot(aes(x = Country, y = freq)) + geom_col(aes(fill = Description)) + labs(title = "Superchargers per country") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+taart <- taart %>% mutate(ratio = round(freq/sum(freq)*100))
+```
+
+```{r}
+taart %>% ggplot(aes(x="", y = ratio, fill = Description)) + geom_bar(width = 1, stat = "identity") + coord_polar("y", start=0) + labs(title = "Superchargers market share")
 ```
 
