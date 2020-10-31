@@ -1,0 +1,21 @@
+---
+title: "Snellaadpalen Concurrentie"
+author: "Caro Haesen"
+date: "31-10-2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readxl)
+library(tidyr)
+library(plyr)
+library(dplyr)
+library(ggplot2)
+teslapalen <- read_xlsx("Superchargers.xlsx")
+ionity <- read_xlsx("ionity_locations.xlsx")
+```
+
