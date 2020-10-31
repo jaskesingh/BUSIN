@@ -38,6 +38,6 @@ structure(Data)
 ```
 
 ```{r}
-Data %>% ggplot(aes(x= Month, y = Sales)) + geom_line(aes(color = Year))
+Data %>% ggplot(aes(x= Month, y = Sales)) + geom_line(aes(color = Year)) + scale_x_continuous(breaks = seq(0,12, by = 1))
 ```
 
