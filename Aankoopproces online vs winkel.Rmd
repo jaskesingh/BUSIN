@@ -1,0 +1,36 @@
+---
+title: "Online vs winkel"
+author: "Caro Haesen"
+date: "31-10-2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readxl)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+aankoopproces <- read_xlsx("Online.xlsx")
+```
+
+
+```{r}
+aankoopproces <- aankoopproces %>% gather(`Not at all interested/not very interested`:`Somewhat interested/very interested`, key = "Interest", value="Percentage")
+```
+
+```{r}
+aankoopproces %>% ggplot(aes(x = Country, y = Percentage)) + geom_col(aes(fill = Interest)) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" )
+```
+
+```{r}
+aankoopproces %>% ggplot(aes(x = Country, y = Percentage)) + geom_col() + facet_wrap(Interest~.) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" ) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+aankoopproces %>% ggplot(aes(x = Interest, y = Percentage)) + geom_col() + facet_wrap(Country~.) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" ) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
