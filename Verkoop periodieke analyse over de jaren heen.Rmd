@@ -38,10 +38,14 @@ structure(Data)
 ```
 
 ```{r}
+<<<<<<< HEAD
 Data %>% ggplot(aes(x= Month, y = Sales)) + geom_line(aes(color = Year)) 
 ```
 
 ```{r}
 Data %>% ggplot(aes(x = Month, y = Sales)) + geom_col() + facet_wrap(Year~.) + labs(title = "Periodic Tesla sales over the years.") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+=======
+Data %>% ggplot(aes(x= Month, y = Sales)) + geom_line(aes(color = Year)) + scale_x_continuous(breaks = seq(0,12, by = 1))
+>>>>>>> d6780d6a8ca1e5589ee73c50c916e1817d8d690b
 ```
 
