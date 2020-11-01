@@ -16,8 +16,8 @@ library(plyr)
 library(dplyr)
 library(ggplot2)
 library(lubridate)
-teslapalen <- read_xlsx("Superchargers.xlsx")
-ionity <- read_xlsx("ionity_locations.xlsx")
+teslapalen <- read_xlsx("Data/Superchargers.xlsx")
+ionity <- read_xlsx("Data/ionity_locations.xlsx")
 str(ionity)
 ```
 
@@ -35,8 +35,8 @@ ionity$State <- ionity$geo_state.name_en
 ionity <- ionity %>% filter(Status != 'now building' | Status != 'Now building')
 ionity <- ionity %>% select(Supercharger, Stalls, `Open Date`, Latitude, Longitude, Description, City, State, Country)
 teslapalen <- teslapalen %>% separate(GPS, sep = ",", into = c("Latitude", "Longitude"))
-teslapalen$Longitude <- as.integer(teslapalen$Longitude)
-teslapalen$Latitude <- as.integer(teslapalen$Latitude)
+teslapalen$Longitude <- as.double(teslapalen$Longitude)
+teslapalen$Latitude <- as.double(teslapalen$Latitude)
 teslapalen <- teslapalen %>% mutate(Description = 'Tesla') %>% filter(Status == 'OPEN') %>% select(Supercharger, Stalls, `Open Date`, Latitude, Longitude, Description, City, State, Country)
 ```
 
