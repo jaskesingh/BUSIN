@@ -11,6 +11,11 @@ library(shiny)
 library(readxl)
 library(ggplot2)
 library(tidyr)
+library(shinydashboard)
+library(dplyr)
+library(tidyr)
+library(lubridate)
+library(readr)
 Revenue <- read_xlsx("data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Revenues (automotive)", col_types = c("numeric", "text", "numeric", "numeric"))
 
 # Define UI for application that draws a histogram
