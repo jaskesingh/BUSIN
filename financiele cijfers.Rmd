@@ -13,16 +13,16 @@ library(dplyr)
 library(ggplot2)
 library(readxl)
 
-Revenue <- read_xlsx("C:/Users/Lien/Documents/Unief 2/1e Master/Business intelligence/Project/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Revenues (automotive)", col_types = c("text", "text", "numeric", "numeric"))
+Revenue <- read_xlsx("Data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Revenues (automotive)", col_types = c("text", "text", "numeric", "numeric"))
 summary(Revenue)
 
-Gross_Margin <- read_xlsx("C:/Users/Lien/Documents/Unief 2/1e Master/Business intelligence/Project/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Gross margin", col_types = c("text", "text", "numeric", "numeric"))
+Gross_Margin <- read_xlsx("Data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Gross margin", col_types = c("text", "text", "numeric", "numeric"))
 summary(Gross_Margin)
 
-Gross_profit <- read_xlsx("C:/Users/Lien/Documents/Unief 2/1e Master/Business intelligence/Project/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Gross profit", col_types = c("text", "text", "numeric", "numeric", "numeric"))
+Gross_profit <- read_xlsx("Data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Gross profit", col_types = c("text", "text", "numeric", "numeric", "numeric"))
 summary(Gross_profit)
 
-Free_cashflow <- read_xlsx("C:/Users/Lien/Documents/Unief 2/1e Master/Business intelligence/Project/Tesla's free cash flow by quarter 2020 world wide.xlsx", skip = 3 , sheet = "Data", col_types = c("text", "text", "numeric"))
+Free_cashflow <- read_xlsx("Data/Tesla's free cash flow by quarter 2020 world wide.xlsx", skip = 3 , sheet = "Data", col_types = c("text", "text", "numeric"))
 summary(Free_cashflow)
 ```
 
