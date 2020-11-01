@@ -8,11 +8,23 @@
 #
 
 library(shiny)
+library(shinydashboard)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(lubridate)
+library(readr)
+
+revenue <- function(yearinput,df) {
+  revenue <- df %>% filter(df$Year == yearinput)
+  return(revenue)
+}
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
   
-  data <- 
+
+   
 
     output$col <- renderPlot({
 
@@ -22,9 +34,8 @@ shinyServer(function(input, output) {
         
 
         # draw the histogram with the specified number of bins
-        Revenue %>% ggplot(aes(x = input$Yearrev, y = `1000_revenue`, fill= Quarter))+ geom_col(position="dodge") + 
-          labs(title = 'Yearly automotive Revenue', subtitle = 'Per quarter and in thousends', y = 'Automotive revenue')  + 
-          scale_x_continuous(breaks = seq(2008, 2020, by = 1))
+       revenue(input$Yearrev, Revenue) %>% ggplot(aes(x = Quarter, y = `1000_revenue`, fill= Quarter))+ geom_col(position="dodge") + 
+          labs(title = 'Yearly automotive Revenue', subtitle = 'Per quarter and in thousends', y = 'Automotive revenue')  
 
     })
     
