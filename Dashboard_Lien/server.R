@@ -11,16 +11,23 @@ library(shiny)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
+  
+  data <- 
 
-    output$distPlot <- renderPlot({
+    output$col <- renderPlot({
 
         # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
+        x    <- Revenue$Year
+        Yearrev <- seq(min(x), max(x), length.out = input$Yearrev)
+        
 
         # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white')
+        Revenue %>% ggplot(aes(x = input$Yearrev, y = Revenue$`1000_revenue`, fill= Quarter))+ geom_col(position="dodge") + 
+          labs(title = 'Yearly automotive Revenue', subtitle = 'Per quarter and in thousends', y = 'Automotive revenue')  + 
+          scale_y_continuous(breaks = seq(0,8000, by= 1000)) +
+          scale_x_continuous(breaks = seq(2008, 2020, by = 1))
 
     })
+    
 
 })
