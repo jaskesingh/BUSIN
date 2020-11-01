@@ -29,7 +29,7 @@ library(plotly)
 
 ```
 ```{r}
-superchargers <- read_xlsx("Superchargers.xlsx")
+superchargers <- read_xlsx("Data/Superchargers.xlsx")
 summary(superchargers)
 superchargers <- superchargers %>% separate(GPS, sep = ",", into = c("Latitude", "Longitude"))
 superchargers$Longitude <- as.integer(superchargers$Longitude)
