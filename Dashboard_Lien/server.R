@@ -22,9 +22,8 @@ shinyServer(function(input, output) {
         
 
         # draw the histogram with the specified number of bins
-        Revenue %>% ggplot(aes(x = input$Yearrev, y = Revenue$`1000_revenue`, fill= Quarter))+ geom_col(position="dodge") + 
+        Revenue %>% ggplot(aes(x = input$Yearrev, y = `1000_revenue`, fill= Quarter))+ geom_col(position="dodge") + 
           labs(title = 'Yearly automotive Revenue', subtitle = 'Per quarter and in thousends', y = 'Automotive revenue')  + 
-          scale_y_continuous(breaks = seq(0,8000, by= 1000)) +
           scale_x_continuous(breaks = seq(2008, 2020, by = 1))
 
     })
