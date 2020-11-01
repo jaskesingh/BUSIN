@@ -19,8 +19,8 @@ library(lubridate)
 ```
 
 ```{r}
-evshare_eu <- read.csv("~/1st_Master_BI/BUSIN/Project/ev_share_europe.csv")
-View(evshare_eu)
+evshare_eu <- read.csv("Data/ev_share_europe.csv")
+
 ```
 
 ```{r}
@@ -39,6 +39,6 @@ evshare_eu %>% group_by(country) %>% summarise(mean(elec_percent))
 evshare_eu %>% group_by(time) %>% summarise(mean(elec_percent))
 ```
 ```{r}
-
+evshare_eu %>% ggplot(aes(x= country, y = elec_percent)) + geom_col() + labs(title = 'Percentage electric cars in Europe', subtitle = 'From 2013 until 2017', y = '')  + scale_y_continuous(breaks = seq(0,100, by= 10)) + theme(axis.text.x = element_text(angle = 90))
 ```
 
