@@ -8,6 +8,11 @@
 #
 
 library(shiny)
+library(readxl)
+library(ggplot2)
+library(tidyr)
+Revenue <- read_xlsx("data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Revenues (automotive)", col_types = c("text", "text", "numeric", "numeric"))
+
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
