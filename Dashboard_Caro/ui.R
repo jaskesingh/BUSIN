@@ -20,12 +20,15 @@ superchargers <- read_xlsx("Data/Superchargers.xlsx")
 superchargers <- superchargers %>% separate(GPS, sep = ",", into = c("Latitude", "Longitude"))
 superchargers$Longitude <- as.double(superchargers$Longitude)
 superchargers$Latitude <- as.double(superchargers$Latitude)
+superchargers <- superchargers %>% filter(Status == 'OPEN')
 superchargers <- data.frame(superchargers)
 
 
-# Define UI for application that draws a histogram
+# Define UI for application that draws a map
 shinyUI(fluidPage(
-    leafletOutput("mymap")))
+    mainPanel(
+    leafletOutput("mymap"),
+    dataTableOutput('table01'))))
 
     
 
