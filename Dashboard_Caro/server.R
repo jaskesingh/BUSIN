@@ -1,26 +1,92 @@
-#
-# This is the server logic of a Shiny web application. You can run the
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-
+library(readxl)
+library(maps)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(lubridate)
+library(ggmap)
+library(mapdata)
+library(mapproj)
+library(sf)
+library(rnaturalearth)
+library(hrbrthemes)
+library(grid)
+library(rworldmap)
 library(shiny)
+library(plotly)
+library(leaflet)
+library(DT)
 
-# Define server logic required to draw a histogram
-shinyServer(function(input, output) {
+superchargers <- read_xlsx("Data/Superchargers.xlsx")
+superchargers <- superchargers %>% separate(GPS, sep = ",", into = c("Latitude", "Longitude"))
+superchargers$Longitude <- as.double(superchargers$Longitude)
+superchargers$Latitude <- as.double(superchargers$Latitude)
+superchargers <- superchargers %>% filter(Status == 'OPEN')
+superchargers$id <- seq.int(nrow(superchargers))
+superchargers <- data.frame(superchargers)
 
-    output$distPlot <- renderPlot({
+
+
+# Define server logic required to draw a map
+shinyServer(function(input, output, session) {
+    
+    #table
+    output$table01 <- renderDataTable({
+        
+        DT::datatable(superchargers, selection = "single",options=list(stateSave = TRUE))
+    })
+    
+    # to keep track of previously selected row
+    prev_row <- reactiveVal()
+    
+    # new icon style
+    my_icon = makeAwesomeIcon(icon = 'flag', markerColor = 'red', iconColor = 'white')
+    
+    observeEvent(input$table01_rows_selected, {
+        row_selected = superchargers[input$table01_rows_selected,]
+        proxy <- leafletProxy('mymap')
+        proxy %>%
+            addAwesomeMarkers(popup=as.character(row_selected$mag),
+                              layerId = as.character(row_selected$id),
+                              lng=row_selected$Longitude, 
+                              lat=row_selected$Latitude,
+                              icon = my_icon)
+        # Reset previously selected marker
+        if(!is.null(prev_row()))
+        {
+            proxy %>%
+                addMarkers(popup=as.character(prev_row()$Street.Address), 
+                           layerId = as.character(prev_row()$id),
+                           lng=prev_row()$Longitude, 
+                           lat=prev_row()$Latitude)
+        }
+        # set new value to reactiveVal 
+        prev_row(row_selected)
+    })
+    #map
+    output$mymap <- renderLeaflet({
+        leaflet() %>% addTiles() %>% addMarkers(data = superchargers, popup= superchargers$Street.Address, layerId = as.character(superchargers$id))
+    })
+    
+    observeEvent(input$mymap_marker_click, {
+        clickId <- input$mymap_marker_click$id
+        dataTableProxy("table01") %>%
+            selectRows(which(superchargers$id == clickId)) %>%
+            selectPage(which(input$table01_rows_all == clickId) %/% input$table01_state$length + 1)})
+    
+   })
+    
+    #function(input, output) {
+
+    #output$distPlot <- renderPlot({
 
         # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
+       # x    <- faithful[, 2]
+       # bins <- seq(min(x), max(x), length.out = input$bins + 1)
 
         # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white')
+       # hist(x, breaks = bins, col = 'darkgray', border = 'white')
 
-    })
+   # })
 
-})
+#})
