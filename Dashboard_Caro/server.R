@@ -16,14 +16,22 @@ library(shiny)
 library(plotly)
 library(leaflet)
 library(DT)
+library(rvest)
 
+#Map + table01
 superchargers <- read_xlsx("Data/Superchargers.xlsx")
 superchargers <- superchargers %>% separate(GPS, sep = ",", into = c("Latitude", "Longitude"))
 superchargers$Longitude <- as.double(superchargers$Longitude)
 superchargers$Latitude <- as.double(superchargers$Latitude)
 superchargers$id <- seq.int(nrow(superchargers))
+superchargers$Year <- format(superchargers$'Open Date', format="%Y")
 superchargers <- data.frame(superchargers)
 
+#Histogram01
+verkoop <- read_xlsx("Data/Yearly Tesla Sales Country Split (Europe).xlsx")
+Verkoop <- verkoop %>% gather('2013':'2019', key=  "Year", value="Sales")
+verkoop$Year <- as.integer(verkoop$Year)
+verkoop$Sales <- as.integer(verkoop$Sales)
 
 
 # Define server logic required to draw a map
@@ -75,6 +83,18 @@ shinyServer(function(input, output, session) {
                            input$table01_state$length+1)})
     
     #histogram: vergelijken met teslaverkoop 
+    output$hist01 <- renderPlot({
+        verkoopC <- verkoop %>% filter(Country %in% input$Country, Year == input$Year)
+        superchargersC <- superchargers %>% filter(Year < input$Year+1, Status == 'OPEN', Country %in% input$Country)
+        superchargersC <- count(superchargersC, "Country")
+        ratio <- full_join(superchargersC, verkoopC, by = 'Country')
+        ratio$freq <- as.integer(ratio$freq)
+        ratio$Country <- as.factor(ratio$Country)
+        ratio <- ratio %>% mutate(Teslas_per_Supercharger = Sales/freq)
+        ratio$Teslas_per_Supercharger <- as.double(ratio$Teslas_per_Supercharger)
+        ratio %>% ggplot(aes(x= Country, y = Teslas_per_Supercharger)) + geom_col() + labs(title = "Teslas/supercharger in 2019.") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        
+    })
     
    })
     

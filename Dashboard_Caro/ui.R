@@ -18,12 +18,16 @@ library(plotly)
 library(leaflet)
 library(shinydashboard)
 
+#Map + table01 + infoboxen
 superchargers <- read_xlsx("Data/Superchargers.xlsx")
 superchargers <- superchargers %>% separate(GPS, sep = ",", into = c("Latitude", "Longitude"))
 superchargers$Longitude <- as.double(superchargers$Longitude)
 superchargers$Latitude <- as.double(superchargers$Latitude)
 superchargers <- data.frame(superchargers)
 aantal <- plyr::count(superchargers, "Status")
+
+#Histogram01
+verkoop <- read_xlsx("Data/Yearly Tesla Sales Country Split (Europe).xlsx")
 
 # Define UI for application that draws a map
 shinyUI(
@@ -48,6 +52,20 @@ shinyUI(
             infoBox("Number of permit superchargers",value = aantal$freq[aantal$Status == "PERMIT"]),
             infoBox("Number of permantly closed superchargers", value = aantal$freq[aantal$Status == "CLOSED_PERM"]),
             infoBox("Number of temporarly closed superchargers", value = aantal$freq[aantal$Status == "CLOSED_TEMP"])
+          ),
+          fluidRow(
+            box(
+              title = "Teslas/supercharger in 2019",
+              solidHeader = T, status = "primary", plotOutput("hist01"),
+              sliderInput(inputId = "Year",
+                          label = "Choose year",
+                          min = 2013,
+                          max = 2019,
+                          value = 2019),
+              selectInput(inputId = "Country",
+                          label = "Choose country",
+                          choices = verkoop$Country)
+            )
           )
           ))
       

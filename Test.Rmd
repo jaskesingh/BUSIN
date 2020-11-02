@@ -1,0 +1,37 @@
+---
+title: "Test"
+author: "Caro Haesen"
+date: "2-11-2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readxl)
+library(maps)
+library(ggplot2)
+library(tidyr)
+library(plyr)
+library(dplyr)
+library(lubridate)
+library(ggmap)
+library(mapdata)
+library(mapproj)
+library(sf)
+library(rnaturalearth)
+library(hrbrthemes)
+library(grid)
+library(rworldmap)
+library(shiny)
+library(plotly)
+library(leaflet)
+library(shinydashboard)
+verkoop <- read_xlsx("Data/Yearly Tesla Sales Country Split (Europe).xlsx")
+Verkoop <- verkoop %>% gather('2013':'2019', key=  "Year", value="Sales")
+verkoop$Year <- as.integer(verkoop$Year)
+verkoop$Sales <- as.integer(verkoop$Sales)
+```
+
