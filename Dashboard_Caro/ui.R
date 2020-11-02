@@ -15,6 +15,7 @@ library(rworldmap)
 library(shiny)
 library(plotly)
 library(leaflet)
+library(shinydashboard)
 
 superchargers <- read_xlsx("Data/Superchargers.xlsx")
 superchargers <- superchargers %>% separate(GPS, sep = ",", into = c("Latitude", "Longitude"))
@@ -25,11 +26,17 @@ superchargers <- data.frame(superchargers)
 
 
 # Define UI for application that draws a map
-shinyUI(fluidPage(
-    mainPanel(
-    leafletOutput("mymap"),
-    dataTableOutput('table01'))))
-
+shinyUI(
+  dashboardPage(
+    dashboardHeader(title = 'Tesla'),
+    dashboardSidebar(
+      sidebarMenu(
+        sidebarSearchForm("searchText", "buttonSearch", "Search"),
+        menuItem("Snellaadpalen")
+     )),
+    dashboardBody(
+      leafletOutput("mymap"), dataTableOutput("table01")
+)))
     
 
 
