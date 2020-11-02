@@ -1,0 +1,67 @@
+---
+title: "Test"
+author: "Caro Haesen"
+date: "2-11-2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readxl)
+library(maps)
+library(ggplot2)
+library(tidyr)
+library(plyr)
+library(dplyr)
+library(lubridate)
+library(ggmap)
+library(mapdata)
+library(mapproj)
+library(sf)
+library(rnaturalearth)
+library(hrbrthemes)
+library(grid)
+library(rworldmap)
+library(shiny)
+library(plotly)
+library(leaflet)
+library(shinydashboard)
+superchargers <- read_xlsx("Data/Superchargers.xlsx")
+superchargers <- superchargers %>% separate(GPS, sep = ",", into = c("Latitude", "Longitude"))
+superchargers$Longitude <- as.double(superchargers$Longitude)
+superchargers$Latitude <- as.double(superchargers$Latitude)
+superchargers$id <- seq.int(nrow(superchargers))
+superchargers$Year <- format(superchargers$'Open Date', format="%Y")
+superchargers <- data.frame(superchargers)
+verkoo <- read_xlsx("Data/Yearly Tesla Sales Country Split (Europe).xlsx")
+verkoo$'2013' <- as.numeric(verkoo$'2013')
+verkoo$'2014' <- as.numeric(verkoo$'2014')
+verkoo$'2015' <- as.numeric(verkoo$'2015')
+verkoo$'2016' <- as.numeric(verkoo$'2016')
+verkoo$'2017' <- as.numeric(verkoo$'2017')
+verkoo$'2018' <- as.numeric(verkoo$'2018')
+verkoo$'2019' <- as.numeric(verkoo$'2019')
+verkoo <- verkoo %>% gather('2013':'2019',key = "Year", value = "Sales")
+#str(verkoo)
+verkoo$Year <- as.integer(verkoo$Year)       
+verkoo$Sales <- as.integer(verkoo$Sales)
+#str(superchargers)
+#str(verkoo)
+verkoo <- data.frame(verkoo)
+str(verkoo)
+```
+
+```{r}
+list <- c("Austria", "Belgium", "Czech Republic", "Denmark", "Finland", "France", "Germany", "Greece", "Ireland", "Italy", "Luxembourg", "Netherlands", "Norway", "Portugal", "Romania", "Slovenia", "Spain", "Sweden", "Switzerland")
+verkooC <- verkoo %>% dplyr::filter(Country %in% list, Year == 2019)
+#str(verkooC)
+superchargersC <- superchargers %>% dplyr::filter(Year < 2020, Status == 'OPEN', Country %in% list)
+#str(superchargersC)
+superchargersC <- plyr::count(superchargersC, "Country")
+str(superchargersC)
+ratio <- full_join(superchargersC, verkooC, by = 'Country')
+```
+

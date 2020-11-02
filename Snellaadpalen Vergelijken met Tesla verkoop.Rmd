@@ -16,8 +16,8 @@ library(plyr)
 library(dplyr)
 library(ggplot2)
 library(rvest)
-snellaadpalen <- read_xlsx("Superchargers.xlsx")
-verkoop <- read_xlsx("Yearly Tesla Sales Country Split (Europe).xlsx")
+snellaadpalen <- read_xlsx("Data/Superchargers.xlsx")
+verkoop <- read_xlsx("Data/Yearly Tesla Sales Country Split (Europe).xlsx")
 str(snellaadpalen)
 
 ```
