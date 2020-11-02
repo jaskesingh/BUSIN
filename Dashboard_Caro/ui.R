@@ -24,10 +24,9 @@ superchargers <- superchargers %>% separate(GPS, sep = ",", into = c("Latitude",
 superchargers$Longitude <- as.double(superchargers$Longitude)
 superchargers$Latitude <- as.double(superchargers$Latitude)
 superchargers <- data.frame(superchargers)
-aantal <- plyr::count(superchargers, "Status")
 
 #Histogram01
-verkoop <- read_xlsx("Data/Yearly Tesla Sales Country Split (Europe).xlsx")
+verkoo <- read_xlsx("Data/Yearly Tesla Sales Country Split (Europe).xlsx")
 
 # Define UI for application that draws a map
 shinyUI(
@@ -46,16 +45,16 @@ shinyUI(
         tabItem(
           tabName = "Statistics",
           fluidRow(
-            infoBox("Total number of superchargers", value = sum(aantal$freq)),
-            infoBox("Number of open superchargers", value = aantal$freq[aantal$Status == "OPEN"]),
-            infoBox("Number of building superchargers", value = aantal$freq[aantal$Status == "CONSTRUCTION"]),
-            infoBox("Number of permit superchargers",value = aantal$freq[aantal$Status == "PERMIT"]),
-            infoBox("Number of permantly closed superchargers", value = aantal$freq[aantal$Status == "CLOSED_PERM"]),
-            infoBox("Number of temporarly closed superchargers", value = aantal$freq[aantal$Status == "CLOSED_TEMP"])
+            valueBoxOutput("totbox"),
+            valueBoxOutput("openbox"),
+            valueBoxOutput("buildbox"),
+            valueBoxOutput("permitbox"),
+            valueBoxOutput("pclosedbox"),
+            valueBoxOutput("tclosedbox")
           ),
           fluidRow(
             box(
-              title = "Teslas/supercharger in 2019",
+              title = "Teslas/supercharger",
               solidHeader = T, status = "primary", plotOutput("hist01"),
               sliderInput(inputId = "Year",
                           label = "Choose year",
@@ -64,7 +63,9 @@ shinyUI(
                           value = 2019),
               selectInput(inputId = "Country",
                           label = "Choose country",
-                          choices = verkoop$Country)
+                          choices = verkoo$Country,
+                          multiple = TRUE
+                          )
             )
           )
           ))
