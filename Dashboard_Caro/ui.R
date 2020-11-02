@@ -2,6 +2,7 @@ library(readxl)
 library(maps)
 library(ggplot2)
 library(tidyr)
+library(plyr)
 library(dplyr)
 library(lubridate)
 library(ggmap)
@@ -15,21 +16,42 @@ library(rworldmap)
 library(shiny)
 library(plotly)
 library(leaflet)
+library(shinydashboard)
 
 superchargers <- read_xlsx("Data/Superchargers.xlsx")
 superchargers <- superchargers %>% separate(GPS, sep = ",", into = c("Latitude", "Longitude"))
 superchargers$Longitude <- as.double(superchargers$Longitude)
 superchargers$Latitude <- as.double(superchargers$Latitude)
-superchargers <- superchargers %>% filter(Status == 'OPEN')
 superchargers <- data.frame(superchargers)
-
+aantal <- plyr::count(superchargers, "Status")
 
 # Define UI for application that draws a map
-shinyUI(fluidPage(
-    mainPanel(
-    leafletOutput("mymap"),
-    dataTableOutput('table01'))))
-
+shinyUI(
+  dashboardPage(
+    dashboardHeader(title = 'Tesla'),
+    dashboardSidebar(
+      sidebarMenu(
+        sidebarSearchForm("searchText", "buttonSearch", "Search"),
+        menuItem("Superchargers", tabName = "Superchargers", menuSubItem("Map", tabName = "Map"), menuSubItem("Statistics", tabName = "Statistics"))
+     )),
+    dashboardBody(
+      tabItems(
+        tabItem(
+          tabName = "Map",
+          leafletOutput("mymap"), dataTableOutput("table01")),
+        tabItem(
+          tabName = "Statistics",
+          fluidRow(
+            infoBox("Total number of superchargers", value = sum(aantal$freq)),
+            infoBox("Number of open superchargers", value = aantal$freq[aantal$Status == "OPEN"]),
+            infoBox("Number of building superchargers", value = aantal$freq[aantal$Status == "CONSTRUCTION"]),
+            infoBox("Number of permit superchargers",value = aantal$freq[aantal$Status == "PERMIT"]),
+            infoBox("Number of permantly closed superchargers", value = aantal$freq[aantal$Status == "CLOSED_PERM"]),
+            infoBox("Number of temporarly closed superchargers", value = aantal$freq[aantal$Status == "CLOSED_TEMP"])
+          )
+          ))
+      
+)))
     
 
 

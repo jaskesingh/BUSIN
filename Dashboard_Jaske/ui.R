@@ -1,33 +1,45 @@
-#
-# This is the user-interface definition of a Shiny web application. You can
-# run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
 
 library(shiny)
+library(shinydashboard)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(lubridate)
+library(readr)
 
-# Define UI for application that draws a histogram
-shinyUI(fluidPage(
+eusurvey <- read.csv('data/hev1.csv')
 
-    # Application title
-    titlePanel("Old Faithful Geyser Data"),
-
-    # Sidebar with a slider input for number of bins
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
-        ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-            plotOutput("distPlot")
-        )
+shinyUI(
+  dashboardPage(
+    dashboardHeader(title = "TEST",
+                    dropdownMenu(
+                      type = "tasks",
+                      taskItem(
+                        text = "Not finished yet",
+                        value = 19
+                      )
+                    )
+                    ),
+    
+    dashboardSidebar(
+      sidebarMenu(
+        menuItem("Klanten", tabName = "klanten")
+      )
+    ),
+    
+    dashboardBody(
+      tabBox(
+        title = "based on gender",
+        tabPanel("Female", plotOutput("efemale")),
+        tabPanel("Male", plotOutput(("emale")))
+      ),
+      
+      tabBox(
+        title = "per country",
+        tabPanel(" ", selectInput(inputId = "country",
+                                  label = "Choose country",
+                                  choices = levels(hev1$Country))),
+        dataTableOutput("country"))
+      )
     )
-))
+    )
