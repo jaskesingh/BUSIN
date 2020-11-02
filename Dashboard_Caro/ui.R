@@ -2,6 +2,7 @@ library(readxl)
 library(maps)
 library(ggplot2)
 library(tidyr)
+library(plyr)
 library(dplyr)
 library(lubridate)
 library(ggmap)
@@ -17,13 +18,15 @@ library(plotly)
 library(leaflet)
 library(shinydashboard)
 
+#Map + table01 + infoboxen
 superchargers <- read_xlsx("Data/Superchargers.xlsx")
 superchargers <- superchargers %>% separate(GPS, sep = ",", into = c("Latitude", "Longitude"))
 superchargers$Longitude <- as.double(superchargers$Longitude)
 superchargers$Latitude <- as.double(superchargers$Latitude)
-superchargers <- superchargers %>% filter(Status == 'OPEN')
 superchargers <- data.frame(superchargers)
 
+#Histogram01
+verkoo <- read_xlsx("Data/Yearly Tesla Sales Country Split (Europe).xlsx")
 
 # Define UI for application that draws a map
 shinyUI(
@@ -32,10 +35,41 @@ shinyUI(
     dashboardSidebar(
       sidebarMenu(
         sidebarSearchForm("searchText", "buttonSearch", "Search"),
-        menuItem("Snellaadpalen")
+        menuItem("Superchargers", tabName = "Superchargers", menuSubItem("Map", tabName = "Map"), menuSubItem("Statistics", tabName = "Statistics"))
      )),
     dashboardBody(
-      leafletOutput("mymap"), dataTableOutput("table01")
+      tabItems(
+        tabItem(
+          tabName = "Map",
+          leafletOutput("mymap"), dataTableOutput("table01")),
+        tabItem(
+          tabName = "Statistics",
+          fluidRow(
+            valueBoxOutput("totbox"),
+            valueBoxOutput("openbox"),
+            valueBoxOutput("buildbox"),
+            valueBoxOutput("permitbox"),
+            valueBoxOutput("pclosedbox"),
+            valueBoxOutput("tclosedbox")
+          ),
+          fluidRow(
+            box(
+              title = "Teslas/supercharger",
+              solidHeader = T, status = "primary", plotOutput("hist01"),
+              sliderInput(inputId = "Year",
+                          label = "Choose year",
+                          min = 2013,
+                          max = 2019,
+                          value = 2019),
+              selectInput(inputId = "Country",
+                          label = "Choose country",
+                          choices = verkoo$Country,
+                          multiple = TRUE
+                          )
+            )
+          )
+          ))
+      
 )))
     
 

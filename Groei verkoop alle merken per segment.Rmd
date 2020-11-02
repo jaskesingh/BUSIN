@@ -14,7 +14,7 @@ library(readxl)
 library(tidyr)
 library(dplyr)
 library(ggplot2)
-VPS <- read_xlsx("New cars sold in the EU by segment in million units.xlsx")
+VPS <- read_xlsx("Data/New cars sold in the EU by segment in million units.xlsx")
 ```
 
 ```{r}
