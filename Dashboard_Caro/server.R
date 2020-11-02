@@ -29,7 +29,7 @@ superchargers <- data.frame(superchargers)
 # Define server logic required to draw a map
 shinyServer(function(input, output, session) {
     
-    #table
+    #table tesla superchargers
     output$table01 <- renderDataTable({
         
         DT::datatable(superchargers, selection = "single",options=list(stateSave = TRUE))
@@ -62,9 +62,9 @@ shinyServer(function(input, output, session) {
         # set new value to reactiveVal 
         prev_row(row_selected)
     })
-    #map
+    #map tesla superchargers
     output$mymap <- renderLeaflet({
-        leaflet() %>% addTiles() %>% addMarkers(data = superchargers, popup= superchargers$Street.Address, layerId = as.character(superchargers$id))
+        leaflet() %>% addTiles() %>% addMarkers(data = superchargers, layerId = as.character(superchargers$id))
     })
     
     observeEvent(input$mymap_marker_click, {
@@ -74,6 +74,7 @@ shinyServer(function(input, output, session) {
             selectPage(which(input$table01_rows_all == clickId) %/% 
                            input$table01_state$length+1)})
     
+    #histogram: vergelijken met teslaverkoop 
     
    })
     

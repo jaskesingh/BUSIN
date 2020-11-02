@@ -32,22 +32,22 @@ shinyUI(
     dashboardSidebar(
       sidebarMenu(
         sidebarSearchForm("searchText", "buttonSearch", "Search"),
-        menuItem("Snellaadpalen", tabName = "Snellaadpalen", menuSubItem("Kaart", tabName = "Kaart"), menuSubItem("Gegevens", tabName = "Gegevens"))
+        menuItem("Superchargers", tabName = "Superchargers", menuSubItem("Map", tabName = "Map"), menuSubItem("Statistics", tabName = "Statistics"))
      )),
     dashboardBody(
       tabItems(
         tabItem(
-          tabName = "Kaart",
+          tabName = "Map",
           leafletOutput("mymap"), dataTableOutput("table01")),
         tabItem(
-          tabName = "Gegevens",
+          tabName = "Statistics",
           fluidRow(
-            infoBox("Totaal aaantal snellaadpalen", value = sum(aantal$freq), icon = icon("dollar-sign")),
-            infoBox("Aantal open snellaadpalen", value = aantal$freq[aantal$Status == "OPEN"], icon = icon("dollar-sign")),
-            infoBox("Aantal bouwende snellaadpalen", value = aantal$freq[aantal$Status == "CONSTRUCTION"], icon = icon("dollar-sign")),
-            infoBox("Aantal toegestane snellaadpalen",value = aantal$freq[aantal$Status == "PERMIT"]),
-            infoBox("Aantal permanent gesloten snellaadpalen", value = aantal$freq[aantal$Status == "CLOSED_PERM"]),
-            infoBox("Aantal tijdelijk gesloten snellaadpalen", value = aantal$freq[aantal$Status == "CLOSED_TEMP"])
+            infoBox("Total number of superchargers", value = sum(aantal$freq)),
+            infoBox("Number of open superchargers", value = aantal$freq[aantal$Status == "OPEN"]),
+            infoBox("Number of building superchargers", value = aantal$freq[aantal$Status == "CONSTRUCTION"]),
+            infoBox("Number of permit superchargers",value = aantal$freq[aantal$Status == "PERMIT"]),
+            infoBox("Number of permantly closed superchargers", value = aantal$freq[aantal$Status == "CLOSED_PERM"]),
+            infoBox("Number of temporarly closed superchargers", value = aantal$freq[aantal$Status == "CLOSED_TEMP"])
           )
           ))
       
