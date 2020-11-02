@@ -42,6 +42,27 @@ verkoo$Year <- as.integer(verkoo$Year)
 verkoo$Sales <- as.integer(verkoo$Sales)
 verkoo <- data.frame(verkoo)
 
+#Concurrentie
+ionity <- read_xlsx("Data/ionity_locations.xlsx")
+ionity$Supercharger <- ionity$name
+ionity$Stalls <- ionity$charger_count
+ionity$Open.Date <- ionity$golive
+ionity$Latitude <- ionity$coords.lat
+ionity$Longitude <- ionity$coords.lng
+ionity$Status <- ionity$description
+ionity$Description <- ionity$title
+ionity$Country <- ionity$geo_state.country
+ionity$City <- ionity$city
+ionity$State <- ionity$geo_state.name_en
+ionity <- ionity %>% filter(Status != 'now building' | Status != 'Now building')
+ionity <- ionity %>% select(Supercharger, Stalls, Latitude, Longitude, Description, City, State, Country, Open.Date)
+teslapalen <- superchargers %>% mutate(Description = 'Tesla') %>% filter(Status == 'OPEN') %>% select(Supercharger, Stalls, Latitude, Longitude, Description, City, State, Country, Open.Date)
+ionity$Open.Date <- as.POSIXct(ionity$Open.Date, format = "%Y-%m-%d %H:%M")
+laadpalen <- bind_rows(ionity, teslapalen)
+laadpalen$Country <- as.factor(laadpalen$Country)
+taart <- plyr::count(laadpalen, "Description")
+laadpalen <- plyr::count(laadpalen, c("Description", "Country"))
+taart <- taart %>% dplyr::mutate(ratio = round(freq/sum(freq)*100))
 
 # Define server logic required to draw a map
 shinyServer(function(input, output, session) {
@@ -136,6 +157,18 @@ shinyServer(function(input, output, session) {
         ratio %>% ggplot(aes(x= Country, y = Teslas_per_Supercharger)) + geom_col() + labs(title = paste0("Teslas/supercharger in", input$Year)) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
         
     })
+    
+    #histogram: concurrentie snellaadpalen
+    output$hist02 <- renderPlot({
+        laadpalenC <- laadpalen %>% filter(Country %in% input$Country2)
+        laadpalenC %>% ggplot(aes(x = Description, y = freq)) + geom_col() + labs(title = "Superchargers per country") + facet_wrap(Country~.)+ theme(axis.text.x = element_text(angle = 45, hjust = 1))})
+    output$hist03 <- renderPlot({
+        laadpalenC <- laadpalen %>% filter(Country %in% input$Country2)
+        laadpalenC %>% ggplot(aes(x = Country, y = freq)) + geom_col(aes(fill = Description)) + labs(title = "Superchargers per country") + theme(axis.text.x = element_text(angle = 45, hjust = 1))})
+    
+    #taartdiagram: concurrentie snellaadpalen
+    output$pie01 <- renderPlot({
+    taart %>% ggplot(aes(x="", y = ratio, fill = Description)) + geom_bar(width = 1, stat = "identity") + coord_polar("y", start=0) + labs(title = "Superchargers market share")})
     
    })
     
