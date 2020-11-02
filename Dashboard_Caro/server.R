@@ -64,6 +64,12 @@ taart <- plyr::count(laadpalen, "Description")
 laadpalen <- plyr::count(laadpalen, c("Description", "Country"))
 taart <- taart %>% dplyr::mutate(ratio = round(freq/sum(freq)*100))
 
+#Groei: verkoop alle merken per segment
+VPS <- read_xlsx("Data/New cars sold in the EU by segment in million units.xlsx")
+VPS <- VPS %>% gather('2008':'2019', key=  "Year", value="Sales")
+VPS$Year <- as.numeric(VPS$Year)
+VPS$Sales <- as.double(VPS$Sales)
+
 # Define server logic required to draw a map
 shinyServer(function(input, output, session) {
     
@@ -169,6 +175,17 @@ shinyServer(function(input, output, session) {
     #taartdiagram: concurrentie snellaadpalen
     output$pie01 <- renderPlot({
     taart %>% ggplot(aes(x="", y = ratio, fill = Description)) + geom_bar(width = 1, stat = "identity") + coord_polar("y", start=0) + labs(title = "Superchargers market share")})
+    
+    #lijngrafiek: Groei: verkoop alle merken per segment
+    output$line01 <- renderPlot({
+        VPSC2 <- VPS %>% filter(Segment %in% input$Segment)
+        VPSC2 %>% ggplot(aes(x=Year, y=Sales)) + geom_line(aes(color = Segment)) + labs(title = "New cars sold in the EU by segment in million units over the years.") + 
+        scale_x_continuous(breaks = c(2008:2019)) + scale_y_continuous(breaks= seq(0,6, by = 1)) })
+    output$hist04 <- renderPlot({
+        VPSC <- VPS %>% filter(Segment %in% input$Segment2, Year %in% input$Year2)
+        VPSC %>% ggplot(aes(x = Segment, y = Sales)) + geom_col() + facet_wrap(Year~.) + 
+            labs(title = "New cars sold in the EU by segment in million units for each year.") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    })
     
    })
     
