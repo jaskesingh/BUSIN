@@ -12,24 +12,39 @@ eusurvey <- read.csv("data/hev1.csv")
 shinyServer(function(input, output, session) {
     
     output$efemale <- renderPlot({
-        hev1 %>% filter(Gender == "F") %>% 
+        eusurvey %>% filter(Gender == "F") %>% 
             ggplot(aes(Gender)) + 
             geom_bar(aes(fill = buy_electric), position = "dodge")  +
             scale_y_continuous(limits = c(0, 6000))
     })
     
     output$emale <- renderPlot({
-        hev1 %>% filter(Gender == "M") %>% 
+        eusurvey %>% filter(Gender == "M") %>% 
             ggplot(aes(Gender)) + 
             geom_bar(aes(fill = buy_electric), position = "dodge") +
             scale_y_continuous(limits = c(0, 6000))
     })
     
+    output$gcountry <- renderPlot({
+        eusurvey %>% filter(Country %in% input$gcountry) %>% 
+            ggplot(aes(Gender)) + 
+            geom_bar(aes(fill = buy_electric), position = "dodge") +
+            scale_y_continuous(limits = c(0, 500)) + facet_wrap(~Country)
+        
+    })
+    
     output$country <- renderDataTable({
-        hev1 %>% filter(Country == input$country) %>% 
+        eusurvey %>% filter(Country == input$country) %>% 
             group_by(Country, Gender, buy_electric) %>% 
             summarise(n = n(), median(Age)) %>% 
             arrange(desc(n))
+    })
+    
+    output$view <- renderPlot({
+        eusurvey %>% 
+            filter(Country == input$incountry, Income_group == input$incomegr) %>% 
+            ggplot(aes(Income_group)) + 
+            geom_bar(aes(fill = buy_electric), position = "dodge")
     })
 })
    

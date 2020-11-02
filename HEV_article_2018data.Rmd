@@ -94,6 +94,9 @@ levels(hev1$Income_group)
 ```
 
 ```{r}
-
+hev1 %>% filter(Country == 'Belgium') %>% 
+            ggplot(aes(Gender)) + 
+            geom_bar(aes(fill = buy_electric), position = "dodge") +
+            scale_y_continuous(limits = c(0, 6000))
 ```
 
