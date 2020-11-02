@@ -26,10 +26,10 @@ shinyServer(function(input, output, session) {
     })
     
     output$gcountry <- renderPlot({
-        hev1 %>% filter(Country == input$gcountry) %>% 
+        hev1 %>% filter(Country %in% input$gcountry) %>% 
             ggplot(aes(Gender)) + 
             geom_bar(aes(fill = buy_electric), position = "dodge") +
-            scale_y_continuous(limits = c(0, 500))
+            scale_y_continuous(limits = c(0, 500)) + facet_wrap(~Country)
         
     })
     

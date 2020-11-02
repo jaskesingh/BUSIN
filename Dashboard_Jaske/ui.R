@@ -39,7 +39,9 @@ shinyUI(
                   tabPanel("Country based",
                            selectInput(inputId = "gcountry",
                                        label = "Choose country",
-                                       choices = levels(hev1$Country)),
+                                       choices = levels(hev1$Country),
+                                       multiple = T,
+                                       selected = "Belgium"),
                            plotOutput("gcountry"))
             
                   ),
@@ -48,7 +50,9 @@ shinyUI(
                   title = "per country",
                   tabPanel(" ", selectInput(inputId = "country",
                                   label = "Choose country",
-                                  choices = levels(hev1$Country))),
+                                  choices = levels(hev1$Country),
+                                  multiple = T,
+                                  selected = "Belgium")),
                   dataTableOutput("country"))
     )
     )
