@@ -25,6 +25,14 @@ shinyServer(function(input, output, session) {
             scale_y_continuous(limits = c(0, 6000))
     })
     
+    output$gcountry <- renderPlot({
+        hev1 %>% filter(Country == input$gcountry) %>% 
+            ggplot(aes(Gender)) + 
+            geom_bar(aes(fill = buy_electric), position = "dodge") +
+            scale_y_continuous(limits = c(0, 500))
+        
+    })
+    
     output$country <- renderDataTable({
         hev1 %>% filter(Country == input$country) %>% 
             group_by(Country, Gender, buy_electric) %>% 

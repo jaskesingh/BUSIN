@@ -23,23 +23,36 @@ shinyUI(
     
     dashboardSidebar(
       sidebarMenu(
-        menuItem("Klanten", tabName = "klanten")
+        menuItem("Klanten", tabName = "klanten",
+                 menuItem("Test", tabName = "test"),
+                 menuItem("Test1", tabName = "test1"))
       )
     ),
     
     dashboardBody(
-      tabBox(
-        title = "based on gender",
-        tabPanel("Female", plotOutput("efemale")),
-        tabPanel("Male", plotOutput(("emale")))
-      ),
-      
-      tabBox(
-        title = "per country",
-        tabPanel(" ", selectInput(inputId = "country",
+      tabItems(
+        tabItem(tabName = "test",
+                tabBox(
+                  title = "based on gender",
+                  tabPanel("Female", plotOutput("efemale")),
+                  tabPanel("Male", plotOutput("emale")),
+                  tabPanel("Country based",
+                           selectInput(inputId = "gcountry",
+                                       label = "Choose country",
+                                       choices = levels(hev1$Country)),
+                           plotOutput("gcountry"))
+            
+                  ),
+                tabItem(tabName = "test1",
+                tabBox(
+                  title = "per country",
+                  tabPanel(" ", selectInput(inputId = "country",
                                   label = "Choose country",
                                   choices = levels(hev1$Country))),
-        dataTableOutput("country"))
-      )
+                  dataTableOutput("country"))
     )
     )
+    )
+  )
+)
+)
