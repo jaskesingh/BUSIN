@@ -31,31 +31,34 @@ verkoo <- read_xlsx("Data/Yearly Tesla Sales Country Split (Europe).xlsx")
 # Define UI for application that draws a map
 shinyUI(
   dashboardPage(
-    dashboardHeader(title = 'Tesla'),
+    dashboardHeader(title = 'Menu'),
     dashboardSidebar(
       sidebarMenu(
         sidebarSearchForm("searchText", "buttonSearch", "Search"),
-        menuItem("Superchargers", tabName = "Superchargers", menuSubItem("Map", tabName = "Map"), menuSubItem("Statistics", tabName = "Statistics"))
+        menuItem("Superchargers", tabName = "Superchargers", menuSubItem("Map", tabName = "Map"), menuSubItem("Statistics", tabName = "Statistics"), 
+                 menuSubItem("Competition", tabName = "Competition"))
      )),
     dashboardBody(
       tabItems(
         tabItem(
-          tabName = "Map",
-          leafletOutput("mymap"), dataTableOutput("table01")),
+          tabName = "Map",  
+            leafletOutput("mymap"), dataTableOutput("table01")),
         tabItem(
           tabName = "Statistics",
           fluidRow(
-            valueBoxOutput("totbox"),
-            valueBoxOutput("openbox"),
-            valueBoxOutput("buildbox"),
-            valueBoxOutput("permitbox"),
-            valueBoxOutput("pclosedbox"),
-            valueBoxOutput("tclosedbox")
-          ),
+            box(title = "Info on Tesla superchargers in Europe",
+                solidHeader = T, status = "danger", width = 12,
+                valueBoxOutput("totbox"),
+                valueBoxOutput("openbox"),
+                valueBoxOutput("buildbox"),
+                valueBoxOutput("permitbox"),
+                valueBoxOutput("pclosedbox"),
+                valueBoxOutput("tclosedbox")
+          )),
           fluidRow(
             box(
-              title = "Teslas/supercharger",
-              solidHeader = T, status = "primary", plotOutput("hist01"),
+              title = "Teslas/supercharger", width = 12,
+              solidHeader = T, status = "danger", plotOutput("hist01"),
               sliderInput(inputId = "Year",
                           label = "Choose year",
                           min = 2013,
@@ -64,12 +67,29 @@ shinyUI(
               selectInput(inputId = "Country",
                           label = "Choose country",
                           choices = verkoo$Country,
-                          multiple = TRUE
-                          )
-            )
+                          multiple = TRUE,
+                          selected = "Belgium"
+              
+            )))
+        ),
+        tabItem(
+          tabName = "Competition",
+          tabBox(
+            title ="Number of superchargers per country", height = 12,
+            tabPanel("Tab1", plotOutput("hist02")),
+            tabPanel("Tab2", plotOutput("hist03")),
+            selectInput(inputId = "Country2",
+                        label = "Choose country",
+                        choices = superchargers$Country,
+                        multiple = TRUE,
+                        selected = "Belgium"
+            
+          )),
+          box(
+            title = "Superchargers market share", height = 12,
+            solidHeader = T, status = 'danger', plotOutput("pie01")
           )
-          ))
-      
+        ))     
 )))
     
 
