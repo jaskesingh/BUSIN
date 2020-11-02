@@ -21,7 +21,6 @@ superchargers <- read_xlsx("Data/Superchargers.xlsx")
 superchargers <- superchargers %>% separate(GPS, sep = ",", into = c("Latitude", "Longitude"))
 superchargers$Longitude <- as.double(superchargers$Longitude)
 superchargers$Latitude <- as.double(superchargers$Latitude)
-superchargers <- superchargers %>% filter(Status == 'OPEN')
 superchargers$id <- seq.int(nrow(superchargers))
 superchargers <- data.frame(superchargers)
 
@@ -72,7 +71,9 @@ shinyServer(function(input, output, session) {
         clickId <- input$mymap_marker_click$id
         dataTableProxy("table01") %>%
             selectRows(which(superchargers$id == clickId)) %>%
-            selectPage(which(input$table01_rows_all == clickId) %/% input$table01_state$length + 1)})
+            selectPage(which(input$table01_rows_all == clickId) %/% 
+                           input$table01_state$length+1)})
+    
     
    })
     

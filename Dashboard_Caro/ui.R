@@ -2,6 +2,7 @@ library(readxl)
 library(maps)
 library(ggplot2)
 library(tidyr)
+library(plyr)
 library(dplyr)
 library(lubridate)
 library(ggmap)
@@ -21,9 +22,8 @@ superchargers <- read_xlsx("Data/Superchargers.xlsx")
 superchargers <- superchargers %>% separate(GPS, sep = ",", into = c("Latitude", "Longitude"))
 superchargers$Longitude <- as.double(superchargers$Longitude)
 superchargers$Latitude <- as.double(superchargers$Latitude)
-superchargers <- superchargers %>% filter(Status == 'OPEN')
 superchargers <- data.frame(superchargers)
-
+aantal <- plyr::count(superchargers, "Status")
 
 # Define UI for application that draws a map
 shinyUI(
@@ -32,10 +32,25 @@ shinyUI(
     dashboardSidebar(
       sidebarMenu(
         sidebarSearchForm("searchText", "buttonSearch", "Search"),
-        menuItem("Snellaadpalen")
+        menuItem("Snellaadpalen", tabName = "Snellaadpalen", menuSubItem("Kaart", tabName = "Kaart"), menuSubItem("Gegevens", tabName = "Gegevens"))
      )),
     dashboardBody(
-      leafletOutput("mymap"), dataTableOutput("table01")
+      tabItems(
+        tabItem(
+          tabName = "Kaart",
+          leafletOutput("mymap"), dataTableOutput("table01")),
+        tabItem(
+          tabName = "Gegevens",
+          fluidRow(
+            infoBox("Totaal aaantal snellaadpalen", value = sum(aantal$freq), icon = icon("dollar-sign")),
+            infoBox("Aantal open snellaadpalen", value = aantal$freq[aantal$Status == "OPEN"], icon = icon("dollar-sign")),
+            infoBox("Aantal bouwende snellaadpalen", value = aantal$freq[aantal$Status == "CONSTRUCTION"], icon = icon("dollar-sign")),
+            infoBox("Aantal toegestane snellaadpalen",value = aantal$freq[aantal$Status == "PERMIT"]),
+            infoBox("Aantal permanent gesloten snellaadpalen", value = aantal$freq[aantal$Status == "CLOSED_PERM"]),
+            infoBox("Aantal tijdelijk gesloten snellaadpalen", value = aantal$freq[aantal$Status == "CLOSED_TEMP"])
+          )
+          ))
+      
 )))
     
 
