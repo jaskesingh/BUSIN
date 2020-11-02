@@ -32,7 +32,14 @@ shinyUI(
         title = "based on gender",
         tabPanel("Female", plotOutput("efemale")),
         tabPanel("Male", plotOutput(("emale")))
-      )
+      ),
+      
+      tabBox(
+        title = "per country",
+        tabPanel(" ", selectInput(inputId = "country",
+                                  label = "Choose country",
+                                  choices = levels(hev1$Country))),
+        dataTableOutput("country"))
       )
     )
     )

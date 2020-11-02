@@ -86,7 +86,7 @@ hev1 %>% ggplot(aes(Gender)) + geom_bar(aes(fill = buy_electric), position = "do
 hev1 %>% ggplot(aes(Income_group)) + geom_bar(aes(fill = buy_electric), position = "dodge")
 ```
 ```{r}
-hev1 %>% group_by(Country, Gender, buy_electric) %>% summarise(n = n(), median(Age)) %>% arrange(desc(n))
+hev1 %>% filter(Country == "Belgium") %>% group_by(Country, Gender, buy_electric) %>% summarise(n = n(), median(Age)) %>% arrange(desc(n))
 ```
 
 ```{r}
@@ -94,6 +94,6 @@ levels(hev1$Income_group)
 ```
 
 ```{r}
-write.csv(hev1, "hev1.csv")
+
 ```
 
