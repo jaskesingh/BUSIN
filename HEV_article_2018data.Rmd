@@ -93,3 +93,7 @@ hev1 %>% group_by(Country, Gender, buy_electric) %>% summarise(n = n(), median(A
 levels(hev1$Income_group)
 ```
 
+```{r}
+write.csv(hev1, "hev1.csv")
+```
+
