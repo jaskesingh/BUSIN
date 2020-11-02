@@ -16,7 +16,7 @@ library(ggplot2)
 library(readxl)
 library(tidyr)
 
-countriesafinfrastructure <- read_xlsx("countries overview of af infrastructure.xlsx", skip = 2 , col_types = c("text", "text", "numeric", "numeric", "numeric", "numeric", "numeric"))
+countriesafinfrastructure <- read_xlsx("Data/countries overview of af infrastructure.xlsx", skip = 2 , col_types = c("text", "text", "numeric", "numeric", "numeric", "numeric", "numeric"))
 summary(countriesafinfrastructure)
 ```
 

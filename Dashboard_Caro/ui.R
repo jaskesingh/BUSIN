@@ -1,33 +1,54 @@
-#
-# This is the user-interface definition of a Shiny web application. You can
-# run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-
+library(readxl)
+library(maps)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(lubridate)
+library(ggmap)
+library(mapdata)
+library(mapproj)
+library(sf)
+library(rnaturalearth)
+library(hrbrthemes)
+library(grid)
+library(rworldmap)
 library(shiny)
+library(plotly)
+library(leaflet)
 
-# Define UI for application that draws a histogram
+superchargers <- read_xlsx("Data/Superchargers.xlsx")
+superchargers <- superchargers %>% separate(GPS, sep = ",", into = c("Latitude", "Longitude"))
+superchargers$Longitude <- as.double(superchargers$Longitude)
+superchargers$Latitude <- as.double(superchargers$Latitude)
+superchargers <- superchargers %>% filter(Status == 'OPEN')
+superchargers <- data.frame(superchargers)
+
+
+# Define UI for application that draws a map
 shinyUI(fluidPage(
+    mainPanel(
+    leafletOutput("mymap"),
+    dataTableOutput('table01'))))
 
-    # Application title
-    titlePanel("Old Faithful Geyser Data"),
+    
+
+
+# Application title
+    #titlePanel("Old Faithful Geyser Data"),
 
     # Sidebar with a slider input for number of bins
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
-        ),
+    #sidebarLayout(
+       # sidebarPanel(
+            #sliderInput("bins",
+                       # "Number of bins:",
+                       # min = 1,
+                       # max = 50,
+                       # value = 30)
+        #),
 
         # Show a plot of the generated distribution
-        mainPanel(
-            plotOutput("distPlot")
-        )
-    )
-))
+       # mainPanel(
+           # plotOutput("distPlot")
+     #   )
+  #  )
+#))

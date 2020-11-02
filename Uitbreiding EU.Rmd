@@ -16,7 +16,7 @@ library(ggplot2)
 library(readxl)
 library(tidyr)
 
-numAFvehicles <- read_xlsx("Total number AF vehicles.xlsx", skip = 2 , col_types = c("text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))
+numAFvehicles <- read_xlsx("Data/Total number AF vehicles.xlsx", skip = 2 , col_types = c("text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))
 summary(numAFvehicles)
 ```
 
@@ -51,7 +51,7 @@ numAFinfrastructure %>% filter(brandstof != 'Total') %>% ggplot(aes(x = Year, y 
 
 
 ```{r}
-pevchargingpoint <- read_xlsx("PEV's per public charging point.xlsx", skip = 2 , col_types = c("text", "numeric", "numeric"))
+pevchargingpoint <- read_xlsx("Data/PEV's per public charging point.xlsx", skip = 2 , col_types = c("text", "numeric", "numeric"))
 summary(pevchargingpoint)
 ```
 
@@ -64,7 +64,7 @@ pevchargingpoint %>% filter(aantalperchargingpoint != 'Total') %>% ggplot(aes(x 
 ```
 
 ```{r}
-growthAFvehiclesfeet <- read_xlsx("Growth AF vehicles fleet.xlsx", skip = 2 , col_types = c("text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))
+growthAFvehiclesfeet <- read_xlsx("Data/Growth AF vehicles fleet.xlsx", skip = 2 , col_types = c("text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))
 summary(growthAFvehiclesfeet)
 ```
 
@@ -89,7 +89,7 @@ growthAFvehiclesfeet %>% filter(brandstof != 'Total') %>% ggplot(aes(x = Year, y
 
 
 ```{r}
-growthAFinfrastructure <- read_xlsx("Growth AF infrastructure.xlsx", skip = 2 , col_types = c("text", "numeric", "numeric", "numeric", "numeric", "numeric"))
+growthAFinfrastructure <- read_xlsx("Data/Growth AF infrastructure.xlsx", skip = 2 , col_types = c("text", "numeric", "numeric", "numeric", "numeric", "numeric"))
 summary(growthAFinfrastructure)
 ```
 
@@ -113,7 +113,7 @@ growthAFinfrastructure %>% filter(brandstof != 'Total') %>% ggplot(aes(x = Year,
 ```
 
 ```{r}
-fastpublicchargingpoint <- read_xlsx("Fast public charging points per 100 km highway.xlsx", skip = 2 , col_types = c("text", "numeric", "numeric"))
+fastpublicchargingpoint <- read_xlsx("Data/Fast public charging points per 100 km highway.xlsx", skip = 2 , col_types = c("text", "numeric", "numeric"))
 summary(fastpublicchargingpoint)
 ```
 

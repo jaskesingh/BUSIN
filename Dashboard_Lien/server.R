@@ -8,19 +8,41 @@
 #
 
 library(shiny)
+library(readxl)
+library(ggplot2)
+library(tidyr)
+library(shinydashboard)
+library(dplyr)
+library(tidyr)
+library(lubridate)
+library(readr)
+Revenue <- read_xlsx("data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Revenues (automotive)", col_types = c("text", "text", "numeric", "numeric"))
+
+
+
+revenue <- function(yearinput,df) {
+  revenue <- df %>% filter(df$Year == yearinput)
+  return(revenue)
+}
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
+  
 
-    output$distPlot <- renderPlot({
+   
+
+    output$col <- renderPlot({
 
         # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
+        x    <- Revenue$Year
+        Yearrev <- seq(min(x), max(x), length.out = input$Yearrev)
+        
 
         # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white')
+       revenue(input$Yearrev, Revenue) %>% ggplot(aes(x = Quarter, y = `1000_revenue`, fill= Quarter))+ geom_col(position="dodge") + 
+          labs(title = 'Yearly automotive Revenue', subtitle = 'Per quarter and in thousends', y = 'Automotive revenue')  
 
     })
+    
 
 })

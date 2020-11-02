@@ -16,7 +16,7 @@ library(ggplot2)
 library(readxl)
 library(tidyr)
 
-RevenueTeslaEurope <- read_xlsx("revenue_tesla_europe_Statista.xlsx", skip = 3 , col_types = c("text", "numeric"))
+RevenueTeslaEurope <- read_xlsx("Data/revenue_tesla_europe_Statista.xlsx", skip = 3 , col_types = c("text", "numeric"))
 summary(RevenueTeslaEurope)
 ```
 

@@ -16,7 +16,7 @@ library(ggplot2)
 library(readxl)
 library(tidyr)
 
-countriesafpassengercars <- read_xlsx("Countries overview of af passenger cars.xlsx", skip = 2 , col_types = c("text", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))
+countriesafpassengercars <- read_xlsx("Data/Countries overview of af passenger cars.xlsx", skip = 2 , col_types = c("text", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))
 summary(countriesafpassengercars)
 ```
 
