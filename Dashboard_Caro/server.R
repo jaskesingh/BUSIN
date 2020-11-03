@@ -17,6 +17,7 @@ library(plotly)
 library(leaflet)
 library(DT)
 library(rvest)
+library(stringr)
 
 #Map + table01 + infoboxen
 superchargers <- read_xlsx("Data/Superchargers.xlsx")
@@ -75,17 +76,30 @@ nieuw <- read_xlsx("Data/Verkoop per brandstof (België) met market share.xlsx",
 tweedehands <- read_xlsx("Data/Verkoop per brandstof (België) met market share.xlsx", sheet = "Tweedehands")
 eu <- read_xlsx("Data/% share of new passenger cars by fuel type in the EU.xlsx")
 NieuwMS <- nieuw %>% gather(MS12, MS13, MS14, MS15, MS16, MS17, MS18, MS19,key = "Year", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
-recode(NieuwMS$Year, MS12 = "2012", MS13 = "2013", MS14 = "2014", MS15 = "2015", MS16 = "2016", MS17 = "2017", MS18 = "2018", MS19 = "2019" )
+NieuwMS$Year <- recode(NieuwMS$Year, MS12 = "2012", MS13 = "2013", MS14 = "2014", MS15 = "2015", MS16 = "2016", MS17 = "2017", MS18 = "2018", MS19 = "2019" )
 Nieuw <- nieuw %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
 Nieuw$Year <- as.integer(Nieuw$Year)
 NieuwMS$Year <- as.integer(NieuwMS$Year)
 NieuwMS$Market.Share <- as.double(NieuwMS$Market.Share)
 TweedehandsMS <- tweedehands %>% gather(MS12, MS13, MS14, MS15, MS16, MS17, MS18, MS19,key = "Year", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
-recode(TweedehandsMS$Year, MS12 = "2012", MS13 = "2013", MS14 = "2014", MS15 = "2015", MS16 = "2016", MS17 = "2017", MS18 = "2018", MS19 = "2019" )
+TweedehandsMS$Year <- recode(TweedehandsMS$Year, MS12 = "2012", MS13 = "2013", MS14 = "2014", MS15 = "2015", MS16 = "2016", MS17 = "2017", MS18 = "2018", MS19 = "2019" )
 Tweedehands <- tweedehands %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
 Tweedehands$Year <- as.integer(Tweedehands$Year)
 TweedehandsMS$Year <- as.integer(TweedehandsMS$Year)
 TweedehandsMS$Market.Share <- as.double(TweedehandsMS$Market.Share)
+EuMS <- eu %>% gather('2016', '2017', '2018', '2019',key = "Year", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
+EuMS$Year <- as.integer(EuMS$Year)
+EuMS$Market.Share <- as.double(EuMS$Market.Share)
+
+#Klanten: aankoopproces
+aankoopproces <- read_xlsx("Data/Online.xlsx")
+aankoopproces <- aankoopproces %>% gather(`Not at all interested/not very interested`:`Somewhat interested/very interested`, key = "Interest", value="Percentage")
+
+#Verkoop: periodieke tesla verkoop
+data <- read_xlsx("Data/Monthly Tesla Vehicle Sales.xlsx")
+Data <- data %>% gather(January:December, key=  "Month", value="Sales") %>% mutate(Month = str_replace(Month, "January", "1"), Month = str_replace(Month, "February", "2"), Month = str_replace(Month, "March", "3"), Month = str_replace(Month, "April", "4"), Month = str_replace(Month, "May", "5"), Month = str_replace(Month, "June", "6"), Month = str_replace(Month, "July", "7"), Month = str_replace(Month, "August", "8"), Month = str_replace(Month, "September", "9"), Month = str_replace(Month, "October", "10"), Month = str_replace(Month, "November", "11"), Month = str_replace(Month, "December", "12"))
+Data$Month <- as.integer(Data$Month)
+Data$Year <- as.factor(Data$Year) 
 
 # Define server logic required to draw a map
 shinyServer(function(input, output, session) {
@@ -211,7 +225,7 @@ shinyServer(function(input, output, session) {
     #taart nieuw: groei: aandeel elektrische auto's op belgische en eu markt
     output$pie02 <- renderPlot({
         NieuwMSC <- NieuwMS %>% filter(Year == input$Year5)
-        bar1 <- NieuwMSC %>% ggplot(aes(x ="", y = Market.Share*100, fill = Fuel)) + geom_bar(width = 1, stat = "identity") + xlab("") + labs(title = "Market share of new cars by fuel type in Belgium in 2019") 
+        bar1 <- NieuwMSC %>% ggplot(aes(x ="", y = Market.Share*100, fill = Fuel)) + geom_bar(width = 1, stat = "identity") + xlab("") + labs(title = "Market share of new cars by fuel type in Belgium in", input$Year5) 
         bar1 + coord_polar("y", start = 0)
     })
     
@@ -223,11 +237,46 @@ shinyServer(function(input, output, session) {
     #taart tweedehands: groei: aandeel elektrische auto's op belgische en eu markt
     output$pie03 <- renderPlot({
         TweedehandsMSC <- TweedehandsMS %>% filter(Year == input$Year6)
-        bar <- TweedehandsMSC %>% ggplot(aes(x ="", y = Market.Share*100, fill = Fuel)) + geom_bar(width = 1, stat = "identity") + xlab("") + labs(title = "Market share of second hand cars by fuel type in Belgium in 2019") 
+        bar <- TweedehandsMSC %>% ggplot(aes(x ="", y = Market.Share*100, fill = Fuel)) + geom_bar(width = 1, stat = "identity") + xlab("") + labs(title = "Market share of second hand cars by fuel type in Belgium in", input$Year6) 
         bar + coord_polar("y", start = 0)
     })
     
+    #taart eu: groei: aandeel elektrische auto's op belgische en eu markt
+    output$pie04 <- renderPlot({
+        EuMSC <- EuMS %>% filter(Year == input$Year7)
+        bareu <- EuMSC %>% ggplot(aes(x ="", y = Market.Share, fill = Fuel)) + geom_bar(width = 1, stat = "identity") + xlab("") + labs(title = "Market share of new cars by fuel type in the EU in", input$Year7)
+        bareu + coord_polar("y", start = 0)
+    })
     
+    #Hist eu: groei: aandeel elektrische auto's op belgische en eu markt
+    output$hist05 <- renderPlot({
+        EuMSC2 <- EuMS %>% filter(Year >= min(input$Year8) & Year <= max(input$Year8), Fuel == input$Fuel3)
+        EuMSC2 %>% ggplot(aes(x = Year, y = Market.Share)) + geom_col() + labs(title = "Market Share of new", input$Fuel3,"cars in the EU over the years")
+    })
+    
+    #HistMS klanten: aankoopproces
+    output$hist06 <- renderPlot({
+        aankoopprocesC <- aankoopproces %>% filter(Country %in% input$Country3)
+        aankoopprocesC %>% ggplot(aes(x = Country, y = Percentage)) + geom_col(aes(fill = Interest)) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" )
+    })
+    
+    #Hist klanten: aankoopproces
+    output$hist07 <- renderPlot({
+        aankoopprocesC2 <- aankoopproces %>% filter(Country %in% input$Country4, Interest %in% input$Interest)
+        aankoopprocesC2 %>% ggplot(aes(x = Country, y = Percentage)) + geom_col() + facet_wrap(Interest~.) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" ) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    })
+    
+    #line verkoop: periodieke tesla verkoop
+    output$line04 <- renderPlot({
+        DataC <- Data %>% filter(Month >= min(input$Month) & Month <= max(input$Month), Year %in% input$Year9)
+        DataC %>% ggplot(aes(x= Month, y = Sales)) + geom_line(aes(color = Year)) + scale_x_continuous(breaks = seq(0,12, by = 1))
+    })
+    
+    #hist verkoop: periodieke tesla verkoop
+    output$hist08 <- renderPlot({
+        DataC <- Data %>% filter(Month >= min(input$Month) & Month <= max(input$Month), Year %in% input$Year9)
+        DataC %>% ggplot(aes(x = Month, y = Sales)) + geom_col() + facet_wrap(Year~.) + labs(title = "Periodic Tesla sales over the years.") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_x_continuous(breaks = seq(0,12, by = 1))
+    })
     
    })
     
