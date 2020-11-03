@@ -57,9 +57,12 @@ Tweedehands auto's
 Electric2MS <- tweedehands %>% filter(Fuel == "elektrisch") %>% select(starts_with("MS")) %>% gather(MS12, MS13, MS14, MS15, MS16, MS17, MS18, MS19,key = "Year", value = "Market Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
 Electric2 <- tweedehands %>% filter(Fuel == "elektrisch") %>% select(starts_with("20")) %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
 TweedehandsMS <- tweedehands %>% gather(MS12, MS13, MS14, MS15, MS16, MS17, MS18, MS19,key = "Year", value = "Market Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
+TweedehandsMS$Year <- recode(TweedehandsMS$Year, MS12 = "2012", MS13 = "2013", MS14 = "2014", MS15 = "2015", MS16 = "2016", MS17 = "2017", MS18 = "2018", MS19 = "2019" )
 Tweedehands <- tweedehands %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
 Electric2$Year <- as.integer(Electric2$Year)
 Tweedehands$Year <- as.integer(Tweedehands$Year)
+TweedehandsMS$`Market Share` <- as.double(TweedehandsMS$`Market Share`)
+str(TweedehandsMS)
 ```
 
 ```{r}
@@ -69,6 +72,14 @@ TweedehandsMS %>% ggplot(aes(x= Year, y = `Market Share`)) + geom_col(aes(fill =
 bar2 <- tweedehands %>% ggplot(aes(x ="", y = MS19*100, fill = Fuel)) + geom_bar(width = 1, stat = "identity") + xlab("") + ylab("2019") + labs(title = "Market share of second hand cars by fuel type in Belgium in 2019") + geom_text(aes(label = round(MS19*100))) #labels nog tegoei aanpassen
 bar2 + coord_polar("y", start = 0)
 ```
+```{r}
+TweedehandsMSC <- TweedehandsMS %>% filter(Year == 2019)
+str(TweedehandsMSC)
+        bar <- TweedehandsMSC %>% ggplot(aes(x ="", y = 'Market Share'*100, fill = Fuel)) + geom_bar(width = 1, stat = "identity") + xlab("") + labs(title = "Market share of second hand cars by fuel type in Belgium in") 
+        bar + coord_polar("y", start = 0)
+```
+
+
 ```{r}
 Tweedehands %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel), size = 1) + labs(title = "Number of second hand cars sold in Belgium over the years")
 ```
@@ -87,6 +98,8 @@ ElectricEUMS <- eu %>% filter(Fuel == "Electrically-chargeable") %>% select(star
 
 
 ```
+
+
 
 ```{r}
 bareu <- eu %>% ggplot(aes(x ="", y = '2019', fill = Fuel)) + geom_bar(width = 1, stat = "identity") + xlab("") + ylab("2019") + labs(title = "Market share of new cars by fuel type in the EU in 2019") + geom_text(aes(label = eu$'2019')) #labels nog tegoei aanpassen
