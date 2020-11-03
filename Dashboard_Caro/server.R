@@ -182,7 +182,7 @@ shinyServer(function(input, output, session) {
         VPSC2 %>% ggplot(aes(x=Year, y=Sales)) + geom_line(aes(color = Segment)) + labs(title = "New cars sold in the EU by segment in million units over the years.") + 
         scale_x_continuous(breaks = c(2008:2019)) + scale_y_continuous(breaks= seq(0,6, by = 1)) })
     output$hist04 <- renderPlot({
-        VPSC <- VPS %>% filter(Segment %in% input$Segment2, Year %in% input$Year2)
+        VPSC <- VPS %>% filter(Segment %in% input$Segment2, Year >= min(input$Year2) & Year <= max(input$Year2))
         VPSC %>% ggplot(aes(x = Segment, y = Sales)) + geom_col() + facet_wrap(Year~.) + 
             labs(title = "New cars sold in the EU by segment in million units for each year.") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
     })

@@ -39,8 +39,8 @@ shinyUI(
       sidebarMenu(
         sidebarSearchForm("searchText", "buttonSearch", "Search"),
         menuItem("Superchargers", tabName = "Superchargers", newTab = T, menuSubItem("Map", tabName = "Map"), menuSubItem("Statistics", tabName = "Statistics"), 
-                 menuSubItem("Competition", tabName = "Competition"), menuSubItem("Sales_per_segment", tabName = "Sales"))
-        #menuItem("Growth", tabName = "Growth", newTab = T, menuSubItem("Sales per segment", tabName = "Sales per segment"))
+                 menuSubItem("Competition", tabName = "Competition")),
+        menuItem("Growth", tabName = "Growth", newTab = T, menuSubItem("Sales per segment", tabName = "Sales"))
      )),
     dashboardBody(
       tabItems(
