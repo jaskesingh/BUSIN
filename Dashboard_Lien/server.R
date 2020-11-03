@@ -45,7 +45,7 @@ shinyServer(function(input, output) {
     output$revbox <- renderValueBox({
       if (sortofgraph() == TRUE) {
       valueBox(
-        paste0(comma(sum(Revenue$`1000_revenue`[Revenue$Year == input$Yearrev], na.rm = TRUE)*1000)),
+        paste0(gsub("(?!^)(?=(?:\\d{3})+$)", ".",sum(Revenue$`1000_revenue`[Revenue$Year == input$Yearrev], na.rm = TRUE)*1000, perl=T)),
         subtitle= paste0("Omzet ", input$Yearrev), 
         icon = icon("dollar-sign")
       )
@@ -54,7 +54,7 @@ shinyServer(function(input, output) {
         somjaren <- c(sum(Revenue$`1000_revenue`[Revenue$Year == min(input$Yearrevline)], na.rm = TRUE):
                         sum(Revenue$`1000_revenue`[Revenue$Year == max(input$Yearrevline)], na.rm = TRUE))
         valueBox(
-          paste0(comma(sum(somjaren, na.rm = TRUE)*1000)),
+          paste0(gsub("(?!^)(?=(?:\\d{3})+$)", ".",sum(somjaren, na.rm = TRUE)*1000, perl=T)),
           subtitle= paste0("Omzet van ", min(input$Yearrevline), " tot ", max(input$Yearrevline)), 
           icon = icon("dollar-sign")
         )
@@ -64,7 +64,7 @@ shinyServer(function(input, output) {
     output$frcashbox <- renderValueBox({
       if (sortofgraph() == TRUE) {
       valueBox(
-        paste0(comma(sum(Free_cashflow$`free cash flow`[Free_cashflow$Year == input$Yearrev], na.rm = TRUE))),
+        paste0(gsub("(?!^)(?=(?:\\d{3})+$)", ".",sum(Free_cashflow$`free cash flow`[Free_cashflow$Year == input$Yearrev], na.rm = TRUE), perl=T)),
         subtitle = paste0("Free cashflow ", input$Yearrev), 
         icon = icon("dollar-sign")
       )
@@ -73,7 +73,7 @@ shinyServer(function(input, output) {
         somjaren <- c(sum(Free_cashflow$`free cash flow`[Free_cashflow$Year == min(input$Yearrevline)], na.rm = TRUE):
                         sum(Free_cashflow$`free cash flow`[Free_cashflow$Year == max(input$Yearrevline)], na.rm = TRUE))
         valueBox(
-          paste0(comma(sum(somjaren, na.rm = TRUE))),
+          paste0(gsub("(?!^)(?=(?:\\d{3})+$)", ".",sum(somjaren, na.rm = TRUE), perl=T)),
           subtitle = paste0("Free cashflow van ", min(input$Yearrevline), " tot ", max(input$Yearrevline)), 
           icon = icon("dollar-sign")
         )
@@ -83,7 +83,7 @@ shinyServer(function(input, output) {
     output$grprbox <- renderValueBox({
       if (sortofgraph() == TRUE) {
       valueBox(
-        paste0(comma(sum(Gross_profit$`Automotive gross profit GAAP`[Gross_profit$Year == input$Yearrev], na.rm = TRUE))), 
+        paste0(gsub("(?!^)(?=(?:\\d{3})+$)", ".",sum(Gross_profit$`Automotive gross profit GAAP`[Gross_profit$Year == input$Yearrev], na.rm = TRUE), perl=T)), 
         subtitle = paste0("Bruto winst ", input$Yearrev),  
         icon = icon("dollar-sign")
       )
@@ -92,7 +92,7 @@ shinyServer(function(input, output) {
         somjaren <- c(sum(Gross_profit$`Automotive gross profit GAAP`[Gross_profit$Year == min(input$Yearrevline)], na.rm = TRUE):
                         sum(Gross_profit$`Automotive gross profit GAAP`[Gross_profit$Year == max(input$Yearrevline)], na.rm = TRUE))
         valueBox(
-          paste0(comma(sum(somjaren, na.rm = TRUE))), 
+          paste0(gsub("(?!^)(?=(?:\\d{3})+$)", ".",sum(somjaren, na.rm = TRUE), perl=T)),
           subtitle = paste0("Bruto winst van ", min(input$Yearrevline), " tot ", max(input$Yearrevline)),  
           icon = icon("dollar-sign")
         )
