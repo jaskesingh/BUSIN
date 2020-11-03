@@ -14,9 +14,9 @@ library(readxl)
 library(dplyr)
 library(ggplot2)
 library(tidyr)
-nieuw <- read_xlsx("Verkoop per brandstof (België) met market share.xlsx", sheet = "Nieuw")
-tweedehands <- read_xlsx("Verkoop per brandstof (België) met market share.xlsx", sheet = "Tweedehands")
-eu <- read_xlsx("% share of new passenger cars by fuel type in the EU.xlsx")
+nieuw <- read_xlsx("Data/Verkoop per brandstof (België) met market share.xlsx", sheet = "Nieuw")
+tweedehands <- read_xlsx("Data/Verkoop per brandstof (België) met market share.xlsx", sheet = "Tweedehands")
+eu <- read_xlsx("Data/% share of new passenger cars by fuel type in the EU.xlsx")
 
 
 ```
@@ -25,10 +25,12 @@ Nieuwe auto's
 ```{r}
 ElectricMS <- nieuw %>% filter(Fuel == "elektrisch") %>% select(starts_with("MS")) %>% gather(MS12, MS13, MS14, MS15, MS16, MS17, MS18, MS19,key = "Year", value = "Market Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
 Electric <- nieuw %>% filter(Fuel == "elektrisch") %>% select(starts_with("20")) %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
-NieuwMS <- nieuw %>% gather(MS12, MS13, MS14, MS15, MS16, MS17, MS18, MS19,key = "Year", value = "Market Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
+NieuwMS <- nieuw %>% gather(MS12, MS13, MS14, MS15, MS16, MS17, MS18, MS19, key = "Year", value = "Market Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
 Nieuw <- nieuw %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
 Electric$Year <- as.integer(Electric$Year)
 Nieuw$Year <- as.integer(Nieuw$Year)
+NieuwMS$`Market Share` <- as.double(NieuwMS$`Market Share`)
+str(NieuwMS)
 
 ```
 

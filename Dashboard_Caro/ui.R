@@ -31,6 +31,11 @@ verkoo <- read_xlsx("Data/Yearly Tesla Sales Country Split (Europe).xlsx")
 #Groei: verkoop alle merken per segment
 VPS <- read_xlsx("Data/New cars sold in the EU by segment in million units.xlsx")
 
+#Groei: aandeel elektrische auto's op Belgische en EU markt
+nieuw <- read_xlsx("Data/Verkoop per brandstof (België) met market share.xlsx", sheet = "Nieuw")
+Nieuw <- nieuw %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
+Nieuw$Year <- as.integer(Nieuw$Year)
+
 # Define UI for application that draws a map
 shinyUI(
   dashboardPage(
@@ -40,7 +45,7 @@ shinyUI(
         sidebarSearchForm("searchText", "buttonSearch", "Search"),
         menuItem("Superchargers", tabName = "Superchargers", newTab = T, menuSubItem("Map", tabName = "Map"), menuSubItem("Statistics", tabName = "Statistics"), 
                  menuSubItem("Competition", tabName = "Competition")),
-        menuItem("Growth", tabName = "Growth", newTab = T, menuSubItem("Sales per segment", tabName = "Sales"))
+        menuItem("Growth", tabName = "Growth", newTab = T, menuSubItem("Sales per segment", tabName = "Sales"), menuSubItem("Sales per fuel type", tabName = "fueltype"))
      )),
     dashboardBody(
       tabItems(
@@ -123,10 +128,64 @@ shinyUI(
                         selected = "SUV")
                 )
             )
+        ),
+        tabItem(
+          tabName = "fueltype",
+          box( width = 12,
+            title = "Belgium", solidHeader = T, status = 'danger',
+            fluidRow(
+              box(
+                title = "Number of new cars sold", solidHeader = T, status = 'danger', plotOutput("line02"),
+                sliderInput(inputId = "Year3",
+                            label = "Choose year",
+                            min = 2012,
+                            max = 2019,
+                            value = c(2012, 2019)),
+                selectInput(inputId = "Fuel",
+                            label = "Choose fuel type",
+                            choices = Nieuw$Fuel,
+                            multiple = TRUE,
+                            selected = "elektrisch")
+                
+              ),
+              box(
+                title = "Market share of new cars by fuel type", solidHeader = T, status = 'danger', plotOutput("pie02"),
+                sliderInput(inputId = "Year5",
+                            label = "Choose year",
+                            min = 2012,
+                            max = 2019,
+                            value = 2019)
+            )
+          ),
+          fluidRow(
+            box(
+              title = "Number of second hand cars sold", solidHeader = T, status = 'danger', plotOutput("line03"),
+              sliderInput(inputId = "Year4",
+                          label = "Choose year",
+                          min = 2012,
+                          max = 2019,
+                          value = c(2012, 2019)),
+              selectInput(inputId = "Fuel2",
+                          label = "Choose fuel type",
+                          choices = Nieuw$Fuel,
+                          multiple = TRUE,
+                          selected = "elektrisch")
+              
+            ),
+            box(
+              title = "Market share of second hand cars by fuel type", solidHeader = T, status = 'danger', plotOutput("pie03"),
+              sliderInput(inputId = "Year6",
+                          label = "Choose year",
+                          min = 2012,
+                          max = 2019,
+                          value = 2019)
+            )
+          )
         )
       )
     )
   )
+)
 )
 
 
