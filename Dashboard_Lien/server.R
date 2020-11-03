@@ -26,18 +26,10 @@ revenue <- function(yearinput,df) {
   revenue <- df %>% filter(df$Year == yearinput)
   return(revenue)
 }
-gross_margin <- function(yearinput, df) {
-  gross_margin <- df %>% filter(df$Year == yearinput)
-  return(gross_margin)
-}
-gross_profit <- function(yearinput, df) {
-  gross_profit <- df %>% filter(df$Year == yearinput)
-  return(gross_profit)
-}
-free_cashflow <- function(yearinput,df) {
-  free_cashflow <-df %>% filter(df$Year == yearinput)
-  return(free_cashflow)
-}
+#jaartotaal <- function(jaar, kolnaam, minjaar, maxjaar, data) {
+#  
+ # return(jaartotaal)
+#}
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
@@ -82,7 +74,7 @@ shinyServer(function(input, output) {
     
     output$colgrmar <- renderPlot({
       
-      gross_margin(input$Yearrev, Gross_Margin) %>% 
+      revenue(input$Yearrev, Gross_Margin) %>% 
         ggplot(aes(x = Quarter, y = `Gross margin Automotive GAAP`, fill= Quarter)) + 
         geom_col(position="dodge") + 
         labs(y= 'Gross margin') + 
@@ -90,7 +82,7 @@ shinyServer(function(input, output) {
     })
     
     output$colgrpr <- renderPlot({
-      gross_profit(input$Yearrev, Gross_profit) %>% 
+      revenue(input$Yearrev, Gross_profit) %>% 
         ggplot(aes(x = Quarter, y = `Automotive gross profit GAAP`, fill= Quarter)) + 
         geom_col(position="dodge") + 
         labs(y= 'Gross profit') + 
@@ -98,7 +90,7 @@ shinyServer(function(input, output) {
     })
     
     output$colfrcash <- renderPlot({
-      free_cashflow(input$Yearrev, Free_cashflow) %>% 
+      revenue(input$Yearrev, Free_cashflow) %>% 
         ggplot(aes(x= Quarter, y= `free cash flow`, fill = Quarter)) + 
         geom_col(position="dodge") + 
         labs(y = 'Free cash flow')
@@ -106,15 +98,15 @@ shinyServer(function(input, output) {
     
     output$linerev <- renderPlot({
       x    <- Revenue$Year
-      Yearrevline <- seq(min(x), max(x), length.out = input$Yearrevline) 
-      totalrev <- Yearrevline + min(input)
+      Yearrevline <- seq(min(x), max(x)) 
       
       
       
       # draw the histogram with the specified number of bins
-      revenue(input$Yearrevline, Revenue) %>% group_by(Year, Quarter) %>% ggplot(aes(x = Year , y = `1000_revenue`))+ geom_line() + 
+      Revenue %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline)) %>% group_by(Year) %>% 
+        mutate("totaal" = sum(`1000_revenue`, na.rm = TRUE)) %>% select(Year, totaal)%>% distinct() %>% ggplot(aes(x = Year , y = totaal))+ geom_line() + 
         labs(y = 'Automotive revenue')  +
-        scale_y_continuous(breaks = seq(0,8000, by= 1000))
+        scale_y_continuous(limits = c(0, 25000), breaks = seq(0,25000, by= 5000)) + scale_x_continuous(breaks = seq(min(input$Yearrevline), max(input$Yearrevline), by = 1))
     })
       
       

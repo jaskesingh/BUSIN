@@ -28,9 +28,9 @@ shinyUI(
     dashboardSidebar(
       sidebarMenu(
         sidebarSearchForm("searchText", "buttonSearch", "Search"),
-      menuItem("Financiële cijfers", tabName = "Omzet"),
-        menuSubItem("Jaarlijkse gegevens", tabName = "Jaarlijkse gegevens"),
-      menuItem("Uitbreiding naar EU")
+        menuItem("Financiële cijfers", tabName = "Omzet"),
+        menuItem("Jaarlijkse gegevens", tabName = "Jaarlijkse_gegevens"),
+        menuItem("Uitbreiding naar EU", tabName = "EU")
     )),  
     dashboardBody(
       tabItems(
@@ -59,8 +59,7 @@ shinyUI(
                       textInput("text_input", "Welk land", value = "Europa"))
                 )
             ),
-      tabItem(tabName = "Jaarlijkse gegevens",
-              h1("Yearly data"),
+      tabItem(tabName = "Jaarlijkse_gegevens",
               fluidRow(
                 box(title = "Auto-omzet",
                     "In duizenden, per kwartaal",
@@ -77,10 +76,11 @@ shinyUI(
                                 min = min(Revenue$Year),
                                 max = max(Revenue$Year),
                                 value = c(min(Revenue$Year),max(Revenue$Year)))
+                )
               )
-              )
-              )
-      
+        ),
+      tabItem(tabName = "EU",
+              h1("Europese unie"))
       
       
       
