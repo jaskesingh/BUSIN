@@ -17,6 +17,7 @@ library(tidyr)
 library(lubridate)
 library(readr)
 library(plotly)
+library(scales)
 Revenue <- read_xlsx("data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Revenues (automotive)", col_types = c("numeric", "text", "numeric", "numeric"))
 Gross_Margin <- read_xlsx("Data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Gross margin", col_types = c("numeric", "text", "numeric", "numeric"))
 Gross_profit <- read_xlsx("Data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Gross profit", col_types = c("numeric", "text", "numeric", "numeric", "numeric"))
@@ -28,59 +29,52 @@ shinyUI(
     dashboardSidebar(
       sidebarMenu(
         sidebarSearchForm("searchText", "buttonSearch", "Search"),
-        menuItem("Financiële cijfers", tabName = "Omzet"),
-        menuItem("Jaarlijkse gegevens", tabName = "Jaarlijkse_gegevens"),
-        menuItem("Uitbreiding naar EU", tabName = "EU")
-    )),  
+        menuItem("Financial quarterly numbers", tabName = "Omzet"),
+        menuItem("Expansion in Europe", tabName = "EU")
+    )
+    ),  
     dashboardBody(
       tabItems(
         tabItem(tabName = "Omzet",
+                
                 fluidRow(
                   valueBoxOutput("revbox"),
                   valueBoxOutput("frcashbox"),
                   valueBoxOutput("grprbox")
                 ),            
                 fluidRow(
-                  box(title = "Auto-omzet",
-                       "In duizenden, per kwartaal",
+                  box(title = "Car revenue",
+                       "In thousands",
                       solidHeader = T, status="primary", plotOutput("colrev")),
-                  box(title = "Free cashflow", br(), solidHeader = T, status = "primary", plotOutput(("colfrcash")))
+                  box(title = "Free cashflow", 
+                      "In thousands", solidHeader = T, status = "primary", plotOutput(("colfrcash")))
                 ),
                 fluidRow(
-                  box(title = "Bruto winst", br(), solidHeader = T, status = "primary", plotOutput("colgrpr")),
-                  box(title = "Bruto winstmarge", 
-                      "In percentage, per kwartaal", solidHeader = T, status = "primary", plotOutput("colgrmar")),
-                  box(title = "Aanpassingen aan grafieken maken",
+                  box(title = "Gross profit", 
+                      "In thousands", solidHeader = T, status = "primary", plotOutput("colgrpr")),
+                  box(title = "Gross margin", 
+                      "In percentage", solidHeader = T, status = "primary", plotOutput("colgrmar")),
+                  box(title = "Make changes to the graphs (Quarterly)",
                       solidHeader = T, status = "primary", sliderInput(inputId = "Yearrev", 
-                                                                       label = "Kies het jaar",
+                                                                       label = "Choose year to give the quarters of",
                                                                        min = min(Revenue$Year),
                                                                        max = max(Revenue$Year),
                                                                        value = 2020),
-                      textInput("text_input", "Welk land", value = "Europa"))
+                      checkboxInput("Quarterly", "Quarterly overview", value = FALSE)
+                      ),
+                  box(title = "Make changes to the graph (Yearly)", solidHeader = T, status = "primary",
+                      sliderInput(inputId = "Yearrevline", 
+                                  label = "Choose the range of years to appear",
+                                  min = min(Revenue$Year),
+                                  max = max(Revenue$Year),
+                                  value = c(min(Revenue$Year),max(Revenue$Year)))
+                  )
                 )
-            ),
-      tabItem(tabName = "Jaarlijkse_gegevens",
-              fluidRow(
-                box(title = "Auto-omzet",
-                    "In duizenden, per kwartaal",
-                    solidHeader = T, status="primary", plotOutput("linerev")),
-                box(title = "Free cashflow", br(), solidHeader = T, status = "primary", plotOutput("linefrcash"))
-              ),
-              fluidRow(
-                box(title = "Bruto winst", br(), solidHeader = T, status = "primary", plotOutput("linegrpr")),
-                box(title = "Bruto winstmarge", 
-                    "In percentage, per kwartaal", solidHeader = T, status = "primary", plotOutput("linegrmar")),
-                box(title = "Aanpassingen aan grafieken maken", solidHeader = T, status = "primary",
-                    sliderInput(inputId = "Yearrevline", 
-                                label = "Kies het jaar",
-                                min = min(Revenue$Year),
-                                max = max(Revenue$Year),
-                                value = c(min(Revenue$Year),max(Revenue$Year)))
-                )
-              )
+             
         ),
       tabItem(tabName = "EU",
               h1("Europese unie"))
+      # textInput("text_input", "Welk land", value = "Europa")
       
       
       
