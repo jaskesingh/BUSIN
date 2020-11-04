@@ -139,7 +139,7 @@ shinyServer(function(input, output, session) {
     })
     #map tesla superchargers
     output$mymap <- renderLeaflet({
-        leaflet() %>% addTiles() %>% addMarkers(data = superchargers, layerId = as.character(superchargers$id))
+        leaflet() %>% addTiles() %>% addMarkers(data = superchargers, layerId = as.character(superchargers$id) )
     })
     
     observeEvent(input$mymap_marker_click, {
@@ -182,7 +182,7 @@ shinyServer(function(input, output, session) {
         )})
     
     #histogram: vergelijken met teslaverkoop 
-    output$hist01 <- renderPlot({
+    output$hist01 <- renderPlotly({
         verkooC <- verkoo %>% dplyr::filter(Country %in% input$Country, Year == input$Year)
         superchargersC <- superchargers %>% dplyr::filter(Year < input$Year+1, Status == 'OPEN', Country %in% input$Country)
         superchargersC <- plyr::count(superchargersC, "Country")
@@ -191,92 +191,106 @@ shinyServer(function(input, output, session) {
         ratio$Country <- as.factor(ratio$Country)
         ratio <- ratio %>% mutate(Teslas_per_Supercharger = Sales/freq)
         ratio$Teslas_per_Supercharger <- as.double(ratio$Teslas_per_Supercharger)
-        ratio %>% ggplot(aes(x= Country, y = Teslas_per_Supercharger)) + geom_col() + labs(title = paste0("Teslas/supercharger in", input$Year)) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
-        
+        h1 <- ratio %>% ggplot(aes(x= Country, y = Teslas_per_Supercharger)) + geom_col() + labs(title = paste0("Teslas/supercharger in", input$Year)) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        ggplotly(h1)
     })
     
     #histogram: concurrentie snellaadpalen
-    output$hist02 <- renderPlot({
+    output$hist02 <- renderPlotly({
         laadpalenC <- laadpalen %>% filter(Country %in% input$Country2)
-        laadpalenC %>% ggplot(aes(x = Description, y = freq)) + geom_col() + labs(title = "Superchargers per country") + facet_wrap(Country~.)+ theme(axis.text.x = element_text(angle = 45, hjust = 1))})
-    output$hist03 <- renderPlot({
+        h2 <- laadpalenC %>% ggplot(aes(x = Description, y = freq)) + geom_col() + labs(title = "Superchargers per country") + facet_wrap(Country~.)+ theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        ggplotly(h2)})
+    output$hist03 <- renderPlotly({
         laadpalenC <- laadpalen %>% filter(Country %in% input$Country2)
-        laadpalenC %>% ggplot(aes(x = Country, y = freq)) + geom_col(aes(fill = Description)) + labs(title = "Superchargers per country") + theme(axis.text.x = element_text(angle = 45, hjust = 1))})
+        h3 <- laadpalenC %>% ggplot(aes(x = Country, y = freq)) + geom_col(aes(fill = Description)) + labs(title = "Superchargers per country") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        ggplotly(h3)})
     
     #taartdiagram: concurrentie snellaadpalen
-    output$pie01 <- renderPlot({
-    taart %>% ggplot(aes(x="", y = ratio, fill = Description)) + geom_bar(width = 1, stat = "identity") + coord_polar("y", start=0) + labs(title = "Superchargers market share")})
+    output$pie01 <- renderPlotly({
+        fig <- plot_ly(taart, labels = ~Description, values = ~ratio, type = 'pie')
+        fig <- fig %>% layout(title = "Superchargers market share",
+                          xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))})
+    
     
     #lijngrafiek: Groei: verkoop alle merken per segment
-    output$line01 <- renderPlot({
+    output$line01 <- renderPlotly({
         VPSC2 <- VPS %>% filter(Segment %in% input$Segment)
-        VPSC2 %>% ggplot(aes(x=Year, y=Sales)) + geom_line(aes(color = Segment)) + labs(title = "New cars sold in the EU by segment in million units over the years.") + 
-        scale_x_continuous(breaks = c(2008:2019)) + scale_y_continuous(breaks= seq(0,6, by = 1)) })
-    output$hist04 <- renderPlot({
+        p <- VPSC2 %>% ggplot(aes(x=Year, y=Sales)) + geom_line(aes(color = Segment)) + labs(title = "New cars sold in the EU by segment in million units over the years.") + 
+        scale_x_continuous(breaks = c(2008:2019)) + scale_y_continuous(breaks= seq(0,6, by = 1)) 
+        ggplotly(p)})
+    #histogram: groei: verkoop alle merken per segment
+    output$hist04 <- renderPlotly({
         VPSC <- VPS %>% filter(Segment %in% input$Segment2, Year >= min(input$Year2) & Year <= max(input$Year2))
-        VPSC %>% ggplot(aes(x = Segment, y = Sales)) + geom_col() + facet_wrap(Year~.) + 
+        h4 <- VPSC %>% ggplot(aes(x = Segment, y = Sales)) + geom_col() + facet_wrap(Year~.) + 
             labs(title = "New cars sold in the EU by segment in million units for each year.") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
-    })
+        ggplotly(h4)})
     
     #lijn nieuw: groei: aandeel elektrische auto's op belgische en eu markt
-    output$line02 <- renderPlot({
+    output$line02 <- renderPlotly({
         NieuwC <- Nieuw %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3), Fuel %in% input$Fuel)
-        NieuwC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel), size = 1) + labs(title = "Number of new cars sold in Belgium over the years")})
+        p2 <- NieuwC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel), size = 1) + labs(title = "Number of new cars sold in Belgium over the years")
+        ggplotly(p2)})
     #taart nieuw: groei: aandeel elektrische auto's op belgische en eu markt
-    output$pie02 <- renderPlot({
+    output$pie02 <- renderPlotly({
         NieuwMSC <- NieuwMS %>% filter(Year == input$Year5)
-        bar1 <- NieuwMSC %>% ggplot(aes(x ="", y = Market.Share*100, fill = Fuel)) + geom_bar(width = 1, stat = "identity") + xlab("") + labs(title = "Market share of new cars by fuel type in Belgium in", input$Year5) 
-        bar1 + coord_polar("y", start = 0)
-    })
+        fig1 <- plot_ly(NieuwMSC, labels = ~Fuel, values = ~Market.Share, type = 'pie')
+        fig1 <- fig1 %>% layout(title = "Market share of new cars by fuel type in Belgium",
+                          xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))})
     
     #lijn tweedehands: groei: aandeel elektrische auto's op belgische en eu markt
-    output$line03 <- renderPlot({
+    output$line03 <- renderPlotly({
         TweedehandsC <- Tweedehands %>% filter(Year >= min(input$Year4) & Year <= max(input$Year4), Fuel %in% input$Fuel2)
-        TweedehandsC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel), size = 1) + labs(title = "Number of second hand cars sold in Belgium over the years")
+        p3 <- TweedehandsC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel), size = 1) + labs(title = "Number of second hand cars sold in Belgium over the years")
+        ggplotly(p3)
     })
     #taart tweedehands: groei: aandeel elektrische auto's op belgische en eu markt
-    output$pie03 <- renderPlot({
+    output$pie03 <- renderPlotly({
         TweedehandsMSC <- TweedehandsMS %>% filter(Year == input$Year6)
-        bar <- TweedehandsMSC %>% ggplot(aes(x ="", y = Market.Share*100, fill = Fuel)) + geom_bar(width = 1, stat = "identity") + xlab("") + labs(title = "Market share of second hand cars by fuel type in Belgium in", input$Year6) 
-        bar + coord_polar("y", start = 0)
-    })
+        fig2 <- plot_ly(TweedehandsMSC, labels = ~Fuel, values = ~Market.Share, type = 'pie')
+        fig2 <- fig2 %>% layout(title = "Market share of second hand cars by fuel type in Belgium",
+                            xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                            yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))})
     
     #taart eu: groei: aandeel elektrische auto's op belgische en eu markt
-    output$pie04 <- renderPlot({
+    output$pie04 <- renderPlotly({
         EuMSC <- EuMS %>% filter(Year == input$Year7)
-        bareu <- EuMSC %>% ggplot(aes(x ="", y = Market.Share, fill = Fuel)) + geom_bar(width = 1, stat = "identity") + xlab("") + labs(title = "Market share of new cars by fuel type in the EU in", input$Year7)
-        bareu + coord_polar("y", start = 0)
-    })
+        fig3 <- plot_ly(EuMSC, labels = ~Fuel, values = ~Market.Share, type = 'pie')
+        fig3 <- fig3 %>% layout(title = "Market share of second hand cars by fuel type in the EU",
+                            xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                            yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))})
     
     #Hist eu: groei: aandeel elektrische auto's op belgische en eu markt
-    output$hist05 <- renderPlot({
+    output$hist05 <- renderPlotly({
         EuMSC2 <- EuMS %>% filter(Year >= min(input$Year8) & Year <= max(input$Year8), Fuel == input$Fuel3)
-        EuMSC2 %>% ggplot(aes(x = Year, y = Market.Share)) + geom_col() + labs(title = "Market Share of new", input$Fuel3,"cars in the EU over the years")
-    })
+        h5 <- EuMSC2 %>% ggplot(aes(x = Year, y = Market.Share)) + geom_col() + labs(title = "Market Share of new", input$Fuel3,"cars in the EU over the years")
+        ggplotly(h5)})
     
     #HistMS klanten: aankoopproces
-    output$hist06 <- renderPlot({
+    output$hist06 <- renderPlotly({
         aankoopprocesC <- aankoopproces %>% filter(Country %in% input$Country3)
-        aankoopprocesC %>% ggplot(aes(x = Country, y = Percentage)) + geom_col(aes(fill = Interest)) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" )
-    })
+        h6 <- aankoopprocesC %>% ggplot(aes(x = Country, y = Percentage)) + geom_col(aes(fill = Interest)) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" )
+        ggplotly(h6)})
     
     #Hist klanten: aankoopproces
-    output$hist07 <- renderPlot({
+    output$hist07 <- renderPlotly({
         aankoopprocesC2 <- aankoopproces %>% filter(Country %in% input$Country4, Interest %in% input$Interest)
-        aankoopprocesC2 %>% ggplot(aes(x = Country, y = Percentage)) + geom_col() + facet_wrap(Interest~.) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" ) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
-    })
+        h7 <- aankoopprocesC2 %>% ggplot(aes(x = Country, y = Percentage)) + geom_col() + facet_wrap(Interest~.) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" ) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        ggplotly(h7)})
     
     #line verkoop: periodieke tesla verkoop
-    output$line04 <- renderPlot({
+    output$line04 <- renderPlotly({
         DataC <- Data %>% filter(Month >= min(input$Month) & Month <= max(input$Month), Year %in% input$Year9)
-        DataC %>% ggplot(aes(x= Month, y = Sales, na.rm = T)) + geom_line(aes(color = Year)) + scale_x_continuous(breaks = seq(0,12, by = 1))
+        p4 <- DataC %>% ggplot(aes(x= Month, y = Sales, na.rm = T)) + geom_line(aes(color = Year)) + scale_x_continuous(breaks = seq(0,12, by = 1))
+        ggplotly(p4)
     })
     
     #hist verkoop: periodieke tesla verkoop
-    output$hist08 <- renderPlot({
+    output$hist08 <- renderPlotly({
         DataC2 <- Data %>% filter(Month >= min(input$Month) & Month <= max(input$Month), Year %in% input$Year9)
-        DataC2 %>% ggplot(aes(x = Month, y = Sales, na.rm = T)) + geom_col() + facet_wrap(Year~.) + labs(title = "Periodic Tesla sales over the years.") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_x_continuous(breaks = seq(0,12, by = 1))
-    })
+        h8 <- DataC2 %>% ggplot(aes(x = Month, y = Sales, na.rm = T)) + geom_col() + facet_wrap(Year~.) + labs(title = "Periodic Tesla sales over the years.") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_x_continuous(breaks = seq(0,12, by = 1))
+        ggplotly(h8)})
     
    })
     

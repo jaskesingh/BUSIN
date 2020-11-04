@@ -81,7 +81,7 @@ shinyUI(
             fluidRow(
               box(
                 title = "Teslas/supercharger", width = 12,
-                solidHeader = T, status = "danger", plotOutput("hist01"),
+                solidHeader = T, status = "danger", plotlyOutput("hist01"),
                 sliderInput(inputId = "Year",
                           label = "Choose year",
                           min = 2013,
@@ -99,8 +99,8 @@ shinyUI(
             tabName = "Competition",
             tabBox(
               title ="Number of superchargers per country", height = 12,
-              tabPanel("Tab1", plotOutput("hist02")),
-              tabPanel("Tab2", plotOutput("hist03")),
+              tabPanel("Tab1", plotlyOutput("hist02")),
+              tabPanel("Tab2", plotlyOutput("hist03")),
               selectInput(inputId = "Country2",
                         label = "Choose country",
                         choices = superchargers$Country,
@@ -109,7 +109,7 @@ shinyUI(
               ),
             box(
               title = "Superchargers market share", height = 12,
-              solidHeader = T, status = 'danger', plotOutput("pie01")
+              solidHeader = T, status = 'danger', plotlyOutput("pie01")
               )
         ),
         tabItem(
@@ -117,7 +117,7 @@ shinyUI(
             fluidRow(
               box(
                 title = "New cars sold in the EU by segment in million units over the years", width = 12,
-                solidHeader = T, status = 'danger', plotOutput("line01"),
+                solidHeader = T, status = 'danger', plotlyOutput("line01"),
                 selectInput(inputId = "Segment",
                         label = "Choose segment",
                         choices = VPS$Segment,
@@ -128,7 +128,7 @@ shinyUI(
             fluidRow(
               box(
                 title = "New cars sold in the EU by segment in million units for each year", width = 12,
-                solidHeader = T, status = 'danger', plotOutput("hist04"),
+                solidHeader = T, status = 'danger', plotlyOutput("hist04"),
                 sliderInput(inputId = "Year2",
                         label = "Choose year",
                         min = 2008,
@@ -148,7 +148,7 @@ shinyUI(
             title = "Belgium", solidHeader = T, status = 'danger',
             fluidRow(
               box(
-                title = "Number of new cars sold", solidHeader = T, status = 'danger', plotOutput("line02"),
+                title = "Number of new cars sold", solidHeader = T, status = 'danger', plotlyOutput("line02"),
                 sliderInput(inputId = "Year3",
                             label = "Choose year",
                             min = 2012,
@@ -162,7 +162,7 @@ shinyUI(
                 
               ),
               box(
-                title = "Market share of new cars by fuel type", solidHeader = T, status = 'danger', plotOutput("pie02"),
+                title = "Market share of new cars by fuel type", solidHeader = T, status = 'danger', plotlyOutput("pie02"),
                 sliderInput(inputId = "Year5",
                             label = "Choose year",
                             min = 2012,
@@ -172,7 +172,7 @@ shinyUI(
           ),
           fluidRow(
             box(
-              title = "Number of second hand cars sold", solidHeader = T, status = 'danger', plotOutput("line03"),
+              title = "Number of second hand cars sold", solidHeader = T, status = 'danger', plotlyOutput("line03"),
               sliderInput(inputId = "Year4",
                           label = "Choose year",
                           min = 2012,
@@ -186,7 +186,7 @@ shinyUI(
               
             ),
             box(
-              title = "Market share of second hand cars by fuel type", solidHeader = T, status = 'danger', plotOutput("pie03"),
+              title = "Market share of second hand cars by fuel type", solidHeader = T, status = 'danger', plotlyOutput("pie03"),
               sliderInput(inputId = "Year6",
                           label = "Choose year",
                           min = 2012,
@@ -199,7 +199,7 @@ shinyUI(
           title = "EU", solidHeader = T, status = 'danger', width = 12,
           fluidRow(
             box(
-              title = "Market Share of new cars in the EU over the years", plotOutput("hist05"), solidHeader = T, status = 'danger',
+              title = "Market Share of new cars in the EU over the years", plotlyOutput("hist05"), solidHeader = T, status = 'danger',
               sliderInput(inputId = "Year8",
                           label = "Choose year",
                           min = 2016,
@@ -211,7 +211,7 @@ shinyUI(
                           selected = "Electrically-chargeable")
             ),
             box(
-              title = "Market share of new cars by fuel type in the EU", plotOutput("pie04"), solidHeader = T, status = 'danger',
+              title = "Market share of new cars by fuel type in the EU", plotlyOutput("pie04"), solidHeader = T, status = 'danger',
               sliderInput(inputId = "Year7",
                           label = "Choose year",
                           min = 2016,
@@ -225,13 +225,13 @@ shinyUI(
         tabName = "Purchaseprocess",
         tabBox(
           title = "Share of Europeans interested in online vehicle purchasing in 2018", height = 12, width =12,
-          tabPanel("Tab1", plotOutput("hist06"),
+          tabPanel("Tab1", plotlyOutput("hist06"),
                    selectInput(inputId = "Country3",
                                label = "Choose country",
                                choices = aankoopproces$Country,
                                multiple = TRUE,
                                selected = "Belgium")),
-          tabPanel("Tab2", plotOutput("hist07"),
+          tabPanel("Tab2", plotlyOutput("hist07"),
           selectInput(inputId = "Country4",
                       label = "Choose country",
                       choices = aankoopproces$Country,
@@ -248,8 +248,8 @@ shinyUI(
         tabName = "Periodic",
         tabBox(
           title = "Periodic Tesla sales over the years.", height = 12, width = 12,
-          tabPanel("Tab1", plotOutput("line04")),
-          tabPanel("Tab2", plotOutput("hist08")),
+          tabPanel("Tab1", plotlyOutput("line04")),
+          tabPanel("Tab2", plotlyOutput("hist08")),
           sliderInput(inputId = "Month",
                       label = "Choose month",
                       min = 1,
