@@ -1,5 +1,7 @@
 # # # # # # # # # #
 
+# Extra lijn als test
+
 # Libraries
 library(shiny)
 library(shinydashboard)
@@ -15,6 +17,7 @@ shinyUI(
       
       sidebarMenu(
         # Pitch document: Growth --> Comparison of electric vehicles of different brands
+        # Maybe add icons in final dashboard (video 3)
         menuItem("Growth (Later)", tabName =  "dashboard_growth"),
       
         # Pitch document: Customers --> Purchase history --> Loyalty
