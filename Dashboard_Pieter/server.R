@@ -10,4 +10,5 @@ shinyServer(function(input, output){
     hist(faithful$eruptions, breaks = input$bins)
   })
 })
+
 # # # # # # # # # #
