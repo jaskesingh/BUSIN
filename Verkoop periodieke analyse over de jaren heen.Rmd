@@ -15,7 +15,7 @@ library(tidyr)
 library(dplyr)
 library(ggplot2)
 library(stringr)
-data <- read_xlsx("Monthly Tesla Vehicle Sales.xlsx")
+data <- read_xlsx("Data/Monthly Tesla Vehicle Sales.xlsx")
 ```
 
 ```{r}
