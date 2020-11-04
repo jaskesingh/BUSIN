@@ -6,9 +6,17 @@ library(shinydashboard)
 
 # Shiny Server
 shinyServer(function(input, output){
-  output$histogram <- renderPlot({
-    hist(faithful$eruptions, breaks = input$bins)
+  
+  # Growth
+  output$histogram_growth <- renderPlot({
+    hist(faithful$eruptions, breaks = input$bins_growth)
   })
+  
+  # Loyalty
+  output$histogram_loyalty <- renderPlot({
+    hist(faithful$eruptions, breaks = input$bins_loyalty)
+  })
+  
 })
 
 # # # # # # # # # #
