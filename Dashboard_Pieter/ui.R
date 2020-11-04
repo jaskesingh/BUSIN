@@ -1,4 +1,4 @@
-# Step 1: Customers --> Purchase history --> Loyalty
+
 
 # Libraries
 library(shiny)
@@ -8,7 +8,12 @@ library(shinydashboard)
 shinyUI(
   dashboardPage(
     dashboardHeader(title = "Menu"),
-    dashboardSidebar(),
+    dashboardSidebar(
+      menuItem("Growth (Later)"),
+      # Pitch document: Growth --> Comparison of electric vehicles of different brands
+      menuItem("Brand Loyalty (Work-In-Progress)")
+      # Pitch document: Customers --> Purchase history --> Loyalty
+    ),
     dashboardBody()
   )
 )

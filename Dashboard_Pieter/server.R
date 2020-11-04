@@ -1,4 +1,4 @@
-# Step 1: Customers --> Purchase history --> Loyalty
+
 
 # Libraries
 library(shiny)
