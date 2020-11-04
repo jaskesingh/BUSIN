@@ -269,13 +269,13 @@ shinyServer(function(input, output, session) {
     #line verkoop: periodieke tesla verkoop
     output$line04 <- renderPlot({
         DataC <- Data %>% filter(Month >= min(input$Month) & Month <= max(input$Month), Year %in% input$Year9)
-        DataC %>% ggplot(aes(x= Month, y = Sales)) + geom_line(aes(color = Year)) + scale_x_continuous(breaks = seq(0,12, by = 1))
+        DataC %>% ggplot(aes(x= Month, y = Sales, na.rm = T)) + geom_line(aes(color = Year)) + scale_x_continuous(breaks = seq(0,12, by = 1))
     })
     
     #hist verkoop: periodieke tesla verkoop
     output$hist08 <- renderPlot({
-        DataC <- Data %>% filter(Month >= min(input$Month) & Month <= max(input$Month), Year %in% input$Year9)
-        DataC %>% ggplot(aes(x = Month, y = Sales)) + geom_col() + facet_wrap(Year~.) + labs(title = "Periodic Tesla sales over the years.") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_x_continuous(breaks = seq(0,12, by = 1))
+        DataC2 <- Data %>% filter(Month >= min(input$Month) & Month <= max(input$Month), Year %in% input$Year9)
+        DataC2 %>% ggplot(aes(x = Month, y = Sales, na.rm = T)) + geom_col() + facet_wrap(Year~.) + labs(title = "Periodic Tesla sales over the years.") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_x_continuous(breaks = seq(0,12, by = 1))
     })
     
    })
