@@ -1,0 +1,48 @@
+# # # # # # # # # #
+
+# Libraries
+library(shiny)
+library(shinydashboard)
+
+# Shiny UI
+shinyUI(
+  dashboardPage(
+    
+    dashboardHeader(title = "Menu"),
+    
+    dashboardSidebar(
+      
+      
+      sidebarMenu(
+        # Pitch document: Growth --> Comparison of electric vehicles of different brands
+        menuItem("Growth (Later)", tabName =  "dashboard_growth"),
+      
+        # Pitch document: Customers --> Purchase history --> Loyalty
+        menuItem("Brand Loyalty (Work-In-Progress)", tabName = "dashboard_loyalty")
+      )
+    ),
+    
+    dashboardBody(
+      tabItems(
+        tabItem(tabName = "dashboard_growth",
+                fluidRow(
+                  box(plotOutput("histogram_growth")),
+                  box(sliderInput("bins_growth", "Number of Breaks", 1, 100, 10))
+                  )
+                ),
+        
+        tabItem(tabName = "dashboard_loyalty", 
+                fluidRow(
+                  box(plotOutput("histogram_loyalty")),
+                  box(sliderInput("bins_loyalty", "Number of Breaks", 1, 100, 50))
+                  )
+                )
+          
+        )
+    )
+      
+  )
+)
+
+
+# # # # # # # # # #
