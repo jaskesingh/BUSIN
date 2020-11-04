@@ -1,7 +1,5 @@
 # # # # # # # # # #
 
-# Extra lijn als test
-
 # Libraries
 library(shiny)
 library(shinydashboard)
