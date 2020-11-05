@@ -49,7 +49,7 @@ Data$Year <- as.factor(Data$Year)
 
 # Define UI for application that draws a map
 shinyUI(
-  dashboardPage(
+  dashboardPage(skin = 'red',
     dashboardHeader(title = 'Menu'),
     dashboardSidebar(
       sidebarMenu(
