@@ -1,6 +1,6 @@
 # # # # # # # # # #
 
-#Rhistory test
+#Rhistory test_2_2
 
 # Libraries
 library(shiny)
