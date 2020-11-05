@@ -1,7 +1,5 @@
 # # # # # # # # # #
 
-#random words
-
 # Libraries
 library(shiny)
 library(shinydashboard)
