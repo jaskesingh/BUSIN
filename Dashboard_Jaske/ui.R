@@ -18,14 +18,14 @@ shinyUI(
                       taskItem(
                         text = "Not finished yet",
                         value = 19
+                        )
                       )
-                    )
                     ),
     
     dashboardSidebar(
       sidebarMenu(
-        menuItem("Klanten", tabName = "klanten",
-                 menuSubItem("Test", tabName = "test"),
+        menuItem("Customers", tabName = "customers",
+                 menuSubItem("test", tabName = "test"),
                  menuSubItem("Test1", tabName = "test1"),
                  menuSubItem("Income", tabName = "income"))
       )
@@ -35,7 +35,7 @@ shinyUI(
       tabItems(
         tabItem(tabName = "test",
                 tabBox(
-                  title = "based on gender",
+                  title = "Based on gender",
                   tabPanel("Female", plotOutput("efemale")),
                   tabPanel("Male", plotOutput("emale")),
                   tabPanel("Country based",
@@ -49,7 +49,7 @@ shinyUI(
                   )),
         tabItem(tabName = "test1",
                 tabBox(
-                  title = "per country",
+                  title = "Per country",
                   tabPanel(" ", selectInput(inputId = "country",
                                   label = "Choose country",
                                   choices = levels(eusurvey$Country),
@@ -59,7 +59,7 @@ shinyUI(
                 ),
         tabItem(tabName = "income",
                 tabBox(
-                  title = "based on income",
+                  title = "Based on income",
                   tabPanel("tab1", selectInput(inputId = "incountry",
                                                label = "choose Country",
                                                choices = levels(eusurvey$Country),
@@ -68,7 +68,14 @@ shinyUI(
                                        label = "choose income group",
                                        choices = levels(eusurvey$Income_group),
                                        selected = "middle"),
-                           plotOutput("view"))
+                           plotOutput("view")),
+                  tabPanel("tab2", selectInput(inputId = "estatus",
+                                               label = "Choose employment status",
+                                               choices = levels(eusurvey$Employment_status),
+                                               selected = "Studying",
+                                               multiple = T),
+                           plotlyOutput("employ")
+                  )
                 ))
     )
     )
