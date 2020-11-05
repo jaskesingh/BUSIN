@@ -3,6 +3,11 @@
 # Libraries
 library(shiny)
 library(shinydashboard)
+library(tidyverse)
+library(readxl)
+
+# Load data
+# loyalty_per_brand_1 <- read_xls("Data/Lo")
 
 # Shiny UI
 shinyUI(
