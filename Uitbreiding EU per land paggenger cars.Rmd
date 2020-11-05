@@ -22,8 +22,13 @@ summary(countriesafpassengercars)
 
 
 ```{r}
-countriesafpassengercarsev <- countriesafpassengercars %>% mutate('EV' = BEV + PHEV)
-countriesafpassengercars <- countriesafpassengercars %>% gather('BEV', 'H2', 'CNG', 'LNG', 'PHEV', 'LPG', 'Total', key = 'brandstof', value = 'waardes')
+#countriesafpassengercarsev <- countriesafpassengercars %>% mutate('EV' = BEV + PHEV)
+#countriesafpassengercars <- countriesafpassengercars %>% gather('BEV', 'H2', 'CNG', 'LNG', 'PHEV', 'LPG', 'Total', key = 'brandstof', value = 'waardes')
+countriesafpassengercars$Country[1:2457] <- c('Ausria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia',
+                                        'Finland', 'France', 'Germany', 'Greece', 'Hungria', 'Ireland', 'Italy', 'Latvia', 'Lithuania',
+                                        'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia',
+                                        'Spain', 'Sweden')
+View(countriesafpassengercars)
 ```
 
 ```{r}
