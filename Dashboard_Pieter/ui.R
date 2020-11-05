@@ -34,8 +34,8 @@ shinyUI(
         
         tabItem(tabName = "dashboard_loyalty", 
                 fluidRow(
-                  box(plotOutput("histogram_loyalty")),
-                  box(sliderInput("bins_loyalty", "Number of Breaks", 1, 100, 50))
+                  box(title = "Loyalty per brand", status = "primary", solidHeader = T, plotOutput("histogram_loyalty")),
+                  box(status = "primary", sliderInput("bins_loyalty", "Number of Breaks", 1, 100, 50))
                   )
                 )
           
