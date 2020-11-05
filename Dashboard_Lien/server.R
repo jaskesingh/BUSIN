@@ -58,34 +58,35 @@ some.eu.countries <- c('Ukraine', 'France', 'Spain', 'Sweden', 'Norway', 'German
 some.eu.map <- map_data("world", region = some.eu.countries)
 tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
 
-world_data <- ggplot2::map_data('world')
-world_data <- fortify(world_data)
-head(world_data)
 
-worldMaps <- function(teslapercountrysales,world_data, teslajaar) {
-  my_theme <- function() {
-    theme_bw() + theme(axis.title = element_blank(),
-                       axis.text = element_blank(),
-                       axis.ticks = element_blank(),
-                       panel.grid.major = element_blank(),
-                       panel.grid.minor = element_blank(),
-                       panel.background = element_blank(),
-                       legend.position = "bottom",
-                       panel.border = element_blank(),
-                       strip.background = element_rect(fill = 'white', colour = 'white'))
-  }
-  plotdf <- teslapercountrysales[teslapercountrysales$jaar == teslajaar]
-  
-  world_data['jaar'] <- rep(teslajaar, nrow(world_data))
-  world_data['waarde'] <- plotdf$waarde[match(world_data$region, plotdf$Country)]
-  
-  g <- ggplot() +
-    geom_polygon_interactive(data = subset(world_data, lat >= -60 & lat <= 90), color = 'gray70', size = 0.1, 
-                             aes(x = lat, fill = waarde, group = group, tooltip= sprintf("%s<br/>%s", Country, waarde))) +
-    scale_fill_gradientn(colours = brewer.pal(5, "RdBu"), na.value = 'white') +
-    labs(fill = teslajaar, color = teslajaar, title = NULL, x = NULL, y = NULL) + my_theme()
-  return(g)
-}
+    # world_data <- ggplot2::map_data('world')
+    # world_data <- fortify(world_data)
+    # head(world_data)
+    # 
+    # worldMaps <- function(teslapercountrysales,world_data, teslajaar) {
+    #   my_theme <- function() {
+    #     theme_bw() + theme(axis.title = element_blank(),
+    #                        axis.text = element_blank(),
+    #                        axis.ticks = element_blank(),
+    #                        panel.grid.major = element_blank(),
+    #                        panel.grid.minor = element_blank(),
+    #                        panel.background = element_blank(),
+    #                        legend.position = "bottom",
+    #                        panel.border = element_blank(),
+    #                        strip.background = element_rect(fill = 'white', colour = 'white'))
+    #   }
+    #   plotdf <- teslapercountrysales[teslapercountrysales$jaar == teslajaar]
+    #   
+    #   world_data['jaar'] <- rep(teslajaar, nrow(world_data))
+    #   world_data['waarde'] <- plotdf$waarde[match(world_data$region, plotdf$Country)]
+    #   
+    #   g <- ggplot() +
+    #     geom_polygon_interactive(data = subset(world_data, lat >= -60 & lat <= 90), color = 'gray70', size = 0.1, 
+    #                              aes(x = lat, fill = waarde, group = group, tooltip= sprintf("%s<br/>%s", Country, waarde))) +
+    #     scale_fill_gradientn(colours = brewer.pal(5, "RdBu"), na.value = 'white') +
+    #     labs(fill = teslajaar, color = teslajaar, title = NULL, x = NULL, y = NULL) + my_theme()
+    #   return(g)
+    # }
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
   #financieel tabblad
@@ -94,8 +95,8 @@ shinyServer(function(input, output) {
     output$revbox <- renderValueBox({
       if (sortofgraph() == TRUE) {
       valueBox(
-        paste0(gsub("(?!^)(?=(?:\\d{3})+$)", ".",sum(Revenue$`1000_revenue`[Revenue$Year == input$Yearrev], na.rm = TRUE)*1000, perl=T)),
-        subtitle= paste0("Omzet ", input$Yearrev), 
+        paste0(format(round(sum(Revenue$`1000_revenue`[Revenue$Year == input$Yearrev], na.rm = TRUE)/1000, 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
+        subtitle= paste0("Revenue ", input$Yearrev, " in million"), 
         icon = icon("dollar-sign"), color = 'red'
       )
       }
@@ -103,8 +104,8 @@ shinyServer(function(input, output) {
         somjaren <- c(sum(Revenue$`1000_revenue`[Revenue$Year == min(input$Yearrevline)], na.rm = TRUE):
                         sum(Revenue$`1000_revenue`[Revenue$Year == max(input$Yearrevline)], na.rm = TRUE))
         valueBox(
-          paste0(gsub("(?!^)(?=(?:\\d{3})+$)", ".",sum(somjaren, na.rm = TRUE)*1000, perl=T)),
-          subtitle= paste0("Omzet van ", min(input$Yearrevline), " tot ", max(input$Yearrevline)), 
+          paste0(format(round(sum(somjaren, na.rm = TRUE)/1000, 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
+          subtitle= paste0("Revenue from ", min(input$Yearrevline), " until ", max(input$Yearrevline), " in million"), 
           icon = icon("dollar-sign"), color = 'red'
         )
       }
@@ -113,8 +114,8 @@ shinyServer(function(input, output) {
     output$frcashbox <- renderValueBox({
       if (sortofgraph() == TRUE) {
       valueBox(
-        paste0(gsub("(?!^)(?=(?:\\d{3})+$)", ".",sum(Free_cashflow$`free cash flow`[Free_cashflow$Year == input$Yearrev], na.rm = TRUE), perl=T)),
-        subtitle = paste0("Free cashflow ", input$Yearrev), 
+        paste0(format(round(sum(Free_cashflow$`free cash flow`[Free_cashflow$Year == input$Yearrev], na.rm = TRUE)/1000000, 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
+        subtitle = paste0("Free cashflow ", input$Yearrev, " in million"), 
         icon = icon("dollar-sign"), color = 'red'
       )
       }
@@ -122,8 +123,8 @@ shinyServer(function(input, output) {
         somjaren <- c(sum(Free_cashflow$`free cash flow`[Free_cashflow$Year == min(input$Yearrevline)], na.rm = TRUE):
                         sum(Free_cashflow$`free cash flow`[Free_cashflow$Year == max(input$Yearrevline)], na.rm = TRUE))
         valueBox(
-          paste0(gsub("(?!^)(?=(?:\\d{3})+$)", ".",sum(somjaren, na.rm = TRUE), perl=T)),
-          subtitle = paste0("Free cashflow van ", min(input$Yearrevline), " tot ", max(input$Yearrevline)), 
+          paste0(format(round(sum(somjaren, na.rm = TRUE)/1000000, 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
+          subtitle = paste0("Free cashflow from ", min(input$Yearrevline), " until ", max(input$Yearrevline), " in million"), 
           icon = icon("dollar-sign"), color = 'red'
         )
       }
@@ -132,8 +133,8 @@ shinyServer(function(input, output) {
     output$grprbox <- renderValueBox({
       if (sortofgraph() == TRUE) {
       valueBox(
-        paste0(gsub("(?!^)(?=(?:\\d{3})+$)", ".",sum(Gross_profit$`Automotive gross profit GAAP`[Gross_profit$Year == input$Yearrev], na.rm = TRUE), perl=T)), 
-        subtitle = paste0("Bruto winst ", input$Yearrev),  
+        paste0(format(round(sum(Gross_profit$`Automotive gross profit GAAP`[Gross_profit$Year == input$Yearrev], na.rm = TRUE)/1000000, 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)), 
+        subtitle = paste0("Gross profit ", input$Yearrev, " in million"),  
         icon = icon("piggy-bank"), color = 'red'
       )
       }
@@ -141,8 +142,8 @@ shinyServer(function(input, output) {
         somjaren <- c(sum(Gross_profit$`Automotive gross profit GAAP`[Gross_profit$Year == min(input$Yearrevline)], na.rm = TRUE):
                         sum(Gross_profit$`Automotive gross profit GAAP`[Gross_profit$Year == max(input$Yearrevline)], na.rm = TRUE))
         valueBox(
-          paste0(gsub("(?!^)(?=(?:\\d{3})+$)", ".",sum(somjaren, na.rm = TRUE), perl=T)),
-          subtitle = paste0("Bruto winst van ", min(input$Yearrevline), " tot ", max(input$Yearrevline)),  
+          paste0(format(round(sum(somjaren, na.rm = TRUE)/1000000, 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
+          subtitle = paste0("Gross profit from ", min(input$Yearrevline), " until ", max(input$Yearrevline), " in million"),  
           icon = icon("piggy-bank"), color = 'red'
         )
       }
@@ -284,7 +285,7 @@ shinyServer(function(input, output) {
                         panel.background = element_blank(),
                         legend.position = "none",
                         panel.border = element_blank(),
-      strip.background = element_rect(fill = 'white', colour = 'white')) + scale_fill_manual( values = c("red", "blue"))
+      strip.background = element_rect(fill = 'white', colour = 'white')) + scale_fill_manual( values = c("tomato", "skyblue"))
       gg
       
     })
