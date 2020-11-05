@@ -6,8 +6,16 @@ library(shinydashboard)
 library(tidyverse)
 library(readxl)
 
-# Load data
-# loyalty_per_brand_1 <- read_xlsx("Data/Loyalty per brand.xlsx")
+# Load and clean data
+# Next to read_xlsx, there is also a read.xlsx function, in case the
+# big "growth" table needs some more functions.
+loyalty_per_brand_1 <- read_xlsx(path = "Data/loyalty_per_brand_v2.xlsx", skip = 2)
+
+#Inspect data -- Convert to comment later
+View(loyalty_per_brand_1)
+dim(loyalty_per_brand_1)
+str(loyalty_per_brand_1)
+head(loyalty_per_brand_1)
 
 # Shiny UI
 shinyUI(
