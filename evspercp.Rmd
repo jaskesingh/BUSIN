@@ -1,0 +1,37 @@
+---
+title: "ev's per cp"
+author: "Jaske"
+date: "11/5/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(readr)
+library(forcats)
+library(lubridate)
+library(readxl)
+```
+
+```{r}
+evcp <- read_excel("Data/PEV's per public charging point.xlsx", skip = 2)
+```
+
+```{r}
+str(evcp)
+```
+
+```{r}
+evcp <- evcp %>% select(Year, Total)
+```
+
+```{r}
+evcp %>% ggplot(aes(Year, Total)) + geom_col()
+```
+
