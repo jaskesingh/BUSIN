@@ -7,7 +7,7 @@ library(tidyverse)
 library(readxl)
 
 # Load data
-# loyalty_per_brand_1 <- read_xls("Data/Lo")
+# loyalty_per_brand_1 <- read_xlsx("Data/Loyalty per brand.xlsx")
 
 # Shiny UI
 shinyUI(
