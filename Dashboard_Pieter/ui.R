@@ -1,6 +1,6 @@
 # # # # # # # # # #
 
-#Rhistory test_2_2
+#random words
 
 # Libraries
 library(shiny)
