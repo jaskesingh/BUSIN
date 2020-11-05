@@ -258,13 +258,35 @@ shinyServer(function(input, output) {
       }
     })
     output$distPlot <- renderPlot({
+      teslamap <- function(inputjaar, df) {
+        if (inputjaar == "2013") {
+          teslamap <- df %>% filter(df$jaar == inputjaar, df$waarde > 0)
+        }
+        else {
+          teslamap <- df %>% filter(df$jaar == c(inputjaar, (as.numeric(inputjaar) - 1)), df$waarde > 0)  
+        }
+        return(teslamap)
+      }
       
-      
-      gg <- ggplot(tesla.eu.map) + geom_map(dat = tesla.eu.map, map = tesla.eu.map, aes(map_id = region), fill = "white", color="black")
+      gg <- teslamap(input$teslajaar, tesla.eu.map) %>% ggplot() + geom_map(dat = tesla.eu.map, map = tesla.eu.map, aes(map_id = region), fill = "white", color="black")
+      if (input$teslajaar == "2013") {
       gg <- gg + geom_map(map = tesla.eu.map, aes(map_id = region, fill = jaar), colour = "black")
+      }
+      else {
+        gg <- gg + geom_map(map = tesla.eu.map, aes(map_id = region, fill = jaar), colour = "black")
+      }
       gg <- gg + expand_limits(x = tesla.eu.map$long, y = tesla.eu.map$lat)
-      gg <- gg + theme(legend.position = "none")
+      gg <- gg + theme(axis.title = element_blank(),
+                        axis.text = element_blank(),
+                        axis.ticks = element_blank(),
+                        panel.grid.major = element_blank(),
+                        panel.grid.minor = element_blank(),
+                        panel.background = element_blank(),
+                        legend.position = "none",
+                        panel.border = element_blank(),
+      strip.background = element_rect(fill = 'white', colour = 'white')) + scale_fill_manual( values = c("red", "blue"))
       gg
+      
     })
     
 })

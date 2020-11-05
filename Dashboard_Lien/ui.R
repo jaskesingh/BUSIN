@@ -109,7 +109,7 @@ shinyUI(
                   ),
               box(title = "Choose your options", solidHeader = T, status="danger", 
                   selectInput(inputId = "teslajaar",
-                              label = "choose the year you want to see",
+                              label = "choose the year you want to see (blue is new that year)",
                               choices = list("2013", "2014", "2015", "2016", "2017", "2018", "2019")),
                   plotOutput("distPlot")))
       
