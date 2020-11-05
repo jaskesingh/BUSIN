@@ -6,6 +6,7 @@ library(tidyr)
 library(dplyr)
 library(lubridate)
 library(readr)
+library(plotly)
 
 eusurvey <- read.csv("data/hev1.csv")
 
@@ -45,6 +46,14 @@ shinyServer(function(input, output, session) {
             filter(Country == input$incountry, Income_group == input$incomegr) %>% 
             ggplot(aes(Income_group)) + 
             geom_bar(aes(fill = buy_electric), position = "dodge")
+    })
+    
+    output$employ <- renderPlotly({
+        f1 <- eusurvey %>% filter(Employment_status %in% input$estatus)
+        p1 <- f1 %>% ggplot(aes(Employment_status)) +
+            geom_bar(aes(fill = buy_electric), position = "dodge") +
+            scale_y_continuous(limits = c(0, 6000))
+        ggplotly(p1)
     })
 })
    
