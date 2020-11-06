@@ -7,6 +7,7 @@ library(dplyr)
 library(lubridate)
 library(readr)
 library(plotly)
+library(DT)
 
 eusurvey <- read.csv("data/hev1.csv")
 
@@ -38,10 +39,11 @@ shinyServer(function(input, output, session) {
     })
     
     output$country <- renderDataTable({
-        eusurvey %>% filter(Country == input$country) %>% 
+        t1 <- eusurvey %>% filter(Country == input$country) %>% 
             group_by(Country, Gender, buy_electric) %>% 
             summarise(median(Age), n = n()) %>% 
             arrange(desc(n))
+        datatable(t1, filter = "top")
     })
     
     output$view <- renderPlot({

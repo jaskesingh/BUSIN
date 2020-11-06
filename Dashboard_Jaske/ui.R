@@ -7,6 +7,7 @@ library(dplyr)
 library(lubridate)
 library(readr)
 library(plotly)
+library(DT)
 
 eusurvey <- read.csv('data/hev1.csv')
 
