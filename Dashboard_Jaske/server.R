@@ -30,7 +30,8 @@ shinyServer(function(input, output, session) {
         eusurvey %>% filter(Country %in% input$gcountry) %>% 
             ggplot(aes(Gender)) + 
             geom_bar(aes(fill = buy_electric), position = "dodge") +
-            scale_y_continuous(limits = c(0, 500)) + facet_wrap(~Country)
+            scale_y_continuous(limits = c(0, 500)) + facet_wrap(~Country) + 
+            labs(y = "Number of respondents", fill = "Buy EV")
         
     })
     
@@ -54,6 +55,12 @@ shinyServer(function(input, output, session) {
             geom_bar(aes(fill = buy_electric), position = "dodge") +
             scale_y_continuous(limits = c(0, 6000))
         ggplotly(p1)
+    })
+    
+    output$surveytotal <- renderValueBox({
+        valueBox(
+            nrow(eusurvey), subtitle = "Number of Survey respondents"
+        )
     })
 })
    
