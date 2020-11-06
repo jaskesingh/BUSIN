@@ -18,7 +18,7 @@ library(lubridate)
 library(readr)
 library(plotly)
 library(scales)
-library(ggiraph)
+
 #financieel tabblad
 Revenue <- read_xlsx("data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Revenues (automotive)", col_types = c("numeric", "text", "numeric", "numeric"))
 Gross_Margin <- read_xlsx("Data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Gross margin", col_types = c("numeric", "text", "numeric", "numeric"))
@@ -43,7 +43,7 @@ shinyUI(
       tabItems(
         #financiele tabblad
         tabItem(tabName = "Omzet",
-                
+                h2("Financial numbers worldwide, based on automotive sector"),
                 fluidRow(
                   valueBoxOutput("revbox"),
                   valueBoxOutput("frcashbox"),
@@ -107,7 +107,7 @@ shinyUI(
                                 'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia',
                                 'Spain', 'Sweden'), selected = "Belgium")
                   ),
-              box(title = "Choose your options", solidHeader = T, status="danger", 
+              box(title = "Tesla sales in Europe per year", solidHeader = T, status="danger", 
                   selectInput(inputId = "teslajaar",
                               label = "choose the year you want to see (blue is new that year)",
                               choices = list("2013", "2014", "2015", "2016", "2017", "2018", "2019")),
