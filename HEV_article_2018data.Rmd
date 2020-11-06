@@ -100,3 +100,9 @@ hev1 %>% filter(Country == 'Belgium') %>%
             scale_y_continuous(limits = c(0, 6000))
 ```
 
+```{r}
+hev1 %>% ggplot(aes(Employment_status)) +
+  geom_bar(aes(fill = buy_electric), position = "dodge") +
+            scale_y_continuous(limits = c(0, 6000))
+```
+
