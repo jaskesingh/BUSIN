@@ -4,6 +4,14 @@
 library(shiny)
 library(shinydashboard)
 
+# Static ggplot
+loyalty_per_brand_1 %>%
+arrange(desc(Percentage)) %>% 
+ggplot(aes(x = Percentage,
+           y = Merk)) + 
+  geom_col()
+
+
 # Shiny Server
 shinyServer(function(input, output){
   

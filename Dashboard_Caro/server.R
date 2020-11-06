@@ -191,18 +191,21 @@ shinyServer(function(input, output, session) {
         ratio$Country <- as.factor(ratio$Country)
         ratio <- ratio %>% mutate(Teslas_per_Supercharger = Sales/freq)
         ratio$Teslas_per_Supercharger <- as.double(ratio$Teslas_per_Supercharger)
-        h1 <- ratio %>% ggplot(aes(x= Country, y = Teslas_per_Supercharger)) + geom_col() + labs(title = paste0("Teslas/supercharger in", input$Year)) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        h1 <- ratio %>% ggplot(aes(x= Country, y = Teslas_per_Supercharger)) + geom_col() + labs(title = paste0("Teslas/supercharger in", input$Year)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+            scale_y_continuous(limits = c(0, 1400), breaks = seq(0,1400, by= 200))
         ggplotly(h1)
     })
     
     #histogram: concurrentie snellaadpalen
     output$hist02 <- renderPlotly({
         laadpalenC <- laadpalen %>% filter(Country %in% input$Country2)
-        h2 <- laadpalenC %>% ggplot(aes(x = Description, y = freq)) + geom_col() + labs(title = "Superchargers per country") + facet_wrap(Country~.)+ theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        h2 <- laadpalenC %>% ggplot(aes(x = Description, y = freq)) + geom_col() + labs(title = "Superchargers per country") + facet_wrap(Country~.)+ theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+            scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20))
         ggplotly(h2)})
     output$hist03 <- renderPlotly({
         laadpalenC <- laadpalen %>% filter(Country %in% input$Country2)
-        h3 <- laadpalenC %>% ggplot(aes(x = Country, y = freq)) + geom_col(aes(fill = Description)) + labs(title = "Superchargers per country") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        h3 <- laadpalenC %>% ggplot(aes(x = Country, y = freq)) + geom_col(aes(fill = Description)) + labs(title = "Superchargers per country") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+            scale_y_continuous(limits = c(0, 200), breaks = seq(0,200, by= 50))
         ggplotly(h3)})
     
     #taartdiagram: concurrentie snellaadpalen
@@ -223,7 +226,8 @@ shinyServer(function(input, output, session) {
     output$hist04 <- renderPlotly({
         VPSC <- VPS %>% filter(Segment %in% input$Segment2, Year >= min(input$Year2) & Year <= max(input$Year2))
         h4 <- VPSC %>% ggplot(aes(x = Segment, y = Sales)) + geom_col() + facet_wrap(Year~.) + 
-            labs(title = "New cars sold in the EU by segment in million units for each year.") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+            labs(title = "New cars sold in the EU by segment in million units for each year.") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+            scale_y_continuous(limits = c(0,6), breaks = seq(0,6, by= 1))
         ggplotly(h4)})
     
     #lijn nieuw: groei: aandeel elektrische auto's op belgische en eu markt
@@ -264,7 +268,8 @@ shinyServer(function(input, output, session) {
     #Hist eu: groei: aandeel elektrische auto's op belgische en eu markt
     output$hist05 <- renderPlotly({
         EuMSC2 <- EuMS %>% filter(Year >= min(input$Year8) & Year <= max(input$Year8), Fuel == input$Fuel3)
-        h5 <- EuMSC2 %>% ggplot(aes(x = Year, y = Market.Share)) + geom_col() + labs(title = "Market Share of new", input$Fuel3,"cars in the EU over the years")
+        h5 <- EuMSC2 %>% ggplot(aes(x = Year, y = Market.Share)) + geom_col() + labs(title = "Market Share of new", input$Fuel3,"cars in the EU over the years") +
+            scale_y_continuous(limits = c(0, 60), breaks = seq(0,60, by= 10))
         ggplotly(h5)})
     
     #HistMS klanten: aankoopproces
@@ -276,7 +281,8 @@ shinyServer(function(input, output, session) {
     #Hist klanten: aankoopproces
     output$hist07 <- renderPlotly({
         aankoopprocesC2 <- aankoopproces %>% filter(Country %in% input$Country4, Interest %in% input$Interest)
-        h7 <- aankoopprocesC2 %>% ggplot(aes(x = Country, y = Percentage)) + geom_col() + facet_wrap(Interest~.) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" ) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        h7 <- aankoopprocesC2 %>% ggplot(aes(x = Country, y = Percentage)) + geom_col() + facet_wrap(Interest~.) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" ) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+            scale_y_continuous(limits = c(0, 70), breaks = seq(0,70, by= 10))
         ggplotly(h7)})
     
     #line verkoop: periodieke tesla verkoop
@@ -289,7 +295,8 @@ shinyServer(function(input, output, session) {
     #hist verkoop: periodieke tesla verkoop
     output$hist08 <- renderPlotly({
         DataC2 <- Data %>% filter(Month >= min(input$Month) & Month <= max(input$Month), Year %in% input$Year9)
-        h8 <- DataC2 %>% ggplot(aes(x = Month, y = Sales, na.rm = T)) + geom_col() + facet_wrap(Year~.) + labs(title = "Periodic Tesla sales over the years.") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_x_continuous(breaks = seq(0,12, by = 1))
+        h8 <- DataC2 %>% ggplot(aes(x = Month, y = Sales, na.rm = T)) + geom_col() + facet_wrap(Year~.) + labs(title = "Periodic Tesla sales over the years.") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_x_continuous(breaks = seq(0,12, by = 1)) +
+            scale_y_continuous(limits = c(0, 25000), breaks = seq(0,25000, by= 5000))
         ggplotly(h8)})
     
    })
