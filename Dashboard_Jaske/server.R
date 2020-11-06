@@ -16,14 +16,16 @@ shinyServer(function(input, output, session) {
         eusurvey %>% filter(Gender == "F") %>% 
             ggplot(aes(Gender)) + 
             geom_bar(aes(fill = buy_electric), position = "dodge")  +
-            scale_y_continuous(limits = c(0, 6000))
+            scale_y_continuous(limits = c(0, 6000)) +
+            labs(y = "Number of respondents", fill = "Buy EV")
     })
     
     output$emale <- renderPlot({
         eusurvey %>% filter(Gender == "M") %>% 
             ggplot(aes(Gender)) + 
             geom_bar(aes(fill = buy_electric), position = "dodge") +
-            scale_y_continuous(limits = c(0, 6000))
+            scale_y_continuous(limits = c(0, 6000)) +
+            labs(y = "Number of respondents", fill = "Buy EV")
     })
     
     output$gcountry <- renderPlot({
@@ -38,7 +40,7 @@ shinyServer(function(input, output, session) {
     output$country <- renderDataTable({
         eusurvey %>% filter(Country == input$country) %>% 
             group_by(Country, Gender, buy_electric) %>% 
-            summarise(n = n(), median(Age)) %>% 
+            summarise(median(Age), n = n()) %>% 
             arrange(desc(n))
     })
     
@@ -46,14 +48,16 @@ shinyServer(function(input, output, session) {
         eusurvey %>% 
             filter(Country == input$incountry, Income_group == input$incomegr) %>% 
             ggplot(aes(Income_group)) + 
-            geom_bar(aes(fill = buy_electric), position = "dodge")
+            geom_bar(aes(fill = buy_electric), position = "dodge") +
+            labs(y = "Number of respondents", fill = "Buy EV")
     })
     
     output$employ <- renderPlotly({
         f1 <- eusurvey %>% filter(Employment_status %in% input$estatus)
         p1 <- f1 %>% ggplot(aes(Employment_status)) +
             geom_bar(aes(fill = buy_electric), position = "dodge") +
-            scale_y_continuous(limits = c(0, 6000))
+            scale_y_continuous(limits = c(0, 6000)) +
+            labs(y = "Number of respondents", fill = "Buy EV")
         ggplotly(p1)
     })
     

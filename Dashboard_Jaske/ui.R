@@ -59,7 +59,7 @@ shinyUI(
         
           tabItem(
             tabName = "test1",
-                tabBox(
+                box(
                   title = "Per country",
                   tabPanel(" ", 
                            selectInput(inputId = "country",
