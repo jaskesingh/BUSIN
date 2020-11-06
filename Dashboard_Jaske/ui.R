@@ -28,7 +28,7 @@ shinyUI(
         menuItem("Customers", tabName = "customers",
                  menuSubItem("test", tabName = "test"),
                  menuSubItem("Test1", tabName = "test1"),
-                 menuSubItem("Income", tabName = "income"))
+                 menuSubItem("Income", tabName = "income", badgeLabel = "New", badgeColor = "green"))
       )
     ),
     
