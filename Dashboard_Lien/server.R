@@ -17,9 +17,8 @@ library(tidyr)
 library(lubridate)
 library(readr)
 library(plotly)
-library(scales)
 library(maps)
-library(RColorBrewer)
+
 
 
 #financiele cijfers

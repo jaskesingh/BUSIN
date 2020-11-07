@@ -27,6 +27,7 @@ Free_cashflow <- read_xlsx("Data/Tesla's free cash flow by quarter 2020 world wi
 
 #uitbreiding in europa tabblad
 countriesafpassengercars <- read_xlsx("Data/Countries overview of af passenger cars.xlsx", skip = 2 , col_types = c("numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))
+teslajaareu <- tesla.eu.map %>% filter(jaar != "NA") %>% select(jaar)
 
 # Define UI for application that draws a histogram
 shinyUI(
@@ -107,10 +108,11 @@ shinyUI(
                                 'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia',
                                 'Spain', 'Sweden'), selected = "Belgium")
                   ),
+              
               box(title = "Tesla sales in Europe per year", solidHeader = T, status="danger", 
                   selectInput(inputId = "teslajaar",
                               label = "choose the year you want to see (blue is new that year)",
-                              choices = list("2013", "2014", "2015", "2016", "2017", "2018", "2019")),
+                              choices = teslajaareu),
                   plotOutput("distPlot")))
       
               
