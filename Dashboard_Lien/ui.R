@@ -52,14 +52,14 @@ shinyUI(
             #Grafieken voor financiele cijfers
                 fluidRow(
                   box(title = "Car revenue",
-                       "In thousands",
+                       "In million",
                       solidHeader = T, status="danger", plotOutput("colrev")),
                   box(title = "Free cashflow", 
-                      "In thousands", solidHeader = T, status="danger", plotOutput(("colfrcash")))
+                      "In million", solidHeader = T, status="danger", plotOutput(("colfrcash")))
                 ),
                 fluidRow(
                   box(title = "Gross profit", 
-                      "In thousands", solidHeader = T, status="danger", plotOutput("colgrpr")),
+                      "In million", solidHeader = T, status="danger", plotOutput("colgrpr")),
                   box(title = "Gross margin", 
                       "In percentage", solidHeader = T, status="danger", plotOutput("colgrmar")),
               #aanpasbare waardes
@@ -84,11 +84,11 @@ shinyUI(
       tabItem(tabName = "EU",
               fluidRow(
                 box(title = "AF passenger cars",
-                    "Total fleet of passenger cars per alternative fuel", solidHeader = T, status="danger", plotOutput("colpascar"),
+                    "Total fleet of passenger cars per alternative fuel (AF)", solidHeader = T, status="danger", plotOutput("colpascar"),
                     checkboxGroupInput("EUcheck", "Choose the fuels for Europe or per country", c('BEV', 'CNG', 'H2', 'LNG', 'LPG', 'PHEV', 'Total'), 
                                        selected = c('BEV', 'CNG', 'H2', 'LNG', 'LPG', 'PHEV'))),
                 box(title = "AF infrastructure",
-                    "Total number of AF infrastructure per type of fuel",  solidHeader = T, status="danger",plotOutput("colinfr"),
+                    "Total number of alternative fuel (AF) infrastructure per type of fuel",  solidHeader = T, status="danger",plotOutput("colinfr"),
                     checkboxGroupInput("EUcheckinfr", "Choose the fuels for Europe or per country", c('Electricity', 'H2', 'Natural Gas', 'LPG', 'Total'), 
                                        selected = c('Electricity', 'H2', 'Natural Gas', 'LPG')))
                 ),
