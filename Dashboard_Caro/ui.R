@@ -157,7 +157,7 @@ shinyUI(
                             label = "Choose fuel type",
                             choices = nieuw$Fuel,
                             multiple = TRUE,
-                            selected = "elektrisch")
+                            selected = "Electric")
                 
               ),
               box(
