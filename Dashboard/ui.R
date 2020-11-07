@@ -87,16 +87,14 @@ shinyUI(
                       leafletOutput("mymap"), dataTableOutput("table01")),
                     tabItem(
                       tabName = "Statistics",
+                      h2("Info on Tesla supercharger stations in Europe"),
                       fluidRow(
-                        box(title = "Info on Tesla supercharger stations in Europe",
-                            solidHeader = T, status = "danger", width = 12,
-                            valueBoxOutput("totbox"),
-                            valueBoxOutput("openbox"),
-                            valueBoxOutput("buildbox"),
-                            valueBoxOutput("permitbox"),
-                            valueBoxOutput("pclosedbox"),
-                            valueBoxOutput("tclosedbox")
-                        )
+                          valueBoxOutput("totbox"),
+                          valueBoxOutput("openbox"),
+                          valueBoxOutput("buildbox"),
+                          valueBoxOutput("permitbox"),
+                          valueBoxOutput("pclosedbox"),
+                          valueBoxOutput("tclosedbox")
                       ),
                       fluidRow(
                         box(
