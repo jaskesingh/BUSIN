@@ -151,8 +151,7 @@ shinyServer(function(input, output, session) {
   
   #table tesla superchargers
   output$table01 <- renderDataTable({
-    
-    DT::datatable(superchargers, selection = "single",options=list(stateSave = TRUE))
+     DT::datatable(superchargers, selection = "single",options=list(stateSave = TRUE))
   })
   
   # to keep track of previously selected row
@@ -170,6 +169,7 @@ shinyServer(function(input, output, session) {
                         lng=row_selected$Longitude, 
                         lat=row_selected$Latitude,
                         icon = my_icon)
+    
     # Reset previously selected marker
     if(!is.null(prev_row()))
     {
@@ -179,9 +179,11 @@ shinyServer(function(input, output, session) {
                    lng=prev_row()$Longitude, 
                    lat=prev_row()$Latitude)
     }
+   
     # set new value to reactiveVal 
     prev_row(row_selected)
   })
+  
   #map tesla superchargers
   output$mymap <- renderLeaflet({
     leaflet() %>% addTiles() %>% addMarkers(data = superchargers, layerId = as.character(superchargers$id) )
@@ -198,32 +200,32 @@ shinyServer(function(input, output, session) {
   output$totbox <- renderValueBox({
     valueBox(
       paste0(sum(aantal$freq)),
-      subtitle= "Total number of supercharger stations", 
+      subtitle= "Total number of supercharger stations", color = "red"
     )})
   output$openbox <- renderValueBox({
     valueBox(
       paste0(aantal$freq[aantal$Status == "OPEN"]),
-      subtitle= "Number of open supercharger stations", 
+      subtitle= "Number of open supercharger stations", color = "red"
     )})
   output$buildbox <- renderValueBox({
     valueBox(
       paste0(aantal$freq[aantal$Status == "CONSTRUCTION"]),
-      subtitle= "Number of building supercharger stations", 
+      subtitle= "Number of building supercharger stations", color = "red"
     )})
   output$permitbox <- renderValueBox({
     valueBox(
       paste0(aantal$freq[aantal$Status == "PERMIT"]),
-      subtitle= "Number of permit supercharger stations", 
+      subtitle= "Number of permit supercharger stations", color = "red"
     )})
   output$pclosedbox <- renderValueBox({
     valueBox(
       paste0(aantal$freq[aantal$Status == "CLOSED_PERM"]),
-      subtitle= "Number of permantly closed supercharger stations", 
+      subtitle= "Number of permantly closed supercharger stations", color = "red"
     )})
   output$tclosedbox <- renderValueBox({
     valueBox(
       paste0(aantal$freq[aantal$Status == "CLOSED_TEMP"]),
-      subtitle= "Number of temporarly closed supercharger stations", 
+      subtitle= "Number of temporarly closed supercharger stations", color = "red"
     )})
   
   #histogram: vergelijken met teslaverkoop 
