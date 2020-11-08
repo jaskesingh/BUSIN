@@ -59,7 +59,7 @@ shinyUI(
                                      multiple = T,
                                      selected = "Belgium"
                                      ),
-                         plotOutput("gcountry")
+                         plotlyOutput("gcountry")
                          )
                 ),
               

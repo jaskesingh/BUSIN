@@ -29,17 +29,17 @@ shinyServer(function(input, output, session) {
             labs(y = "Number of respondents", fill = "Buy EV")
     })
     
-    output$gcountry <- renderPlot({
-        eusurvey %>% filter(Country %in% input$gcountry) %>% 
-            ggplot(aes(Gender)) + 
+    output$gcountry <- renderPlotly({
+        f2 <- eusurvey %>% filter(Country %in% input$gcountry)
+        p2 <- f2 %>% ggplot(aes(Gender)) + 
             geom_bar(aes(fill = buy_electric), position = "dodge") +
             scale_y_continuous(limits = c(0, 500)) + facet_wrap(~Country) + 
             labs(y = "Number of respondents", fill = "Buy EV")
-        
+        ggplotly(p2)
     })
     
     output$country <- renderDataTable({
-        t1 <- eusurvey %>% filter(Country == input$country) %>% 
+        t1 <- eusurvey %>% filter(Country == input$country) %>%
             group_by(Country, Gender, buy_electric) %>% 
             summarise(median(Age), n = n()) %>% 
             arrange(desc(n))
@@ -65,7 +65,7 @@ shinyServer(function(input, output, session) {
     
     output$surveytotal <- renderValueBox({
         valueBox(
-            nrow(eusurvey), subtitle = "Total number of respondents", icon = "user"
+            nrow(eusurvey), subtitle = "Total number of respondents"
         )
     })
     
