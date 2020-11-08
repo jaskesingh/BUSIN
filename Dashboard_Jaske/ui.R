@@ -66,27 +66,6 @@ shinyUI(
                 ), 
                 width = 14
               ),
-              
-              tabBox(
-                title = "Based on gender",
-                tabPanel("Female", 
-                         plotOutput("efemale")
-                         ),
-                tabPanel("Male", 
-                         plotOutput("emale")
-                         ),
-                tabPanel("Country based",
-                         selectInput(inputId = "gcountry",
-                                     label = "Choose country",
-                                     choices = levels(eusurvey$Country),
-                                     multiple = T,
-                                     selected = "Belgium"
-                                     ),
-                         plotlyOutput("ggcountry")
-                         ), 
-                width = 14
-                ),
-              
               tabBox(
                 title = "Based on",
                 tabPanel("Income", 
@@ -98,9 +77,10 @@ shinyUI(
                          selectInput(inputId = "incomegr",
                                      label = "choose income group",
                                      choices = levels(eusurvey$Income_group),
+                                     multiple = T,
                                      selected = "middle"
                          ),
-                         plotOutput("view")
+                         plotlyOutput("view")
                 ),
                 tabPanel("Employment status", 
                          selectInput(inputId = "estatus",
@@ -110,9 +90,29 @@ shinyUI(
                                      multiple = T
                          ),
                          plotlyOutput("employ")
+                         ),
+                tabPanel("Gender",
+                       selectInput(inputId = "gcountry",
+                                   label = "Choose country",
+                                   choices = levels(eusurvey$Country),
+                                   multiple = T,
+                                   selected = "Belgium"
+                       ),
+                       plotlyOutput("ggcountry")
+                       ),
+                tabPanel("Plan to buy car",
+                         selectInput(inputId = "carplancountry",
+                                     label = "Choose country",
+                                     choices = levels(eusurvey$Country),
+                                     selected = "Belgium"),
+                         plotlyOutput("plan")),
+                width = 14
               ),
-              width = 14
-              )
+              box(
+                title = "Proportion of people willing to buy ev",
+                  plotlyOutput("propev"),
+                width = 14
+                            )
             )
             ),
           tabItem(
