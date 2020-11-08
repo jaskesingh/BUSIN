@@ -5,21 +5,13 @@ library(shiny)
 library(shinydashboard)
 library(tidyverse)
 library(readxl)
+library(scales)
 
-# Load and clean data
-# Next to read_xlsx, there is also a read.xlsx function, in case the ...
-# ... big "growth" table needs some more functions.
-## loyalty_per_brand_1 <- read_xlsx("Data/loyalty_per_brand_v2.xlsx", skip = 2)
 
-#Inspect data -- Convert to comment later
-View(loyalty_per_brand_1)
-dim(loyalty_per_brand_1)
-str(loyalty_per_brand_1)
-head(loyalty_per_brand_1)
 
 # Shiny UI
 shinyUI(
-  dashboardPage(
+  dashboardPage(skin = "red", 
     
     dashboardHeader(title = "Menu"),
     
@@ -46,12 +38,20 @@ shinyUI(
                 ),
         
         tabItem(tabName = "dashboard_loyalty", 
-                fluidRow(
-                  box(title = "Loyalty per brand", status = "primary", solidHeader = T, plotOutput("histogram_loyalty")),
-                  box(status = "primary", sliderInput("bins_loyalty", "Number of Breaks", 1, 100, 50))
-                  )
-                )
-          
+                  fluidRow(
+                    box(title = "Loyalty per brand (Work-in-progress)",
+                        "Percentage of car buyers that chose the same brand when buying a new car",
+                        status = "danger",
+                        solidHeader = T,
+                        plotOutput("loyalty_col"),
+                        checkboxGroupInput(inputId = "loyalty_checkboxes",
+                                           label = "Choose class(es)",
+                                           choices = c("Luxury", "Mass market"),
+                                           selected = "Luxury"
+                                          )
+                        )
+                          )
+                ) 
         )
     )
       

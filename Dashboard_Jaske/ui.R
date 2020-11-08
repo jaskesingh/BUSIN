@@ -29,71 +29,99 @@ shinyUI(
     dashboardSidebar(
       sidebarMenu(
         menuItem(
-          "Customers", 
-          tabName = "customers",
-          menuSubItem("test", tabName = "test"),
-          menuSubItem("Test1", tabName = "test1"),
-          menuSubItem("Income", tabName = "income")
+          "EU Survey 2018", 
+          tabName = "survey"
+          ),
+        menuItem(
+          "Sales",
+          tabName = "sales",
+          menuSubItem(
+            "Competition",
+            tabName = "competition"
           )
+        )
         )
       ),
     
     dashboardBody(
       tabItems(
           tabItem(
-            tabName = "test", 
-            box(
-              valueBoxOutput("surveytotal")),
-            tabBox(
-              title = "Based on gender",
-              tabPanel("Female", plotOutput("efemale")),
-              tabPanel("Male", plotOutput("emale")),
-              tabPanel("Country based",
-                       selectInput(inputId = "gcountry",
-                                   label = "Choose country",
-                                   choices = levels(eusurvey$Country),
-                                   multiple = T,
-                                   selected = "Belgium"),
-                       plotOutput("gcountry"))
+            tabName = "survey",
+            fluidRow(
+              valueBoxOutput("surveytotal"),
+              valueBoxOutput("totalcountries")
+              ),
+            fluidRow(
+              box(
+                title = "Per country",
+                tabPanel(" ", 
+                         selectInput(inputId = "country",
+                                     label = "Choose country",
+                                     choices = levels(eusurvey$Country
+                                     ),
+                                     selected = "Belgium",
+                                     multiple = T
+                         ),
+                         dataTableOutput("country")
+                ), 
+                width = 14
+              ),
+              
+              tabBox(
+                title = "Based on gender",
+                tabPanel("Female", 
+                         plotOutput("efemale")
+                         ),
+                tabPanel("Male", 
+                         plotOutput("emale")
+                         ),
+                tabPanel("Country based",
+                         selectInput(inputId = "gcountry",
+                                     label = "Choose country",
+                                     choices = levels(eusurvey$Country),
+                                     multiple = T,
+                                     selected = "Belgium"
+                                     ),
+                         plotlyOutput("ggcountry")
+                         ), 
+                width = 14
+                ),
+              
+              tabBox(
+                title = "Based on",
+                tabPanel("Income", 
+                         selectInput(inputId = "incountry",
+                                     label = "choose Country",
+                                     choices = levels(eusurvey$Country),
+                                     selected = "Belgium"
+                         ),
+                         selectInput(inputId = "incomegr",
+                                     label = "choose income group",
+                                     choices = levels(eusurvey$Income_group),
+                                     selected = "middle"
+                         ),
+                         plotOutput("view")
+                ),
+                tabPanel("Employment status", 
+                         selectInput(inputId = "estatus",
+                                     label = "Choose employment status",
+                                     choices = levels(eusurvey$Employment_status),
+                                     selected = "Studying",
+                                     multiple = T
+                         ),
+                         plotlyOutput("employ")
+              ),
+              width = 14
               )
+            )
             ),
-        
           tabItem(
-            tabName = "test1",
-                box(
-                  title = "Per country",
-                  tabPanel(" ", 
-                           selectInput(inputId = "country",
-                                  label = "Choose country",
-                                  choices = levels(eusurvey$Country),
-                                  selected = "Belgium",
-                                  multiple = T),
-                           dataTableOutput("country")), width = 8)
-                )
-          ),
-      
-          tabItem(tabName = "income",
-                  tabBox(
-                  title = "Based on income",
-                  tabPanel("tab1", 
-                           selectInput(inputId = "incountry",
-                                               label = "choose Country",
-                                               choices = levels(eusurvey$Country),
-                                               selected = "Belgium"),
-                           selectInput(inputId = "incomegr",
-                                       label = "choose income group",
-                                       choices = levels(eusurvey$Income_group),
-                                       selected = "middle"),
-                           plotOutput("view")),
-                  tabPanel("tab2", 
-                           selectInput(inputId = "estatus",
-                                               label = "Choose employment status",
-                                               choices = levels(eusurvey$Employment_status),
-                                               selected = "Studying",
-                                               multiple = T),
-                           plotlyOutput("employ"))
-                  )
-                  )
+            tabName = "competition",
+            fluidRow(
+              
+            )
+          )
       )
     )
   )
+)

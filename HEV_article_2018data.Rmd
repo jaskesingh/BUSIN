@@ -107,6 +107,10 @@ hev1 %>% ggplot(aes(Employment_status)) +
 ```
 
 ```{r}
-nrow(hev1)
+p1 <- hev1 %>% ggplot(aes(Employment_status)) +
+    geom_bar(aes(fill = buy_electric), position = "dodge") +
+    scale_y_continuous(limits = c(0, 6000)) +
+    labs(y = "Number of respondents", fill = "Buy EV")
+ggplotly(p1)
 ```
 
