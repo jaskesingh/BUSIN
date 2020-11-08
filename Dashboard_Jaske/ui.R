@@ -31,7 +31,15 @@ shinyUI(
         menuItem(
           "EU Survey 2018", 
           tabName = "survey"
+          ),
+        menuItem(
+          "Sales",
+          tabName = "sales",
+          menuSubItem(
+            "Competition",
+            tabName = "competition"
           )
+        )
         )
       ),
     
@@ -106,7 +114,13 @@ shinyUI(
               width = 14
               )
             )
+            ),
+          tabItem(
+            tabName = "competition",
+            fluidRow(
+              
             )
+          )
       )
     )
   )
