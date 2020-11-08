@@ -65,7 +65,13 @@ shinyServer(function(input, output, session) {
     
     output$surveytotal <- renderValueBox({
         valueBox(
-            nrow(eusurvey), subtitle = "Number of Survey respondents"
+            nrow(eusurvey), subtitle = "Total number of respondents", icon = "user"
+        )
+    })
+    
+    output$totalcountries <- renderValueBox({
+        valueBox(
+            length(unique(eusurvey$Country)), subtitle = "Total number of countries"
         )
     })
 })

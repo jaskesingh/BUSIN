@@ -107,6 +107,6 @@ hev1 %>% ggplot(aes(Employment_status)) +
 ```
 
 ```{r}
-nrow(hev1)
+length(unique(hev1$Country))
 ```
 
