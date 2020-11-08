@@ -29,7 +29,7 @@ shinyServer(function(input, output, session) {
             labs(y = "Number of respondents", fill = "Buy EV")
     })
     
-    output$gcountry <- renderPlotly({
+    output$ggcountry <- renderPlotly({
         f2 <- eusurvey %>% filter(Country %in% input$gcountry)
         p2 <- f2 %>% ggplot(aes(Gender)) + 
             geom_bar(aes(fill = buy_electric), position = "dodge") +

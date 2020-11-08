@@ -59,7 +59,7 @@ shinyUI(
                                      multiple = T,
                                      selected = "Belgium"
                                      ),
-                         plotlyOutput("gcountry")
+                         plotlyOutput("ggcountry")
                          )
                 ),
               
@@ -79,8 +79,8 @@ shinyUI(
               ),
               
               tabBox(
-                title = "Based on income",
-                tabPanel("tab1", 
+                title = "Based on",
+                tabPanel("Income", 
                          selectInput(inputId = "incountry",
                                      label = "choose Country",
                                      choices = levels(eusurvey$Country),
@@ -93,7 +93,7 @@ shinyUI(
                          ),
                          plotOutput("view")
                 ),
-                tabPanel("tab2", 
+                tabPanel("Employment status", 
                          selectInput(inputId = "estatus",
                                      label = "Choose employment status",
                                      choices = levels(eusurvey$Employment_status),
