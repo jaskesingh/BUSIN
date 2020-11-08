@@ -6,6 +6,17 @@ library(shinydashboard)
 library(tidyverse)
 library(readxl)
 
+# Load and clean data
+# Next to read_xlsx, there is also a read.xlsx function, in case the ...
+# ... big "growth" table needs some more functions.
+## loyalty_per_brand_1 <- read_xlsx("Data/loyalty_per_brand_v2.xlsx", skip = 2)
+
+#Inspect data
+# View(loyalty_per_brand_1)
+# dim(loyalty_per_brand_1)
+# str(loyalty_per_brand_1)
+# head(loyalty_per_brand_1)
+
 # Static ggplots
 # # Loyalty
 # loyalty_per_brand_1
@@ -33,11 +44,6 @@ shinyServer(function(input, output){
   # Growth template
   output$histogram_growth <- renderPlot({
     hist(faithful$eruptions, breaks = input$bins_growth)
-  })
-  
-  # Loyalty template
-  output$histogram_loyalty <- renderPlot({
-    hist(faithful$eruptions, breaks = input$bins_loyalty)
   })
   
   # Real loyalty
