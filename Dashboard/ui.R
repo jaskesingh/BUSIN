@@ -264,7 +264,7 @@ shinyUI(
                             fluidRow(
                               box(title = "Car revenue",
                                   "In million",
-                                  solidHeader = T, status="danger", plotOutput("colrev")),
+                                  solidHeader = T, status="danger", plotlyOutput("colrev")),
                               box(title = "Free cashflow", 
                                   "In million", solidHeader = T, status="danger", plotOutput(("colfrcash")))
                             ),
