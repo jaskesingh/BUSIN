@@ -8,7 +8,6 @@ library(readxl)
 library(scales)
 
 
-
 # Shiny UI
 shinyUI(
   dashboardPage(skin = "red", 
