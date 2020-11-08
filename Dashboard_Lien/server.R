@@ -17,10 +17,8 @@ library(tidyr)
 library(lubridate)
 library(readr)
 library(plotly)
-library(scales)
-library(ggiraph)
 library(maps)
-library(RColorBrewer)
+
 
 
 #financiele cijfers
@@ -35,6 +33,11 @@ countriesafinfrastructure <- read_xlsx("Data/countries overview of af infrastruc
 revenue <- function(yearinput,df) {
   revenue <- df %>% filter(df$Year == yearinput)
   return(revenue)
+}
+somvoorbox <- function(df, jaar, inputjaar, colnaam) {
+  somjaren <- df %>% filter(jaar >= min(inputjaar) & jaar <= max(inputjaar)) %>% group_by(jaar) %>% summarize(totaal = sum(colnaam, na.rm = TRUE))
+  somresultaat <- format(round(sum(somjaren$totaal, na.rm = TRUE)/1000000, 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)
+  return(somresultaat)
 }
 
 #uitbreiding europa, data in juiste vorm krijgen
@@ -59,34 +62,6 @@ some.eu.map <- map_data("world", region = some.eu.countries)
 tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
 
 
-    # world_data <- ggplot2::map_data('world')
-    # world_data <- fortify(world_data)
-    # head(world_data)
-    # 
-    # worldMaps <- function(teslapercountrysales,world_data, teslajaar) {
-    #   my_theme <- function() {
-    #     theme_bw() + theme(axis.title = element_blank(),
-    #                        axis.text = element_blank(),
-    #                        axis.ticks = element_blank(),
-    #                        panel.grid.major = element_blank(),
-    #                        panel.grid.minor = element_blank(),
-    #                        panel.background = element_blank(),
-    #                        legend.position = "bottom",
-    #                        panel.border = element_blank(),
-    #                        strip.background = element_rect(fill = 'white', colour = 'white'))
-    #   }
-    #   plotdf <- teslapercountrysales[teslapercountrysales$jaar == teslajaar]
-    #   
-    #   world_data['jaar'] <- rep(teslajaar, nrow(world_data))
-    #   world_data['waarde'] <- plotdf$waarde[match(world_data$region, plotdf$Country)]
-    #   
-    #   g <- ggplot() +
-    #     geom_polygon_interactive(data = subset(world_data, lat >= -60 & lat <= 90), color = 'gray70', size = 0.1, 
-    #                              aes(x = lat, fill = waarde, group = group, tooltip= sprintf("%s<br/>%s", Country, waarde))) +
-    #     scale_fill_gradientn(colours = brewer.pal(5, "RdBu"), na.value = 'white') +
-    #     labs(fill = teslajaar, color = teslajaar, title = NULL, x = NULL, y = NULL) + my_theme()
-    #   return(g)
-    # }
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
   #financieel tabblad
@@ -95,16 +70,16 @@ shinyServer(function(input, output) {
     output$revbox <- renderValueBox({
       if (sortofgraph() == TRUE) {
       valueBox(
-        paste0(format(round(sum(Revenue$`1000_revenue`[Revenue$Year == input$Yearrev], na.rm = TRUE)/1000, 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
+        paste0(format(round(sum(Revenue$`Automotive Revenues Tesla`[Revenue$Year == input$Yearrev], na.rm = TRUE)/1000000, 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
         subtitle= paste0("Revenue ", input$Yearrev, " in million"), 
         icon = icon("dollar-sign"), color = 'red'
       )
       }
       else {
-        somjaren <- c(sum(Revenue$`1000_revenue`[Revenue$Year == min(input$Yearrevline)], na.rm = TRUE):
-                        sum(Revenue$`1000_revenue`[Revenue$Year == max(input$Yearrevline)], na.rm = TRUE))
+        
+        somjaren <- Revenue %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline)) %>% group_by(Year) %>% summarize(totaal = sum(`Automotive Revenues Tesla`, na.rm = TRUE))
         valueBox(
-          paste0(format(round(sum(somjaren, na.rm = TRUE)/1000, 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
+          paste0(format(round(sum(somjaren$totaal, na.rm = TRUE)/1000000, 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
           subtitle= paste0("Revenue from ", min(input$Yearrevline), " until ", max(input$Yearrevline), " in million"), 
           icon = icon("dollar-sign"), color = 'red'
         )
@@ -120,10 +95,10 @@ shinyServer(function(input, output) {
       )
       }
       else {
-        somjaren <- c(sum(Free_cashflow$`free cash flow`[Free_cashflow$Year == min(input$Yearrevline)], na.rm = TRUE):
-                        sum(Free_cashflow$`free cash flow`[Free_cashflow$Year == max(input$Yearrevline)], na.rm = TRUE))
+        somjaren <- Free_cashflow %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline)) %>% group_by(Year) %>% summarize(totaal = sum(`free cash flow`, na.rm = TRUE))
+
         valueBox(
-          paste0(format(round(sum(somjaren, na.rm = TRUE)/1000000, 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
+          paste0(format(round(sum(somjaren$totaal, na.rm = TRUE)/1000000, 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
           subtitle = paste0("Free cashflow from ", min(input$Yearrevline), " until ", max(input$Yearrevline), " in million"), 
           icon = icon("dollar-sign"), color = 'red'
         )
@@ -139,15 +114,15 @@ shinyServer(function(input, output) {
       )
       }
       else {
-        somjaren <- c(sum(Gross_profit$`Automotive gross profit GAAP`[Gross_profit$Year == min(input$Yearrevline)], na.rm = TRUE):
-                        sum(Gross_profit$`Automotive gross profit GAAP`[Gross_profit$Year == max(input$Yearrevline)], na.rm = TRUE))
+        somjaren <- Gross_profit %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline)) %>% group_by(Year) %>% summarize(totaal = sum(`Automotive gross profit GAAP`, na.rm = TRUE))
         valueBox(
-          paste0(format(round(sum(somjaren, na.rm = TRUE)/1000000, 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
+          paste0(format(round(sum(somjaren$totaal, na.rm = TRUE)/1000000, 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
           subtitle = paste0("Gross profit from ", min(input$Yearrevline), " until ", max(input$Yearrevline), " in million"),  
           icon = icon("piggy-bank"), color = 'red'
         )
       }
     })
+
     
     output$colrev <- renderPlot({
       if (sortofgraph() == TRUE) {
@@ -156,69 +131,92 @@ shinyServer(function(input, output) {
         x    <- Revenue$Year
         Yearrev <- seq(min(x), max(x), length.out = input$Yearrev)
 
-        # draw the histogram with the specified number of bins
-        revenue(input$Yearrev, Revenue) %>% ggplot(aes(x = Quarter, y = `1000_revenue`, fill= Quarter))+ geom_col(position="dodge") + 
-          labs(title = input$Yearrev, y = 'Automotive revenue')  +
+        revvar <- revenue(input$Yearrev, Revenue)
+        
+         revvar %>% ggplot(aes(x = Quarter, y = `Automotive Revenues Tesla`/1000000, fill= Quarter))+ geom_col(position="dodge") + 
+          labs(title = input$Yearrev, y = 'Automotive revenue')  + geom_text(aes(label = `Automotive Revenues Tesla`/1000000), vjust = -0.5 ) +
           scale_y_continuous(limits = c(0, 8000), breaks = seq(0,8000, by= 1000)) 
+         
         
       }
       else {
         y    <- Revenue$Year
         Yearrevline <- seq(min(y), max(y))
+        revvar <- Revenue %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline)) %>% group_by(Year) %>% 
+          mutate("totaal" = sum(`Automotive Revenues Tesla`, na.rm = TRUE)/1000000) %>% select(Year, totaal)%>% distinct()
         
-       Revenue %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline)) %>% group_by(Year) %>% 
-          mutate("totaal" = sum(`1000_revenue`, na.rm = TRUE)) %>% select(Year, totaal)%>% distinct() %>% ggplot(aes(x = Year , y = totaal))+ geom_line() + 
-          labs(y = 'Automotive revenue')  +
-          scale_y_continuous(limits = c(0, 25000), breaks = seq(0,25000, by= 5000)) + 
-          scale_x_continuous(breaks = seq(min(input$Yearrevline), max(input$Yearrevline), by = 1)) 
+        revvar %>% ggplot(aes(x = Year , y = totaal))+ geom_line() + geom_point() + geom_text(aes(label = format(round(totaal, 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)), vjust = -0.5 ) +
+          labs(y = 'Automotive revenue') +
+          scale_y_continuous(limits = c(0, 21000), breaks = seq(0, 21000, by = 5000))
+        
+          
+        
       }
     })
     
     output$colfrcash <- renderPlot({
       if (sortofgraph() == TRUE) {
-      revenue(input$Yearrev, Free_cashflow) %>% 
-        ggplot(aes(x= Quarter, y= `free cash flow`/1000, fill = Quarter)) + 
-        geom_col(position="dodge") + 
+        freecashvar <- revenue(input$Yearrev, Free_cashflow)
+        
+       
+        freecashvar %>% ggplot(aes(x= Quarter, y= `free cash flow`/1000000, fill = Quarter)) + 
+        geom_col(position="dodge") + geom_text(aes(label = `free cash flow`/1000000), vjust = -0.5 ) +
         labs(title = input$Yearrev, y = 'Free cash flow') + 
         scale_y_continuous(limits = c(-1500, 1500), breaks = seq(-1500,1500, by = 500))
+       
       }
       else {
-        Free_cashflow %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline)) %>% group_by(Year) %>% 
-          mutate("totaal" = sum(`free cash flow`, na.rm = TRUE)/1000) %>% select(Year, totaal)%>% distinct() %>% ggplot(aes(x = Year , y = totaal))+ 
-          geom_line() + 
-          labs(y = 'Free cash flow')  + scale_y_continuous(limits = c(-4000, 1300), breaks = seq(-4000, 1300, by= 1000)) 
+        freecashvar <-  Free_cashflow %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline)) %>% group_by(Year) %>% 
+          mutate("totaal" = sum(`free cash flow`, na.rm = TRUE)/1000000) %>% select(Year, totaal)%>% distinct()
+        
+       freecashvar %>% ggplot(aes(x = Year , y = totaal))+ 
+          geom_line() + geom_point() + geom_text(aes(label = format(round(totaal, 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)), vjust = -0.5 ) +
+          labs(y = 'Free cash flow')  + scale_y_continuous(limits = c(-4000, 1300), breaks = seq(-4000, 1300, by= 1000))
+       
       }
     })
     
     output$colgrpr <- renderPlot({
       if (sortofgraph() == TRUE) {
-      revenue(input$Yearrev, Gross_profit) %>% 
-        ggplot(aes(x = Quarter, y = `Automotive gross profit GAAP`/1000, fill= Quarter)) + 
-        geom_col(position="dodge") + 
-        labs(title = input$Yearrev, y= 'Gross profit') + 
-        scale_y_continuous(limits = c(0,2500), breaks = seq(0,2500, by= 500))
+        grossprofitvar <- revenue(input$Yearrev, Gross_profit) 
+        
+        grossprofitvar %>% 
+          ggplot(aes(x = Quarter, y = `Automotive gross profit GAAP`/1000000, fill= Quarter)) + 
+          geom_col(position="dodge") +  geom_text(aes(label = `Automotive gross profit GAAP`/1000000), vjust = -0.5 ) +
+          labs(title = input$Yearrev, y= 'Gross profit') + 
+          scale_y_continuous(limits = c(0,2500), breaks = seq(0,2500, by= 500))
+        
       }
       else {
-        Gross_profit %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline)) %>% group_by(Year) %>% 
-          mutate("totaal" = sum(`Automotive gross profit GAAP`, na.rm = TRUE)/1000) %>% select(Year, totaal)%>% distinct() %>% ggplot(aes(x = Year , y = totaal))+ 
-          geom_line() + 
+        grossprofitvar <- Gross_profit %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline)) %>% group_by(Year) %>% 
+          mutate("totaal" = sum(`Automotive gross profit GAAP`, na.rm = TRUE)/1000000) %>% select(Year, totaal)%>% distinct() 
+        
+        grossprofitvar %>% ggplot(aes(x = Year , y = totaal)) + 
+          geom_line() + geom_point() + geom_text(aes(label = format(round(totaal, 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)), vjust = -0.5 ) +
           labs(y = "Gross profit")  + scale_y_continuous(limits = c(0, 5000), breaks = seq(0, 5000, by= 1000)) 
+        
       }
     })
     
     output$colgrmar <- renderPlot({
       if (sortofgraph() == TRUE) {
-      revenue(input$Yearrev, Gross_Margin) %>% 
+        grossmarginvar <- revenue(input$Yearrev, Gross_Margin)
+        
+       grossmarginvar %>% 
         ggplot(aes(x = Quarter, y = `Gross margin Automotive GAAP`, fill= Quarter)) + 
-        geom_col(position="dodge") + 
+        geom_col(position="dodge") + geom_text(aes(label = `Gross margin Automotive GAAP`), vjust = -0.5 ) +
         labs(title = input$Yearrev, y= 'Gross margin') + 
         scale_y_continuous(limits = c(0,30), breaks = seq(0, 30, by= 5))
+       
       }
       else {
-        Gross_Margin %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline)) %>% group_by(Year) %>% 
-          mutate("totaal" = sum(`Gross margin Automotive GAAP`, na.rm = TRUE)) %>% select(Year, totaal)%>% distinct() %>% ggplot(aes(x = Year , y = totaal))+ 
-          geom_line() + 
+        grossmarginvar <- Gross_Margin %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline)) %>% group_by(Year) %>% 
+          mutate("totaal" = sum(`Gross margin Automotive GAAP`, na.rm = TRUE)) %>% select(Year, totaal)%>% distinct()
+        
+         grossmarginvar %>% ggplot(aes(x = Year , y = totaal)) + 
+          geom_line() + geom_point() + geom_text(aes(label = format(round(totaal, 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)), vjust = -0.5 ) +
           labs(y = "Gross margin")  + scale_y_continuous(limits = c(0, 100), breaks = seq(0, 100, by= 10))
+        
       }
         })
     
@@ -226,36 +224,50 @@ shinyServer(function(input, output) {
     checkeurope <- reactive({input$Europe})
     output$colpascar <- renderPlot({
       if (checkeurope() == 2) {
-      countriesafpassengercars %>% filter(Country == input$EUoptions, Fuel %in% input$EUcheck) %>% 
-        ggplot(aes(x = Year, y = waardes, fill = Fuel))+ 
+        countriespasscarvar <- countriesafpassengercars %>% filter(Country == input$EUoptions, Fuel %in% input$EUcheck)
+        
+       countriespasscarvar %>% 
+        ggplot(aes(x = Year, y = waardes, fill = Fuel)) + 
         geom_col(position = "dodge") + 
-        labs(title = input$EUoptions, y = '')  + scale_x_continuous(breaks = seq(2008, 2020, by = 1))
+        labs(title = input$EUoptions, y = '')  + 
+        scale_y_continuous(limits = c(0, 3600000), breaks = seq(0,4000000, by= 500000)) +
+        scale_x_continuous(limits= c(min(countriesafpassengercars$Year), max(countriesafpassengercars$Year)) , breaks = seq(min(countriesafpassengercars$Year), max(countriesafpassengercars$Year), by = 1))
+       
       }
       else {
-        countriesafpassengercars %>% filter(Fuel %in% input$EUcheck, Year == input$YearEU) %>% 
+        countriespasscarvar <- countriesafpassengercars %>% filter(Fuel %in% input$EUcheck, Year == input$YearEU)
+        
+         countriespasscarvar %>% 
           ggplot(aes(x = Country, y = waardes, fill = Fuel ))+ 
           geom_col(position = "dodge") + 
           labs(title = input$YearEU, y = '')  + 
           scale_y_continuous(limits = c(0, 3600000), breaks = seq(0,4000000, by= 500000)) + 
           coord_flip()
+         
         }
     })
     output$colinfr <- renderPlot({
       if (checkeurope() == 2) {
-        countriesafinfrastructure %>% filter(Country == input$EUoptions, Fuel %in% input$EUcheckinfr) %>% 
+        countriesinfrvar <- countriesafinfrastructure %>% filter(Country == input$EUoptions, Fuel %in% input$EUcheckinfr)
+        
+        countriesinfrvar %>% 
           ggplot(aes(x = Year, y = waardes, fill = Fuel))+ 
           geom_col(position = "dodge") + 
           labs(title = input$EUoptions, y = '')  + 
           scale_y_continuous(limits = c(0,65000), breaks = seq(0,65000, by= 5000)) +
-          scale_x_continuous(limits = c(2008, max(input$YearEU)), breaks = seq(2008, 2020, by = 1))
+          scale_x_continuous(limits = c(min(countriesafinfrastructure$Year), max(countriesafinfrastructure$Year)), breaks = seq(min(countriesafinfrastructure$Year), max(countriesafinfrastructure$Year), by = 1))
+        
       }
       else {
-        countriesafinfrastructure %>% filter(Fuel %in% input$EUcheckinfr, Year == input$YearEU) %>% 
+        countriesinfrvar <- countriesafinfrastructure %>% filter(Fuel %in% input$EUcheckinfr, Year == input$YearEU)
+        
+         countriesinfrvar %>% 
           ggplot(aes(x = Country, y = waardes, fill = Fuel))+ 
           geom_col(position = "dodge") + 
           labs(title = input$YearEU, y = '')  + 
           scale_y_continuous(limits = c(0, 65000), breaks = seq(0,65000, by= 5000)) +
           coord_flip()
+         
       }
     })
     output$distPlot <- renderPlot({
@@ -269,7 +281,8 @@ shinyServer(function(input, output) {
         return(teslamap)
       }
       
-      gg <- teslamap(input$teslajaar, tesla.eu.map) %>% ggplot() + geom_map(dat = tesla.eu.map, map = tesla.eu.map, aes(map_id = region), fill = "white", color="black")
+      teslamapvar <- teslamap(input$teslajaar, tesla.eu.map)
+        gg <- teslamapvar %>% ggplot() + geom_map(dat = tesla.eu.map, map = tesla.eu.map, aes(map_id = region), fill = "white", color="black")
       if (input$teslajaar == "2013") {
       gg <- gg + geom_map(map = tesla.eu.map, aes(map_id = region, fill = jaar), colour = "black")
       }

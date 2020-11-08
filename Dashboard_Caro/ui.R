@@ -67,20 +67,18 @@ shinyUI(
             leafletOutput("mymap"), dataTableOutput("table01")),
           tabItem(
             tabName = "Statistics",
+            h2("Info on Tesla supercharger stations in Europe"),
             fluidRow(
-              box(title = "Info on Tesla superchargers in Europe",
-                solidHeader = T, status = "danger", width = 12,
                 valueBoxOutput("totbox"),
                 valueBoxOutput("openbox"),
                 valueBoxOutput("buildbox"),
                 valueBoxOutput("permitbox"),
                 valueBoxOutput("pclosedbox"),
                 valueBoxOutput("tclosedbox")
-                )
               ),
             fluidRow(
               box(
-                title = "Teslas/supercharger", width = 12,
+                title = "Number of Teslas per supercharger station", width = 12,
                 solidHeader = T, status = "danger", plotlyOutput("hist01"),
                 sliderInput(inputId = "Year",
                           label = "Choose year",
@@ -98,7 +96,7 @@ shinyUI(
         tabItem(
             tabName = "Competition",
             tabBox(
-              title ="Number of superchargers per country", height = 12,
+              title ="Number of supercharger stations per country", height = 12,
               tabPanel("Tab1", plotlyOutput("hist02")),
               tabPanel("Tab2", plotlyOutput("hist03")),
               selectInput(inputId = "Country2",
@@ -144,11 +142,10 @@ shinyUI(
         ),
         tabItem(
           tabName = "fueltype",
-          box( width = 12,
-            title = "Belgium", solidHeader = T, status = 'danger',
             fluidRow(
               box(
-                title = "Number of new cars sold", solidHeader = T, status = 'danger', plotlyOutput("line02"),
+                title = "Number of cars sold in Belgium", solidHeader = T, status = 'danger', plotlyOutput("line02"),
+                radioButtons("Region", label= "Choose which kind of cars you want to see on the graph", choices = list("New" = 1, "Second hand" = 2)),
                 sliderInput(inputId = "Year3",
                             label = "Choose year",
                             min = 2012,
@@ -158,45 +155,19 @@ shinyUI(
                             label = "Choose fuel type",
                             choices = nieuw$Fuel,
                             multiple = TRUE,
-                            selected = "elektrisch")
+                            selected = "Electric")
                 
               ),
               box(
-                title = "Market share of new cars by fuel type", solidHeader = T, status = 'danger', plotlyOutput("pie02"),
+                title = "Market share of cars by fuel type in Belgium", solidHeader = T, status = 'danger', plotlyOutput("pie02"),
+                radioButtons("Region2", label= "Choose which kind of cars you want to see on the graph", choices = list("New" = 1, "Second hand" = 2)),
                 sliderInput(inputId = "Year5",
                             label = "Choose year",
                             min = 2012,
                             max = 2019,
                             value = 2019)
             )
-          ),
-          fluidRow(
-            box(
-              title = "Number of second hand cars sold", solidHeader = T, status = 'danger', plotlyOutput("line03"),
-              sliderInput(inputId = "Year4",
-                          label = "Choose year",
-                          min = 2012,
-                          max = 2019,
-                          value = c(2012, 2019)),
-              selectInput(inputId = "Fuel2",
-                          label = "Choose fuel type",
-                          choices = nieuw$Fuel,
-                          multiple = TRUE,
-                          selected = "elektrisch")
-              
-            ),
-            box(
-              title = "Market share of second hand cars by fuel type", solidHeader = T, status = 'danger', plotlyOutput("pie03"),
-              sliderInput(inputId = "Year6",
-                          label = "Choose year",
-                          min = 2012,
-                          max = 2019,
-                          value = 2019)
-            )
-          )
         ),
-        box(
-          title = "EU", solidHeader = T, status = 'danger', width = 12,
           fluidRow(
             box(
               title = "Market Share of new cars in the EU over the years", plotlyOutput("hist05"), solidHeader = T, status = 'danger',
@@ -219,7 +190,6 @@ shinyUI(
                           value = 2019)
             )
           )
-        )
       ),
       tabItem(
         tabName = "Purchaseprocess",
