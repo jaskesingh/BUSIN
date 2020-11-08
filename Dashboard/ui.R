@@ -71,12 +71,12 @@ shinyUI(
                 dashboardSidebar(
                   sidebarMenu(
                     sidebarSearchForm("searchText", "buttonSearch", "Search"),
-                    menuItem("Superchargers", tabName = "Superchargers", newTab = T, menuSubItem("Map", tabName = "Map"), menuSubItem("Statistics", tabName = "Statistics"), 
-                             menuSubItem("Competition", tabName = "Competition")),
                     menuItem("Growth", tabName = "Growth", newTab = T, menuSubItem("Sales per segment", tabName = "Salespersegment"), menuSubItem("Sales per fuel type", tabName = "fueltype")),
                     menuItem("Customers", tabName = "Customers", newTab = T, menuSubItem("Purchase process", tabName = "Purchaseprocess")),
                     menuItem("Sales", tabName = "Sales", newTab =T, menuSubItem("Periodic analysis", tabName = "Periodic")),
                     menuItem("Finance", tabName = "Omzet"),
+                    menuItem("Superchargers", tabName = "Superchargers", newTab = T, menuSubItem("Map", tabName = "Map"), menuSubItem("Statistics", tabName = "Statistics"), 
+                             menuSubItem("Competition", tabName = "Competition")),
                     menuItem("Expansion in Europe", tabName = "EU")
                   )),
                 dashboardBody(
