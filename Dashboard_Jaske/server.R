@@ -13,27 +13,11 @@ eusurvey <- read.csv("data/hev1.csv")
 
 shinyServer(function(input, output, session) {
     
-    output$efemale <- renderPlot({
-        eusurvey %>% filter(Gender == "F") %>% 
-            ggplot(aes(Gender)) + 
-            geom_bar(aes(fill = buy_electric), position = "dodge")  +
-            scale_y_continuous(limits = c(0, 6000)) +
-            labs(y = "Number of respondents", fill = "Buy EV")
-    })
-    
-    output$emale <- renderPlot({
-        eusurvey %>% filter(Gender == "M") %>% 
-            ggplot(aes(Gender)) + 
-            geom_bar(aes(fill = buy_electric), position = "dodge") +
-            scale_y_continuous(limits = c(0, 6000)) +
-            labs(y = "Number of respondents", fill = "Buy EV")
-    })
-    
     output$ggcountry <- renderPlotly({
         f2 <- eusurvey %>% filter(Country %in% input$gcountry)
         p2 <- f2 %>% ggplot(aes(Gender)) + 
             geom_bar(aes(fill = buy_electric), position = "dodge") +
-            scale_y_continuous(limits = c(0, 500)) + facet_wrap(~Country) + 
+            facet_wrap(~Country) + 
             labs(y = "Number of respondents", fill = "Buy EV")
         ggplotly(p2) %>% 
             layout( 
@@ -63,7 +47,6 @@ shinyServer(function(input, output, session) {
         f1 <- eusurvey %>% filter(Employment_status %in% input$estatus)
         p1 <- f1 %>% ggplot(aes(Employment_status)) +
             geom_bar(aes(fill = buy_electric), position = "dodge") +
-            scale_y_continuous(limits = c(0, 6000)) +
             labs(y = "Number of respondents", fill = "Buy EV") +
             theme(axis.text.x = element_text(angle = 60, hjust = 1))
         ggplotly(p1) %>% 
@@ -71,6 +54,16 @@ shinyServer(function(input, output, session) {
                 xaxis = list(automargin=TRUE), 
                 yaxis = list(automargin=TRUE)
             )
+    })
+    
+    output$plan <- renderPlotly({
+        f4 <- eusurvey %>% filter (Country == input$carplancountry)
+        p4 <- f4 %>% ggplot(aes(Plan_to_purchase_vehicle)) + 
+                     geom_bar(aes(fill = buy_electric), position = "dodge") + 
+                     labs(y = "Number of respondents", x = "Plan to buy car", fill = "Buy EV") +
+                     theme(axis.text.x = element_text(angle = 60, hjust = 1))
+        ggplotly(p4)
+                 
     })
     
     output$surveytotal <- renderValueBox({

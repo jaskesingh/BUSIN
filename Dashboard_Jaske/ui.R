@@ -66,7 +66,6 @@ shinyUI(
                 ), 
                 width = 14
               ),
-              
               tabBox(
                 title = "Based on",
                 tabPanel("Income", 
@@ -101,6 +100,12 @@ shinyUI(
                        ),
                        plotlyOutput("ggcountry")
                        ),
+                tabPanel("Plan to buy car",
+                         selectInput(inputId = "carplancountry",
+                                     label = "Choose country",
+                                     choices = levels(eusurvey$Country),
+                                     selected = "Belgium"),
+                         plotlyOutput("plan")),
                 width = 14
               )
             )
