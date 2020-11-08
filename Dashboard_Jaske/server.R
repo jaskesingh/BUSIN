@@ -35,7 +35,11 @@ shinyServer(function(input, output, session) {
             geom_bar(aes(fill = buy_electric), position = "dodge") +
             scale_y_continuous(limits = c(0, 500)) + facet_wrap(~Country) + 
             labs(y = "Number of respondents", fill = "Buy EV")
-        ggplotly(p2)
+        ggplotly(p2) %>% 
+            layout( 
+                xaxis = list(automargin=TRUE), 
+                yaxis = list(automargin=TRUE)
+            )
     })
     
     output$country <- renderDataTable({
@@ -60,7 +64,11 @@ shinyServer(function(input, output, session) {
             geom_bar(aes(fill = buy_electric), position = "dodge") +
             scale_y_continuous(limits = c(0, 6000)) +
             labs(y = "Number of respondents", fill = "Buy EV")
-        ggplotly(p1)
+        ggplotly(p1) %>% 
+            layout( 
+                xaxis = list(automargin=TRUE), 
+                yaxis = list(automargin=TRUE)
+            )
     })
     
     output$surveytotal <- renderValueBox({

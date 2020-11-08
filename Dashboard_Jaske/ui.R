@@ -44,6 +44,21 @@ shinyUI(
               valueBoxOutput("totalcountries")
               ),
             fluidRow(
+              box(
+                title = "Per country",
+                tabPanel(" ", 
+                         selectInput(inputId = "country",
+                                     label = "Choose country",
+                                     choices = levels(eusurvey$Country
+                                     ),
+                                     selected = "Belgium",
+                                     multiple = T
+                         ),
+                         dataTableOutput("country")
+                ), 
+                width = 14
+              ),
+              
               tabBox(
                 title = "Based on gender",
                 tabPanel("Female", 
@@ -60,23 +75,9 @@ shinyUI(
                                      selected = "Belgium"
                                      ),
                          plotlyOutput("ggcountry")
-                         )
+                         ), 
+                width = 14
                 ),
-              
-              box(
-                title = "Per country",
-                tabPanel(" ", 
-                         selectInput(inputId = "country",
-                                     label = "Choose country",
-                                     choices = levels(eusurvey$Country
-                                     ),
-                                     selected = "Belgium",
-                                     multiple = T
-                         ),
-                         dataTableOutput("country")
-                ), 
-                width = 8
-              ),
               
               tabBox(
                 title = "Based on",
@@ -101,7 +102,8 @@ shinyUI(
                                      multiple = T
                          ),
                          plotlyOutput("employ")
-              )
+              ),
+              width = 14
               )
             )
             )
