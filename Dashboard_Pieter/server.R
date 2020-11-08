@@ -75,7 +75,8 @@ shinyServer(function(input, output){
     # - Percentages schaal tot 100%
     # - (Optioneel) Namen brands groter
     # - Ggplotly zodat je precieze percentage ook ziet. Dan kan mogelijk checkbox zelfs weg.(Want wil ...
-    #   ... kunnen filteren op luxury/mass market of beiden)
+    #   ... kunnen filteren op luxury/mass market of beiden). Mss voegt plotly ook toe dat merken kan ...
+    #   ... kiezen, anders eventueel zelf toevoegen
     
     # Print plot
     loyalty_per_brand_plot
