@@ -39,7 +39,7 @@ shinyUI(
         
         tabItem(tabName = "dashboard_loyalty", 
                   fluidRow(
-                    box(title = "Loyalty per brand",
+                    box(title = "Loyalty per brand (Work-in-progress)",
                         "Percentage of car buyers that chose the same brand when buying a new car",
                         status = "danger",
                         solidHeader = T,
