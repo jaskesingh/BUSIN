@@ -7,13 +7,18 @@ library(tidyverse)
 library(readxl)
 library(scales)
 
-# Load and clean data
+# Load data
+      
+      # Loyalty
+      # Next to read_xlsx, there is also a read.xlsx function, in case the ...
+      # ... big "growth" table needs some more functions.
+      # 
+      # Opmerking aan mezelf: als error dat path niet exist, niet dit uit comments halen, wel View(loyalty_per_brand_1 runnen)
+      # loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v2.xlsx", skip = 2)
 
-# Next to read_xlsx, there is also a read.xlsx function, in case the ...
-# ... big "growth" table needs some more functions.
+# Growth
+# Growth_data <-
 
-# Opmerking aan mezelf: als error dat path niet exist, niet dit uit comments halen, wel View(loyalty_per_brand_1 runnen)
-# loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v2.xlsx", skip = 2)
 
 # Test script die later verwijderd wordt
 # Loyalty
