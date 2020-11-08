@@ -5,12 +5,13 @@ library(shiny)
 library(shinydashboard)
 library(tidyverse)
 library(readxl)
+library(scales)
 
 
 
 # Shiny UI
 shinyUI(
-  dashboardPage(
+  dashboardPage(skin = "red", 
     
     dashboardHeader(title = "Menu"),
     
@@ -38,15 +39,16 @@ shinyUI(
         
         tabItem(tabName = "dashboard_loyalty", 
                   fluidRow(
-                    box(title = "Loyalty per brand",
-                        status = "primary",
+                    box(title = "Loyalty per brand (Work-in-progress)",
+                        "Percentage of car buyers that chose the same brand when buying a new car",
+                        status = "danger",
                         solidHeader = T,
+                        plotOutput("loyalty_col"),
                         checkboxGroupInput(inputId = "loyalty_checkboxes",
                                            label = "Choose class(es)",
                                            choices = c("Luxury", "Mass market"),
                                            selected = "Luxury"
-                                          ),
-                        plotOutput("loyalty_col")
+                                          )
                         )
                           )
                 ) 
