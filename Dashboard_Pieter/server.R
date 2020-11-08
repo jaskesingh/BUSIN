@@ -17,10 +17,9 @@ library(scales)
       # loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v2.xlsx", skip = 2)
 
 
-
-
       # Growth comparison
       # growth_comp_data_3 <- read_xlsx("Data/growth_comparison_top15_2019_v3.xlsx")
+
 
 
 # Test script die later verwijderd wordt
@@ -44,7 +43,7 @@ shinyServer(function(input, output){
   })
   
   # Loyalty
-  output$loyalty_col <- renderPlot({
+  output$loyalty_bar <- renderPlot({
     
     # Make tibble (already was, just to be sure)
     loyalty_per_brand_tibble = as_tibble(loyalty_per_brand_data)
