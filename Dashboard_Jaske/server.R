@@ -50,12 +50,13 @@ shinyServer(function(input, output, session) {
         datatable(t1, filter = "top")
     })
     
-    output$view <- renderPlot({
-        eusurvey %>% 
-            filter(Country == input$incountry, Income_group == input$incomegr) %>% 
-            ggplot(aes(Income_group)) + 
+    output$view <- renderPlotly({
+        f3 <- eusurvey %>% filter(Country == input$incountry, Income_group == input$incomegr)
+        p3 <- f3 %>% ggplot(aes(Income_group)) + 
             geom_bar(aes(fill = buy_electric), position = "dodge") +
-            labs(y = "Number of respondents", fill = "Buy EV")
+            labs(y = "Number of respondents", fill = "Buy EV") +
+            theme(axis.text.x = element_text(angle = 60, hjust = 1))
+        ggplotly(p3)
     })
     
     output$employ <- renderPlotly({
@@ -63,7 +64,8 @@ shinyServer(function(input, output, session) {
         p1 <- f1 %>% ggplot(aes(Employment_status)) +
             geom_bar(aes(fill = buy_electric), position = "dodge") +
             scale_y_continuous(limits = c(0, 6000)) +
-            labs(y = "Number of respondents", fill = "Buy EV")
+            labs(y = "Number of respondents", fill = "Buy EV") +
+            theme(axis.text.x = element_text(angle = 60, hjust = 1))
         ggplotly(p1) %>% 
             layout( 
                 xaxis = list(automargin=TRUE), 
@@ -73,18 +75,14 @@ shinyServer(function(input, output, session) {
     
     output$surveytotal <- renderValueBox({
         valueBox(
-            nrow(eusurvey), subtitle = "Total number of respondents", icon = icon("user-alt")
+            nrow(eusurvey), subtitle = "Number of respondents", icon = icon("user-alt")
         )
     })
     
     output$totalcountries <- renderValueBox({
         valueBox(
-            length(unique(eusurvey$Country)), subtitle = "Total number of countries",
+            length(unique(eusurvey$Country)), subtitle = "Number of countries",
             icon = icon("globe-europe")
         )
     })
 })
-   
-#selectInput(inputId = "gender",
-#label = "choose gender",
-#choices = c("M", "F"))
