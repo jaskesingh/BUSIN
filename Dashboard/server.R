@@ -415,7 +415,7 @@ shinyServer(function(input, output, session) {
   })
   
   
-  output$colrev <- renderPlot({
+  output$colrev <- renderPlotly({
     if (sortofgraph() == TRUE) {
       
       # generate bins based on input$bins from ui.R
@@ -424,10 +424,10 @@ shinyServer(function(input, output, session) {
       
       revvar <- revenue(input$Yearrev, Revenue)
       
-      revvar %>% ggplot(aes(x = Quarter, y = `Automotive Revenues Tesla`/1000000, fill= Quarter))+ geom_col(position="dodge") + 
+      revvarp <- revvar %>% ggplot(aes(x = Quarter, y = `Automotive Revenues Tesla`/1000000, fill= Quarter))+ geom_col(position="dodge") + 
         labs(title = input$Yearrev, y = 'Automotive revenue')  + geom_text(aes(label = `Automotive Revenues Tesla`/1000000), vjust = -0.5 ) +
         scale_y_continuous(limits = c(0, 8000), breaks = seq(0,8000, by= 1000)) 
-      
+      ggplotly(revvarp)
       
     }
     else {
