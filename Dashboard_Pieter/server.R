@@ -16,8 +16,11 @@ library(scales)
       # Opmerking aan mezelf: als error dat path niet exist, niet dit uit comments halen, wel View(loyalty_per_brand_1 runnen)
       # loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v2.xlsx", skip = 2)
 
-# Growth
-# Growth_data <-
+
+
+
+      # Growth comparison
+      # growth_comp_data_3 <- read_xlsx("Data/growth_comparison_top15_2019_v3.xlsx")
 
 
 # Test script die later verwijderd wordt
