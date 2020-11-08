@@ -110,7 +110,8 @@ shinyUI(
               ),
               box(
                 title = "Proportion of people willing to buy ev",
-                  plotlyOutput("propev")
+                  plotlyOutput("propev"),
+                width = 14
                             )
             )
             ),
