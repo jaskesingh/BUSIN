@@ -7,61 +7,76 @@ library(dplyr)
 library(lubridate)
 library(readr)
 library(plotly)
+library(DT)
 
 eusurvey <- read.csv('data/hev1.csv')
 
 shinyUI(
   dashboardPage(
     skin = 'red',
-    dashboardHeader(title = "TEST",
-                    dropdownMenu(
-                      type = "tasks",
-                      taskItem(
-                        text = "Not finished yet",
-                        value = 19
-                        )
-                      )
-                    ),
+    
+    dashboardHeader(
+      title = "TEST",
+      dropdownMenu(
+        type = "tasks",
+        taskItem(
+          text = "Not finished yet",
+          value = 19
+          )
+        )
+      ),
     
     dashboardSidebar(
       sidebarMenu(
-        menuItem("Customers", tabName = "customers",
-                 menuSubItem("test", tabName = "test"),
-                 menuSubItem("Test1", tabName = "test1"),
-                 menuSubItem("Income", tabName = "income"))
-      )
-    ),
+        menuItem(
+          "Customers", 
+          tabName = "customers",
+          menuSubItem("test", tabName = "test"),
+          menuSubItem("Test1", tabName = "test1"),
+          menuSubItem("Income", tabName = "income")
+          )
+        )
+      ),
     
     dashboardBody(
       tabItems(
-        tabItem(tabName = "test",
-                tabBox(
-                  title = "Based on gender",
-                  tabPanel("Female", plotOutput("efemale")),
-                  tabPanel("Male", plotOutput("emale")),
-                  tabPanel("Country based",
-                           selectInput(inputId = "gcountry",
-                                       label = "Choose country",
-                                       choices = levels(eusurvey$Country),
-                                       multiple = T,
-                                       selected = "Belgium"),
-                           plotOutput("gcountry"))
-            
-                  )),
-        tabItem(tabName = "test1",
-                tabBox(
+          tabItem(
+            tabName = "test", 
+            box(
+              valueBoxOutput("surveytotal")),
+            tabBox(
+              title = "Based on gender",
+              tabPanel("Female", plotOutput("efemale")),
+              tabPanel("Male", plotOutput("emale")),
+              tabPanel("Country based",
+                       selectInput(inputId = "gcountry",
+                                   label = "Choose country",
+                                   choices = levels(eusurvey$Country),
+                                   multiple = T,
+                                   selected = "Belgium"),
+                       plotOutput("gcountry"))
+              )
+            ),
+        
+          tabItem(
+            tabName = "test1",
+                box(
                   title = "Per country",
-                  tabPanel(" ", selectInput(inputId = "country",
+                  tabPanel(" ", 
+                           selectInput(inputId = "country",
                                   label = "Choose country",
                                   choices = levels(eusurvey$Country),
                                   selected = "Belgium",
                                   multiple = T),
                            dataTableOutput("country")), width = 8)
-                ),
-        tabItem(tabName = "income",
-                tabBox(
+                )
+          ),
+      
+          tabItem(tabName = "income",
+                  tabBox(
                   title = "Based on income",
-                  tabPanel("tab1", selectInput(inputId = "incountry",
+                  tabPanel("tab1", 
+                           selectInput(inputId = "incountry",
                                                label = "choose Country",
                                                choices = levels(eusurvey$Country),
                                                selected = "Belgium"),
@@ -70,15 +85,15 @@ shinyUI(
                                        choices = levels(eusurvey$Income_group),
                                        selected = "middle"),
                            plotOutput("view")),
-                  tabPanel("tab2", selectInput(inputId = "estatus",
+                  tabPanel("tab2", 
+                           selectInput(inputId = "estatus",
                                                label = "Choose employment status",
                                                choices = levels(eusurvey$Employment_status),
                                                selected = "Studying",
                                                multiple = T),
-                           plotlyOutput("employ")
+                           plotlyOutput("employ"))
                   )
-                ))
-    )
+                  )
+      )
     )
   )
-)
