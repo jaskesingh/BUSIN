@@ -107,7 +107,11 @@ shinyUI(
                                      selected = "Belgium"),
                          plotlyOutput("plan")),
                 width = 14
-              )
+              ),
+              box(
+                title = "Proportion of people willing to buy ev",
+                  plotlyOutput("propev")
+                            )
             )
             ),
           tabItem(

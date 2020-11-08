@@ -66,6 +66,14 @@ shinyServer(function(input, output, session) {
                  
     })
     
+    output$propev <- renderPlotly({
+        ggplotly(eusurvey %>% group_by(Country) %>% summarize(n=n(),prop=sum(buy_electric==1)/n()) %>%
+        ggplot(aes(Country, prop)) + geom_point() + 
+            labs(y = "Percentage of people willing to buy ev", x = "Countries") +
+            theme(axis.text.x = element_text(angle = 60, hjust = 1))
+        )
+    })
+    
     output$surveytotal <- renderValueBox({
         valueBox(
             nrow(eusurvey), subtitle = "Number of respondents", icon = icon("user-alt")

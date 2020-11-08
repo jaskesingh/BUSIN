@@ -119,3 +119,9 @@ hev1 %>% filter(Country == "Austria") %>% ggplot(aes(Plan_to_purchase_vehicle)) 
 theme(axis.text.x = element_text(angle = 60, hjust = 1))
 ```
 
+```{r}
+hev1 %>% group_by(Country) %>% summarize(n=n(),prop=sum(buy_electric==1)/n()) %>%
+  ggplot(aes(Country, prop)) + geom_point() + labs(y = "Percentage of people willing to buy ev", x = "Countries") +
+theme(axis.text.x = element_text(angle = 60, hjust = 1))
+```
+
