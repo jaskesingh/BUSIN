@@ -616,6 +616,7 @@ shinyServer(function(input, output, session) {
                      strip.background = element_rect(fill = 'white', colour = 'white')) + scale_fill_manual( values = c("tomato", "skyblue"))
             
     gg
+  })
     
     output$histogram_growth <- renderPlot({
       hist(faithful$eruptions, breaks = input$bins_growth)
@@ -646,6 +647,6 @@ shinyServer(function(input, output, session) {
     })
   
 })
-})
+
   
 
