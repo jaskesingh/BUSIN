@@ -106,9 +106,29 @@ Data <- data %>% gather(January:December, key=  "Month", value="Sales") %>% muta
 Data$Month <- as.integer(Data$Month)
 Data$Year <- as.factor(Data$Year) 
 
+#Pieter
+
 #Customers: loyalty
 loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v2.xlsx", skip = 2)
+# Make tibble (already was, just to be sure)
+loyalty_per_brand_tibble = as_tibble(loyalty_per_brand_data)
 
+# Change to numeric (already was, but just to be sure)
+loyalty_per_brand_tibble$Percentage <- as.numeric(loyalty_per_brand_tibble$Percentage)
+
+#Percentages gemaakt, maar dan wordt kolomtype character. Daarna naar numeric werkt ook niet. 
+# loyalty_per_brand_tibble$Percentage <- percent(x = loyalty_per_brand_tibble$Percentage, scale = 100, accuracy = 0.1)
+# loyalty_per_brand_tibble
+
+# Clean names
+colnames(loyalty_per_brand_tibble) <- c("Ranking", "Brand", "Percentage", "Classification")
+
+# Reverse order (high to low)
+loyalty_per_brand_tibble <- loyalty_per_brand_tibble[order(loyalty_per_brand_tibble$Percentage), ]
+
+# To retain the order in the plot
+loyalty_per_brand_tibble$Brand <- factor(loyalty_per_brand_tibble$Brand,
+                                         levels = loyalty_per_brand_tibble$Brand)
 
 #Lien
 
@@ -596,6 +616,7 @@ shinyServer(function(input, output, session) {
                      strip.background = element_rect(fill = 'white', colour = 'white')) + scale_fill_manual( values = c("tomato", "skyblue"))
             
     gg
+  })
     
     output$histogram_growth <- renderPlot({
       hist(faithful$eruptions, breaks = input$bins_growth)
@@ -604,38 +625,13 @@ shinyServer(function(input, output, session) {
     # Loyalty
     output$loyalty_bar <- renderPlot({
       
-      
-      
-      # Make tibble (already was, just to be sure)
-      loyalty_per_brand_tibble = as_tibble(loyalty_per_brand_data)
-      
-      # Change to numeric (already was, but just to be sure)
-      loyalty_per_brand_tibble$Percentage <- as.numeric(loyalty_per_brand_tibble$Percentage)
-      
-      #Percentages gemaakt, maar dan wordt kolomtype character. Daarna naar numeric werkt ook niet. 
-      # loyalty_per_brand_tibble$Percentage <- percent(x = loyalty_per_brand_tibble$Percentage, scale = 100, accuracy = 0.1)
-      # loyalty_per_brand_tibble
-      
-      # Clean names
-      colnames(loyalty_per_brand_tibble) <- c("Ranking", "Brand", "Percentage", "Classification")
-      
-      # Reverse order (high to low)
-      loyalty_per_brand_tibble <- loyalty_per_brand_tibble[order(loyalty_per_brand_tibble$Percentage), ]
-      
-      # To retain the order in the plot
-      loyalty_per_brand_tibble$Brand <- factor(loyalty_per_brand_tibble$Brand,
-                                               levels = loyalty_per_brand_tibble$Brand)
-      
-      # Set theme
-      theme_set(theme_minimal())
-      
       # Create plot
       loyalty_per_brand_plot <- ggplot(loyalty_per_brand_tibble,
                                        aes(x = Percentage,
                                            y = Brand)) +
         geom_bar(stat = "identity",
                  fill = "tomato3") +
-        theme(axis.text.y = element_text(vjust=0.6))
+        theme(axis.text.y = element_text(vjust=0.6)) + theme_minimal()
       
       # Te doen:
       # - Tesla in andere kleur (Puurder rood, rest mss in zachter rood, om toch in stijl te blijven)
@@ -651,6 +647,6 @@ shinyServer(function(input, output, session) {
     })
   
 })
-})
+
   
 

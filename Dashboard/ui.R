@@ -382,6 +382,7 @@ shinyUI(
                                                      choices = c("Luxury", "Mass market"),
                                                      selected = c("Luxury", "Mass market")
                                   )
+                                  
                               )
                             )
                     )
