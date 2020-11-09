@@ -153,32 +153,32 @@ shinyServer(function(input, output, session) {
     output$totbox <- renderValueBox({
         valueBox(
             paste0(sum(aantal$freq)),
-            subtitle= "Total number of supercharger stations", 
+            subtitle= "Total number of supercharger stations", color = "red"
         )})
     output$openbox <- renderValueBox({
         valueBox(
             paste0(aantal$freq[aantal$Status == "OPEN"]),
-            subtitle= "Number of open supercharger stations", 
+            subtitle= "Number of open supercharger stations", color = "red"
         )})
     output$buildbox <- renderValueBox({
         valueBox(
             paste0(aantal$freq[aantal$Status == "CONSTRUCTION"]),
-            subtitle= "Number of building supercharger stations", 
+            subtitle= "Number of building supercharger stations", color = "red"
         )})
     output$permitbox <- renderValueBox({
         valueBox(
             paste0(aantal$freq[aantal$Status == "PERMIT"]),
-            subtitle= "Number of permit supercharger stations", 
+            subtitle= "Number of permit supercharger stations", color = "red"
         )})
     output$pclosedbox <- renderValueBox({
         valueBox(
             paste0(aantal$freq[aantal$Status == "CLOSED_PERM"]),
-            subtitle= "Number of permantly closed supercharger stations", 
+            subtitle= "Number of permantly closed supercharger stations", color = "red"
         )})
     output$tclosedbox <- renderValueBox({
         valueBox(
             paste0(aantal$freq[aantal$Status == "CLOSED_TEMP"]),
-            subtitle= "Number of temporarly closed supercharger stations", 
+            subtitle= "Number of temporarly closed supercharger stations", color = "red"
         )})
     
     #histogram: vergelijken met teslaverkoop 
