@@ -187,8 +187,6 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
     growth_comp_sales_2019_1$"2019" <- factor(growth_comp_sales_2019_1$"2019",
                                        levels = growth_comp_sales_2019_1$"2019")
     
-    View(growth_comp_sales_2019_1)
-    
   
 #jaske
 
