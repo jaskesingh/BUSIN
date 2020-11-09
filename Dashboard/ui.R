@@ -19,6 +19,7 @@ library(plotly)
 library(leaflet)
 library(shinydashboard)
 library(stringr)
+library(DT)
 
 #Caro
 
@@ -62,7 +63,8 @@ Free_cashflow <- read_xlsx("Data/Tesla's free cash flow by quarter 2020 world wi
 #uitbreiding in europa tabblad
 countriesafpassengercars <- read_xlsx("Data/Countries overview of af passenger cars.xlsx", skip = 2 , col_types = c("numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))
 
-
+#jaske
+eusurvey <- read.csv("data/hev1.csv")
 
 # Define UI for application that draws a map
 shinyUI(
@@ -78,7 +80,8 @@ shinyUI(
                              ),
                     menuItem("Customers", tabName = "Customers", newTab = T, 
                              menuSubItem("Purchase process", tabName = "Purchaseprocess"),
-                             menuSubItem("Brand loyalty", tabName = "dashboard_loyalty")
+                             menuSubItem("Brand loyalty", tabName = "dashboard_loyalty"),
+                             menuSubItem("EU Survey 2018", tabName = "survey")
                              ),
                     menuItem("Sales", tabName = "Sales", newTab =T, menuSubItem("Periodic analysis", tabName = "Periodic")),
                     menuItem("Finance", tabName = "Omzet"),
@@ -385,7 +388,83 @@ shinyUI(
                                   
                               )
                             )
-                    )
+                    ),
+                    
+                      tabItem(
+                        tabName = "survey",
+                        fluidRow(
+                          valueBoxOutput("surveytotal"),
+                          valueBoxOutput("totalcountries")
+                        ),
+                        fluidRow(
+                          box(
+                            title = "Per country",
+                            tabPanel(" ", 
+                                     selectInput(inputId = "country",
+                                                 label = "Choose country",
+                                                 choices = eusurvey$Country,
+                                                 selected = "Belgium",
+                                                 multiple = T
+                                     ),
+                                     dataTableOutput("country")
+                            ), 
+                            width = 14
+                          ),
+                          tabBox(
+                            title = "Based on",
+                            tabPanel("Income", 
+                                     selectInput(inputId = "incountry",
+                                                 label = "choose Country",
+                                                 choices = eusurvey$Country,
+                                                 selected = "Belgium"
+                                     ),
+                                     selectInput(inputId = "incomegr",
+                                                 label = "choose income group",
+                                                 choices = eusurvey$Income_group,
+                                                 multiple = T,
+                                                 selected = "middle"
+                                     ),
+                                     plotlyOutput("view")
+                            ),
+                            tabPanel("Employment status", 
+                                     selectInput(inputId = "estatus",
+                                                 label = "Choose employment status",
+                                                 choices = eusurvey$Employment_status,
+                                                 selected = "Studying",
+                                                 multiple = T
+                                     ),
+                                     plotlyOutput("employ")
+                            ),
+                            tabPanel("Gender",
+                                     selectInput(inputId = "gcountry",
+                                                 label = "Choose country",
+                                                 choices = eusurvey$Country,
+                                                 multiple = T,
+                                                 selected = "Belgium"
+                                     ),
+                                     plotlyOutput("ggcountry")
+                            ),
+                            tabPanel("Plan to buy car",
+                                     selectInput(inputId = "carplancountry",
+                                                 label = "Choose country",
+                                                 choices = eusurvey$Country,
+                                                 selected = "Belgium"),
+                                     plotlyOutput("plan")),
+                            width = 14
+                          ),
+                          box(
+                            title = "Proportion of people willing to buy ev",
+                            plotlyOutput("propev"),
+                            width = 14
+                          )
+                        )
+                      ),
+                      tabItem(
+                        tabName = "competition",
+                        fluidRow(
+                          
+                        )
+                      )
                             
                             
                     )  

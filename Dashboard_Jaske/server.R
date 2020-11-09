@@ -11,7 +11,7 @@ library(DT)
 
 eusurvey <- read.csv("data/hev1.csv")
 
-shinyServer(function(input, output, session) {
+shinyServer(function(input, output) {
     
     output$ggcountry <- renderPlotly({
         f2 <- eusurvey %>% filter(Country %in% input$gcountry)
