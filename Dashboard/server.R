@@ -426,19 +426,17 @@ shinyServer(function(input, output, session) {
       Automotive_Revenue <- revvar$`Automotive Revenues Tesla`/1000000
       
       revvarp <- revvar %>% ggplot(aes(x = Quarter, y = Automotive_Revenue))+ geom_col() + 
-        labs(title = input$Yearrev, y = 'Automotive revenue')  + 
-        scale_y_continuous(limits = c(0, 8000), breaks = seq(0,8000, by= 1000)) + theme_minimal()
+        labs(title = input$Yearrev, y = 'Automotive revenue')  + theme_minimal()
       
     }
     else {
       y    <- Revenue$Year
       Yearrevline <- seq(min(y), max(y))
       revvar <- Revenue %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline)) %>% group_by(Year) %>% 
-        mutate("total" = sum(`Automotive Revenues Tesla`, na.rm = TRUE)/1000000) %>% select(Year, totaal)%>% distinct()
+        mutate("total" = sum(`Automotive Revenues Tesla`, na.rm = TRUE)/1000000) %>% select(Year, total)%>% distinct()
       
       revvarp <- revvar %>% ggplot(aes(x = Year , y = total))+ geom_line() + geom_point() +
-        labs(y = 'Automotive revenue') +
-        scale_y_continuous(limits = c(0, 21000), breaks = seq(0, 21000, by = 5000)) + theme_minimal()
+        labs(y = 'Automotive revenue') + theme_minimal()
     }
     ggplotly(revvarp)
   })
@@ -446,17 +444,16 @@ shinyServer(function(input, output, session) {
   output$colfrcash <- renderPlotly({
     if (sortofgraph() == TRUE) {
       freecashvar <- revenue(input$Yearrev, Free_cashflow)
-      free_cash_flow <- Free_cashflow$`free cash flow`/1000000
+      free_cash_flow <- freecashvar$`free cash flow`/1000000
       
       freecashvarp <- freecashvar %>% ggplot(aes(x= Quarter, y= free_cash_flow)) + 
         geom_col() + 
-        labs(title = input$Yearrev, y = 'Free cash flow') + 
-        scale_y_continuous(limits = c(-1500, 1500), breaks = seq(-1500,1500, by = 500)) + theme_minimal()
+        labs(title = input$Yearrev, y = 'Free cash flow') +  theme_minimal()
       
     }
     else {
       freecashvar <-  Free_cashflow %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline)) %>% group_by(Year) %>% 
-        mutate("total" = sum(`free cash flow`, na.rm = TRUE)/1000000) %>% select(Year, totaal)%>% distinct()
+        mutate("total" = sum(`free cash flow`, na.rm = TRUE)/1000000) %>% select(Year, total)%>% distinct()
       
       freecashvarp <- freecashvar %>% ggplot(aes(x = Year , y = total))+ 
         geom_line() + geom_point() + 
@@ -469,7 +466,7 @@ shinyServer(function(input, output, session) {
   output$colgrpr <- renderPlotly({
     if (sortofgraph() == TRUE) {
       grossprofitvar <- revenue(input$Yearrev, Gross_profit) 
-      gross_profit <- Gross_profit$`Automotive gross profit GAAP`/1000000
+      gross_profit <-grossprofitvar$`Automotive gross profit GAAP`/1000000
      
       grossprofitvarp <- grossprofitvar %>% 
         ggplot(aes(x = Quarter, y = gross_profit)) + 
@@ -480,7 +477,7 @@ shinyServer(function(input, output, session) {
     }
     else {
       grossprofitvar <- Gross_profit %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline)) %>% group_by(Year) %>% 
-        mutate("total" = sum(`Automotive gross profit GAAP`, na.rm = TRUE)/1000000) %>% select(Year, totaal)%>% distinct() 
+        mutate("total" = sum(`Automotive gross profit GAAP`, na.rm = TRUE)/1000000) %>% select(Year, total)%>% distinct() 
       
       grossprofitvarp <-grossprofitvar %>% ggplot(aes(x = Year , y = total)) + 
         geom_line() + geom_point() + 
@@ -493,18 +490,18 @@ shinyServer(function(input, output, session) {
   output$colgrmar <- renderPlotly({
     if (sortofgraph() == TRUE) {
       grossmarginvar <- revenue(input$Yearrev, Gross_Margin)
-      gross_margin <- Gross_Margin$`Gross margin Automotive GAAP`
+      gross_margin <- grossmarginvar$`Gross margin Automotive GAAP`
       
       grossmarginvarp <- grossmarginvar %>% 
-        ggplot(aes(x = Quarter, y = gross_margin, fill= Quarter)) + 
-        geom_col(position="dodge") + 
+        ggplot(aes(x = Quarter, y = gross_margin)) + 
+        geom_col() + 
         labs(title = input$Yearrev, y= 'Gross margin') + 
         scale_y_continuous(limits = c(0,30), breaks = seq(0, 30, by= 5)) + theme_minimal()
       
     }
     else {
       grossmarginvar <- Gross_Margin %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline)) %>% group_by(Year) %>% 
-        mutate("total" = sum(`Gross margin Automotive GAAP`, na.rm = TRUE)) %>% select(Year, totaal)%>% distinct()
+        mutate("total" = sum(`Gross margin Automotive GAAP`, na.rm = TRUE)) %>% select(Year, total)%>% distinct()
       
       grossmarginvarp <- grossmarginvar %>% ggplot(aes(x = Year , y = total)) + 
         geom_line() + geom_point() + 
