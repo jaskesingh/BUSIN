@@ -147,9 +147,14 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
 
 #Pieter
 
-#Customers: loyalty
+# Customers: loyalty
+
+# Keep for now
 # loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v2.xlsx", skip = 2)
 
+# New
+loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v3.xlsx", skip = 2)
+View(loyalty_per_brand_data)
 
 # Make tibble (already was, just to be sure)
 loyalty_per_brand_tibble = as_tibble(loyalty_per_brand_data)
