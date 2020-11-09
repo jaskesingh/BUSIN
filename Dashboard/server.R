@@ -319,9 +319,9 @@ shinyServer(function(input, output, session) {
   #histogram: groei: verkoop alle merken per segment
   output$hist04 <- renderPlotly({
     VPSC <- VPS %>% filter(Segment %in% input$Segment2, Year >= min(input$Year2) & Year <= max(input$Year2))
-    h4 <- VPSC %>% ggplot(aes(x = Segment, y = Sales)) + geom_col() + facet_wrap(Year~.) + 
-      labs(title = "New cars sold in the EU by segment in million units for each year.") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-      scale_y_continuous(limits = c(0,6), breaks = seq(0,6, by= 1)) + ylab("Cars sold") + theme_minimal()
+    h4 <- VPSC %>% ggplot(aes(x = Segment, y = Sales)) + geom_col() + facet_wrap(Year~., ncol = 6, nrow = 2) + 
+      labs(title = "New cars sold in the EU by segment in million units for each year.") + theme_minimal() + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+      scale_y_continuous(limits = c(0,6), breaks = seq(0,6, by= 1)) + ylab("Cars sold") 
     ggplotly(h4)})
   
   #lijn nieuw: groei: aandeel elektrische auto's op belgische en eu markt

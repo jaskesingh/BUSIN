@@ -120,7 +120,7 @@ shinyUI(
                                       label = "Choose country",
                                       choices = verkoo$Country,
                                       multiple = TRUE,
-                                      selected = "Belgium")
+                                      selected = c("Belgium", "Austria", "Czech Republic", "Denmark", "Finland", "France", "Germany", "Greece", "Ireland", "Italy", "Luxembourg", "Netherlands", "Norway", "Portugal", "Romania", "Slovenia", "Spain", "Sweden", "Switzerland"))
                         )
                       )
                     ),
@@ -151,7 +151,7 @@ shinyUI(
                                       label = "Choose segment",
                                       choices = VPS$Segment,
                                       multiple = TRUE,
-                                      selected = "SUV")
+                                      selected = c("Lower Medium (C)", "Luxury (E+F)", "MPV", "Small (A+B)", "SUV", "Upper Medium (D)"))
                         )
                       ),
                       fluidRow(
@@ -167,7 +167,7 @@ shinyUI(
                                       label = "Choose segment",
                                       choices = VPS$Segment,
                                       multiple = TRUE,
-                                      selected = "SUV")
+                                      selected = c("Lower Medium (C)", "Luxury (E+F)", "MPV", "Small (A+B)", "SUV", "Upper Medium (D)"))
                         )
                       )
                     ),
@@ -231,18 +231,18 @@ shinyUI(
                                              label = "Choose country",
                                              choices = aankoopproces$Country,
                                              multiple = TRUE,
-                                             selected = "Belgium")),
+                                             selected = c("Belgium", "Germany", "France", "UK", "Italy"))),
                         tabPanel("Tab2", plotlyOutput("hist07"),
                                  selectInput(inputId = "Country4",
                                              label = "Choose country",
                                              choices = aankoopproces$Country,
                                              multiple = TRUE,
-                                             selected = "Belgium"),
+                                             selected = c("Belgium", "Germany", "France", "UK", "Italy")),
                                  selectInput(inputId = "Interest",
                                              label = "Choose level of interest",
                                              choices = aankoopproces$Interest,
                                              multiple = TRUE,
-                                             selected = "Somewhat interested/very interested"))
+                                             selected = c("Not at all interested/not very interested", "Neutral", "Somewhat interested/very interested")))
                       )
                     ),
                     tabItem(
