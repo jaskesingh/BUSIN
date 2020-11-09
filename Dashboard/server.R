@@ -171,7 +171,24 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
                                        levels = loyalty_per_brand_tibble$Brand)
   
 # Growth: Comparison
-
+  
+  growth_comp_data_5 <- read_xlsx("Dashboard/Data/growth_comparison_v5.xlsx")
+  
+  # Placeholder for presentation 10-11-20
+    # Select
+    growth_comp_sales_2019_1 <- growth_comp_data_5 %>% 
+                                  select(c("Submodel", "2019")) %>%
+                                  drop_na("2019") %>%
+                                  # Drop others and segment total
+                                  drop_na("Submodel")
+    
+    # To retain the order in the plot
+    growth_comp_sales_2019_1$"2019" <- factor(growth_comp_sales_2019_1$"2019",
+                                       levels = growth_comp_sales_2019_1$"2019")
+    
+    View(growth_comp_sales_2019_1)
+    
+  
 #jaske
 
 eusurvey <- read.csv("data/hev1.csv")
