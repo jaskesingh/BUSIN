@@ -106,30 +106,6 @@ Data <- data %>% gather(January:December, key=  "Month", value="Sales") %>% muta
 Data$Month <- as.integer(Data$Month)
 Data$Year <- as.factor(Data$Year) 
 
-#Pieter
-
-#Customers: loyalty
-loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v2.xlsx", skip = 2)
-# Make tibble (already was, just to be sure)
-loyalty_per_brand_tibble = as_tibble(loyalty_per_brand_data)
-
-# Change to numeric (already was, but just to be sure)
-loyalty_per_brand_tibble$Percentage <- as.numeric(loyalty_per_brand_tibble$Percentage)
-
-#Percentages gemaakt, maar dan wordt kolomtype character. Daarna naar numeric werkt ook niet. 
-# loyalty_per_brand_tibble$Percentage <- percent(x = loyalty_per_brand_tibble$Percentage, scale = 100, accuracy = 0.1)
-# loyalty_per_brand_tibble
-
-# Clean names
-colnames(loyalty_per_brand_tibble) <- c("Ranking", "Brand", "Percentage", "Classification")
-
-# Reverse order (high to low)
-loyalty_per_brand_tibble <- loyalty_per_brand_tibble[order(loyalty_per_brand_tibble$Percentage), ]
-
-# To retain the order in the plot
-loyalty_per_brand_tibble$Brand <- factor(loyalty_per_brand_tibble$Brand,
-                                         levels = loyalty_per_brand_tibble$Brand)
-
 #Lien
 
 #financiele cijfers
@@ -167,6 +143,32 @@ some.eu.countries <- c('Ukraine', 'France', 'Spain', 'Sweden', 'Norway', 'German
 
 some.eu.map <- map_data("world", region = some.eu.countries)
 tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
+
+
+#Pieter
+
+#Customers: loyalty
+loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v2.xlsx", skip = 2)
+# Make tibble (already was, just to be sure)
+loyalty_per_brand_tibble = as_tibble(loyalty_per_brand_data)
+
+# Change to numeric (already was, but just to be sure)
+loyalty_per_brand_tibble$Percentage <- as.numeric(loyalty_per_brand_tibble$Percentage)
+
+#Percentages gemaakt, maar dan wordt kolomtype character. Daarna naar numeric werkt ook niet. 
+# loyalty_per_brand_tibble$Percentage <- percent(x = loyalty_per_brand_tibble$Percentage, scale = 100, accuracy = 0.1)
+# loyalty_per_brand_tibble
+
+# Clean names
+colnames(loyalty_per_brand_tibble) <- c("Ranking", "Brand", "Percentage", "Classification")
+
+# Reverse order (high to low)
+loyalty_per_brand_tibble <- loyalty_per_brand_tibble[order(loyalty_per_brand_tibble$Percentage), ]
+
+# To retain the order in the plot
+loyalty_per_brand_tibble$Brand <- factor(loyalty_per_brand_tibble$Brand,
+                                         levels = loyalty_per_brand_tibble$Brand)
+
 
 
 # Define server logic required to draw a map
