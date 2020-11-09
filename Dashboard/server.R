@@ -20,6 +20,7 @@ library(leaflet)
 library(DT)
 library(rvest)
 library(stringr)
+library(tidyverse)
 
 #Caro
 
@@ -148,32 +149,47 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
 
 # Customers: loyalty
 
-# Keep for now
-# loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v2.xlsx", skip = 2)
-
-# New
-loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v3.xlsx", skip = 2)
-
-# Make tibble (already was, just to be sure)
-loyalty_per_brand_tibble = as_tibble(loyalty_per_brand_data)
-
-# Change to numeric (already was, but just to be sure)
-loyalty_per_brand_tibble$Percentage <- as.numeric(loyalty_per_brand_tibble$Percentage)
-
-#Percentages gemaakt, maar dan wordt kolomtype character. Daarna naar numeric werkt ook niet. 
-# loyalty_per_brand_tibble$Percentage <- percent(x = loyalty_per_brand_tibble$Percentage, scale = 100, accuracy = 0.1)
-# loyalty_per_brand_tibble
-
-# Clean names
-colnames(loyalty_per_brand_tibble) <- c("Ranking", "Brand", "Percentage", "Classification")
-
-# Reverse order (high to low)
-loyalty_per_brand_tibble <- loyalty_per_brand_tibble[order(loyalty_per_brand_tibble$Percentage), ]
-
-# To retain the order in the plot
-loyalty_per_brand_tibble$Brand <- factor(loyalty_per_brand_tibble$Brand,
-                                         levels = loyalty_per_brand_tibble$Brand)
-
+  # Keep for now
+  # loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v2.xlsx", skip = 2)
+  
+  # New
+  loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v3.xlsx", skip = 2)
+  
+  # Make tibble (already was, just to be sure)
+  loyalty_per_brand_tibble = as_tibble(loyalty_per_brand_data)
+  
+  # Change to numeric (already was, but just to be sure)
+  loyalty_per_brand_tibble$Percentage <- as.numeric(loyalty_per_brand_tibble$Percentage)
+  
+  # Clean names
+  colnames(loyalty_per_brand_tibble) <- c("Ranking", "Brand", "Percentage", "Classification")
+  
+  # Reverse order (high to low)
+  loyalty_per_brand_tibble <- loyalty_per_brand_tibble[order(loyalty_per_brand_tibble$Percentage), ]
+  
+  # To retain the order in the plot
+  loyalty_per_brand_tibble$Brand <- factor(loyalty_per_brand_tibble$Brand,
+                                       levels = loyalty_per_brand_tibble$Brand)
+  
+# Growth: Comparison
+  
+  growth_comp_data_5 <- read_xlsx("Dashboard/Data/growth_comparison_v5.xlsx")
+  
+  # Placeholder for presentation 10-11-20
+    # Select
+    growth_comp_sales_2019_1 <- growth_comp_data_5 %>% 
+                                  select(c("Submodel", "2019")) %>%
+                                  drop_na("2019") %>%
+                                  # Drop others and segment total
+                                  drop_na("Submodel")
+    
+    # To retain the order in the plot
+    growth_comp_sales_2019_1$"2019" <- factor(growth_comp_sales_2019_1$"2019",
+                                       levels = growth_comp_sales_2019_1$"2019")
+    
+    View(growth_comp_sales_2019_1)
+    
+  
 #jaske
 
 eusurvey <- read.csv("data/hev1.csv")
