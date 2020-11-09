@@ -20,7 +20,6 @@ library(leaflet)
 library(DT)
 library(rvest)
 library(stringr)
-library(DT)
 
 #Caro
 
@@ -149,32 +148,29 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
 
 # Customers: loyalty
 
-# Keep for now
-# loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v2.xlsx", skip = 2)
-
-# New
-loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v3.xlsx", skip = 2)
-View(loyalty_per_brand_data)
-
-# Make tibble (already was, just to be sure)
-loyalty_per_brand_tibble = as_tibble(loyalty_per_brand_data)
-
-# Change to numeric (already was, but just to be sure)
-loyalty_per_brand_tibble$Percentage <- as.numeric(loyalty_per_brand_tibble$Percentage)
-
-#Percentages gemaakt, maar dan wordt kolomtype character. Daarna naar numeric werkt ook niet. 
-# loyalty_per_brand_tibble$Percentage <- percent(x = loyalty_per_brand_tibble$Percentage, scale = 100, accuracy = 0.1)
-# loyalty_per_brand_tibble
-
-# Clean names
-colnames(loyalty_per_brand_tibble) <- c("Ranking", "Brand", "Percentage", "Classification")
-
-# Reverse order (high to low)
-loyalty_per_brand_tibble <- loyalty_per_brand_tibble[order(loyalty_per_brand_tibble$Percentage), ]
-
-# To retain the order in the plot
-loyalty_per_brand_tibble$Brand <- factor(loyalty_per_brand_tibble$Brand,
-                                         levels = loyalty_per_brand_tibble$Brand)
+  # Keep for now
+  # loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v2.xlsx", skip = 2)
+  
+  # New
+  loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v3.xlsx", skip = 2)
+  
+  # Make tibble (already was, just to be sure)
+  loyalty_per_brand_tibble = as_tibble(loyalty_per_brand_data)
+  
+  # Change to numeric (already was, but just to be sure)
+  loyalty_per_brand_tibble$Percentage <- as.numeric(loyalty_per_brand_tibble$Percentage)
+  
+  # Clean names
+  colnames(loyalty_per_brand_tibble) <- c("Ranking", "Brand", "Percentage", "Classification")
+  
+  # Reverse order (high to low)
+  loyalty_per_brand_tibble <- loyalty_per_brand_tibble[order(loyalty_per_brand_tibble$Percentage), ]
+  
+  # To retain the order in the plot
+  loyalty_per_brand_tibble$Brand <- factor(loyalty_per_brand_tibble$Brand,
+                                       levels = loyalty_per_brand_tibble$Brand)
+  
+# Growth: Comparison
 
 #jaske
 
@@ -715,7 +711,7 @@ shinyServer(function(input, output, session) {
     })
     
     output$plan <- renderPlotly({
-      f4 <- eusurvey %>% filter (Country == input$carplancountry)
+      f4 <- eusurvey %>% filter (Country %in% input$carplancountry)
       p4 <- f4 %>% ggplot(aes(Plan_to_purchase_vehicle)) + 
         geom_bar(aes(fill = buy_electric), position = "dodge") + 
         labs(y = "Number of respondents", x = "Plan to buy car", fill = "Buy EV") +
@@ -734,14 +730,14 @@ shinyServer(function(input, output, session) {
     
     output$surveytotal <- renderValueBox({
       valueBox(
-        nrow(eusurvey), subtitle = "Number of respondents", icon = icon("user-alt")
+        nrow(eusurvey), subtitle = "Number of respondents", icon = icon("user-alt"), color = 'red'
       )
     })
     
     output$totalcountries <- renderValueBox({
       valueBox(
         length(unique(eusurvey$Country)), subtitle = "Number of countries",
-        icon = icon("globe-europe")
+        icon = icon("globe-europe"), color = 'red'
       )
     })
   
