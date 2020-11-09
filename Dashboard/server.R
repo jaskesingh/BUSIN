@@ -130,7 +130,6 @@ loyalty_per_brand_tibble <- loyalty_per_brand_tibble[order(loyalty_per_brand_tib
 loyalty_per_brand_tibble$Brand <- factor(loyalty_per_brand_tibble$Brand,
                                          levels = loyalty_per_brand_tibble$Brand)
 
-
 #Lien
 
 #financiele cijfers
