@@ -5,21 +5,12 @@ library(shiny)
 library(shinydashboard)
 library(tidyverse)
 library(readxl)
+library(scales)
 
-# Load and clean data
-# Next to read_xlsx, there is also a read.xlsx function, in case the ...
-# ... big "growth" table needs some more functions.
-## loyalty_per_brand_1 <- read_xlsx("Data/loyalty_per_brand_v2.xlsx", skip = 2)
-
-#Inspect data -- Convert to comment later
-View(loyalty_per_brand_1)
-dim(loyalty_per_brand_1)
-str(loyalty_per_brand_1)
-head(loyalty_per_brand_1)
 
 # Shiny UI
 shinyUI(
-  dashboardPage(
+  dashboardPage(skin = "red", 
     
     dashboardHeader(title = "Menu"),
     
@@ -40,18 +31,58 @@ shinyUI(
       tabItems(
         tabItem(tabName = "dashboard_growth",
                 fluidRow(
-                  box(plotOutput("histogram_growth")),
-                  box(sliderInput("bins_growth", "Number of Breaks", 1, 100, 10))
+                  box(title = "Top 15 EV's of 2019 compared (Work-in-progress)",
+                      status = "danger",
+                      solidHeader = T,
+                      plotOutput("growth_bar"),
+                      selectInput(inputId = "growth_select_box",
+                                  label = "Select parameter for comparison",
+                                  choices = c("Sales In 2019",
+                                              "Sales In 2018",
+                                              "Change In Sales From 2018 To 2019 (%)",
+                                              "Share In EV Market In 2019",
+                                              "Share In EV Market In 2018",
+                                              "Percent Of This Model That Was EV In 2019",
+                                              "Percent Of This Model That Was EV In 2018",
+                                              # De 7 dingen hierboven zouden eventueel ook ...
+                                              # ... als pie chart kunnen, met best dan de ...
+                                              # info per jaar via plotly (toch zeker % en sales)
+                                              "Range",
+                                              "Top speed (km/h)",
+                                              "Acceleration (0-100 km/h)",
+                                              "Horsepower",
+                                              "Top Charging Speed (km/h)",
+                                              "Price",
+                                              "Trunk Space (Including Frunk If Applicable)",
+                                              "Segment",
+                                              "NCAP Stars",
+                                              "NCAP Adult Occupant Score (%)",
+                                              "NCAP Child Occupant Score (%)",
+                                              "NCAP Vulnerable Road Users Score (%)",
+                                              "NCAP Safety Assist Score (%)",
+                                              "NCAP Average Score (%)"
+                                              ),
+                                  selected = "Sales in 2019 (absolute)"
+                                  )
+                      )
                   )
                 ),
         
         tabItem(tabName = "dashboard_loyalty", 
                 fluidRow(
-                  box(title = "Loyalty per brand", status = "primary", solidHeader = T, plotOutput("histogram_loyalty")),
-                  box(status = "primary", sliderInput("bins_loyalty", "Number of Breaks", 1, 100, 50))
-                  )
-                )
-          
+                  box(title = "Loyalty per brand (Work-in-progress)",
+                      "Percentage of car buyers that chose the same brand when buying a new car",
+                      status = "danger",
+                      solidHeader = T,
+                      plotOutput("loyalty_bar"),
+                      checkboxGroupInput(inputId = "loyalty_checkboxes",
+                                         label = "Choose class(es)",
+                                         choices = c("Luxury", "Mass market"),
+                                         selected = c("Luxury", "Mass market")
+                                        )
+                      )
+                        )
+                ) 
         )
     )
       
