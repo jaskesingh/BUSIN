@@ -148,13 +148,11 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
 
 # Customers: loyalty
 
-<<<<<<< HEAD
   # Keep for now
   # loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v2.xlsx", skip = 2)
   
   # New
   loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v3.xlsx", skip = 2)
-  View(loyalty_per_brand_data)
   
   # Make tibble (already was, just to be sure)
   loyalty_per_brand_tibble = as_tibble(loyalty_per_brand_data)
@@ -173,33 +171,6 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
                                        levels = loyalty_per_brand_tibble$Brand)
   
 # Growth: Comparison
-=======
-# Keep for now
-# loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v2.xlsx", skip = 2)
-
-# New
-loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v3.xlsx", skip = 2)
-
-# Make tibble (already was, just to be sure)
-loyalty_per_brand_tibble = as_tibble(loyalty_per_brand_data)
-
-# Change to numeric (already was, but just to be sure)
-loyalty_per_brand_tibble$Percentage <- as.numeric(loyalty_per_brand_tibble$Percentage)
-
-#Percentages gemaakt, maar dan wordt kolomtype character. Daarna naar numeric werkt ook niet. 
-# loyalty_per_brand_tibble$Percentage <- percent(x = loyalty_per_brand_tibble$Percentage, scale = 100, accuracy = 0.1)
-# loyalty_per_brand_tibble
-
-# Clean names
-colnames(loyalty_per_brand_tibble) <- c("Ranking", "Brand", "Percentage", "Classification")
-
-# Reverse order (high to low)
-loyalty_per_brand_tibble <- loyalty_per_brand_tibble[order(loyalty_per_brand_tibble$Percentage), ]
-
-# To retain the order in the plot
-loyalty_per_brand_tibble$Brand <- factor(loyalty_per_brand_tibble$Brand,
-                                         levels = loyalty_per_brand_tibble$Brand)
->>>>>>> 2a9ed4ba9daee7d87e30e40ee8c27afab968db0e
 
 #jaske
 
