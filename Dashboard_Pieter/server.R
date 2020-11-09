@@ -25,6 +25,8 @@ library(scales)
       # View(growth_comp_data_4)
       # str(growth_comp_data_4)
 
+
+
 # Test script die later verwijderd wordt
 # Loyalty
 # 
