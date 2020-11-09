@@ -402,7 +402,7 @@ shinyUI(
                             tabPanel(" ", 
                                      selectInput(inputId = "country",
                                                  label = "Choose country",
-                                                 choices = eusurvey$Country,
+                                                 choices = unique(eusurvey$Country),
                                                  selected = "Belgium",
                                                  multiple = T
                                      ),
@@ -415,12 +415,12 @@ shinyUI(
                             tabPanel("Income", 
                                      selectInput(inputId = "incountry",
                                                  label = "choose Country",
-                                                 choices = eusurvey$Country,
+                                                 choices = unique(eusurvey$Country),
                                                  selected = "Belgium"
                                      ),
                                      selectInput(inputId = "incomegr",
                                                  label = "choose income group",
-                                                 choices = eusurvey$Income_group,
+                                                 choices = unique(eusurvey$Income_group),
                                                  multiple = T,
                                                  selected = "middle"
                                      ),
@@ -429,7 +429,7 @@ shinyUI(
                             tabPanel("Employment status", 
                                      selectInput(inputId = "estatus",
                                                  label = "Choose employment status",
-                                                 choices = eusurvey$Employment_status,
+                                                 choices = unique(eusurvey$Employment_status),
                                                  selected = "Studying",
                                                  multiple = T
                                      ),
@@ -438,7 +438,7 @@ shinyUI(
                             tabPanel("Gender",
                                      selectInput(inputId = "gcountry",
                                                  label = "Choose country",
-                                                 choices = eusurvey$Country,
+                                                 choices = unique(eusurvey$Country),
                                                  multiple = T,
                                                  selected = "Belgium"
                                      ),
@@ -447,7 +447,7 @@ shinyUI(
                             tabPanel("Plan to buy car",
                                      selectInput(inputId = "carplancountry",
                                                  label = "Choose country",
-                                                 choices = eusurvey$Country,
+                                                 choices = unique(eusurvey$Country),
                                                  selected = "Belgium"),
                                      plotlyOutput("plan")),
                             width = 14
