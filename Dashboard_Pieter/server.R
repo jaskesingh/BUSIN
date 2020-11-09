@@ -19,8 +19,8 @@ library(scales)
 
       # Growth comparison
       # growth_comp_data_3 <- read_xlsx("Data/growth_comparison_top15_2019_v3.xlsx")
-      #View(growth_comp_data_3)
-
+      # View(growth_comp_data_3)
+      # 
       # growth_comp_data_4 <- read_xlsx("Data/growth_comparison_top15_2019_v4.xlsx")
       # View(growth_comp_data_4)
       # str(growth_comp_data_4)

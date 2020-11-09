@@ -109,7 +109,6 @@ Data$Year <- as.factor(Data$Year)
 #Customers: loyalty
 loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v2.xlsx", skip = 2)
 
-
 #Lien
 
 #financiele cijfers
