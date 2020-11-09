@@ -20,6 +20,7 @@ library(leaflet)
 library(DT)
 library(rvest)
 library(stringr)
+library(tidyverse)
 
 #Caro
 
@@ -171,7 +172,24 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
                                        levels = loyalty_per_brand_tibble$Brand)
   
 # Growth: Comparison
-
+  
+  growth_comp_data_5 <- read_xlsx("Dashboard/Data/growth_comparison_v5.xlsx")
+  
+  # Placeholder for presentation 10-11-20
+    # Select
+    growth_comp_sales_2019_1 <- growth_comp_data_5 %>% 
+                                  select(c("Submodel", "2019")) %>%
+                                  drop_na("2019") %>%
+                                  # Drop others and segment total
+                                  drop_na("Submodel")
+    
+    # To retain the order in the plot
+    growth_comp_sales_2019_1$"2019" <- factor(growth_comp_sales_2019_1$"2019",
+                                       levels = growth_comp_sales_2019_1$"2019")
+    
+    View(growth_comp_sales_2019_1)
+    
+  
 #jaske
 
 eusurvey <- read.csv("data/hev1.csv")
@@ -574,7 +592,7 @@ shinyServer(function(input, output, session) {
         ggplot(aes(x = Country, y = value, fill = Fuel ))+ 
         geom_col(position = "dodge") + 
         labs(title = input$YearEU, y = '')  + scale_y_continuous(limits = c(0, 3600000), breaks = seq(0,4000000, by= 500000)) +
-        coord_flip() + theme_minimal()
+        coord_flip() + theme_minimal() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
       
     }
     ggplotly(countriespasscarvarp)
@@ -600,8 +618,9 @@ shinyServer(function(input, output, session) {
       countriesinfrvarp <- countriesinfrvar %>% 
         ggplot(aes(x = Country, y = value, fill = Fuel))+ 
         geom_col(position = "dodge") + 
-        labs(title = input$YearEU, y = '')  + scale_y_continuous(limits = c(0, 70000), breaks = seq(0,70000, by= 10000)) +
-        coord_flip() + theme_minimal()
+        labs(title = input$YearEU, y = '')  + scale_y_continuous(limits = c(0, 65000), breaks = seq(0,65000, by= 5000)) +
+        coord_flip() + theme_minimal() + 
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))
       
     }
     ggplotly(countriesinfrvarp)
