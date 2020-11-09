@@ -63,6 +63,7 @@ Free_cashflow <- read_xlsx("Data/Tesla's free cash flow by quarter 2020 world wi
 
 #uitbreiding in europa tabblad
 countriesafpassengercars <- read_xlsx("Data/Countries overview of af passenger cars.xlsx", skip = 2 , col_types = c("numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))
+teslapercountrysales <- read_xlsx("Data/Verkoop landen tesla.xlsx", skip = 1, col_types = c("text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric")) %>% gather('2013', '2014', '2015', '2016', '2017', '2018', '2019', key = 'jaar', value = 'waarde')
 
 #jaske
 eusurvey <- read.csv("data/hev1.csv")
@@ -332,7 +333,8 @@ shinyUI(
                               box(title = "Tesla sales in Europe per year", solidHeader = T, status="danger", 
                                   selectInput(inputId = "teslajaar",
                                               label = "choose the year you want to see (blue is new that year)",
-                                              choices = list("2013", "2014", "2015", "2016", "2017", "2018", "2019")),
+                                              choices = unique(teslapercountrysales$jaar),
+                                              selected = 2013),
                                   plotOutput("distPlot")))
                           ),
                     tabItem(tabName = "dashboard_growth",
