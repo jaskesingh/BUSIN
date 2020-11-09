@@ -71,12 +71,19 @@ shinyUI(
                 dashboardSidebar(
                   sidebarMenu(
                     sidebarSearchForm("searchText", "buttonSearch", "Search"),
-                    menuItem("Superchargers", tabName = "Superchargers", newTab = T, menuSubItem("Map", tabName = "Map"), menuSubItem("Statistics", tabName = "Statistics"), 
-                             menuSubItem("Competition", tabName = "Competition")),
-                    menuItem("Growth", tabName = "Growth", newTab = T, menuSubItem("Sales per segment", tabName = "Salespersegment"), menuSubItem("Sales per fuel type", tabName = "fueltype")),
-                    menuItem("Customers", tabName = "Customers", newTab = T, menuSubItem("Purchase process", tabName = "Purchaseprocess")),
+                    menuItem("Growth", tabName = "Growth", newTab = T, 
+                             menuSubItem("Sales per segment", tabName = "Salespersegment"), 
+                             menuSubItem("Sales per fuel type", tabName = "fueltype"),
+                             menuSubItem("Best selling EV's compared", tabName = "dashboard_growth")
+                             ),
+                    menuItem("Customers", tabName = "Customers", newTab = T, 
+                             menuSubItem("Purchase process", tabName = "Purchaseprocess"),
+                             menuSubItem("Brand loyalty", tabName = "dashboard_loyalty")
+                             ),
                     menuItem("Sales", tabName = "Sales", newTab =T, menuSubItem("Periodic analysis", tabName = "Periodic")),
                     menuItem("Finance", tabName = "Omzet"),
+                    menuItem("Superchargers", tabName = "Superchargers", newTab = T, menuSubItem("Map", tabName = "Map"), menuSubItem("Statistics", tabName = "Statistics"), 
+                             menuSubItem("Competition", tabName = "Competition")),
                     menuItem("Expansion in Europe", tabName = "EU")
                   )),
                 dashboardBody(
@@ -266,13 +273,13 @@ shinyUI(
                                   "In million",
                                   solidHeader = T, status="danger", plotlyOutput("colrev")),
                               box(title = "Free cashflow", 
-                                  "In million", solidHeader = T, status="danger", plotOutput(("colfrcash")))
+                                  "In million", solidHeader = T, status="danger", plotlyOutput(("colfrcash")))
                             ),
                             fluidRow(
                               box(title = "Gross profit", 
-                                  "In million", solidHeader = T, status="danger", plotOutput("colgrpr")),
+                                  "In million", solidHeader = T, status="danger", plotlyOutput("colgrpr")),
                               box(title = "Gross margin", 
-                                  "In percentage", solidHeader = T, status="danger", plotOutput("colgrmar")),
+                                  "In percentage", solidHeader = T, status="danger", plotlyOutput("colgrmar")),
                               #aanpasbare waardes
                               box(title = "Make changes to the graphs (Quarterly)",
                                   solidHeader = T, status="danger", sliderInput(inputId = "Yearrev", 
@@ -295,11 +302,11 @@ shinyUI(
                     tabItem(tabName = "EU",
                             fluidRow(
                               box(title = "AF passenger cars",
-                                  "Total fleet of passenger cars per alternative fuel (AF)", solidHeader = T, status="danger", plotOutput("colpascar"),
+                                  "Total fleet of passenger cars per alternative fuel (AF)", solidHeader = T, status="danger", plotlyOutput("colpascar"),
                                   checkboxGroupInput("EUcheck", "Choose the fuels for Europe or per country", c('BEV', 'CNG', 'H2', 'LNG', 'LPG', 'PHEV', 'Total'), 
                                                      selected = c('BEV', 'CNG', 'H2', 'LNG', 'LPG', 'PHEV'))),
                               box(title = "AF infrastructure",
-                                  "Total number of alternative fuel (AF) infrastructure per type of fuel",  solidHeader = T, status="danger",plotOutput("colinfr"),
+                                  "Total number of alternative fuel (AF) infrastructure per type of fuel",  solidHeader = T, status="danger",plotlyOutput("colinfr"),
                                   checkboxGroupInput("EUcheckinfr", "Choose the fuels for Europe or per country", c('Electricity', 'H2', 'Natural Gas', 'LPG', 'Total'), 
                                                      selected = c('Electricity', 'H2', 'Natural Gas', 'LPG')))
                             ),
@@ -323,7 +330,62 @@ shinyUI(
                                               label = "choose the year you want to see (blue is new that year)",
                                               choices = list("2013", "2014", "2015", "2016", "2017", "2018", "2019")),
                                   plotOutput("distPlot")))
-                          )
+                          ),
+                    tabItem(tabName = "dashboard_growth",
+                            fluidRow(
+                              box(title = "Top 15 EV's of 2019 compared (Work-in-progress)",
+                                  status = "danger",
+                                  solidHeader = T,
+                                  plotOutput("growth_bar"),
+                                  selectInput(inputId = "growth_select_box",
+                                              label = "Select parameter for comparison",
+                                              choices = c("Sales In 2019",
+                                                          "Sales In 2018",
+                                                          "Change In Sales From 2018 To 2019 (%)",
+                                                          "Share In EV Market In 2019",
+                                                          "Share In EV Market In 2018",
+                                                          "Percent Of This Model That Was EV In 2019",
+                                                          "Percent Of This Model That Was EV In 2018",
+                                                          # De 7 dingen hierboven zouden eventueel ook ...
+                                                          # ... als pie chart kunnen, met best dan de ...
+                                                          # info per jaar via plotly (toch zeker % en sales)
+                                                          "Range",
+                                                          "Top speed (km/h)",
+                                                          "Acceleration (0-100 km/h)",
+                                                          "Horsepower",
+                                                          "Top Charging Speed (km/h)",
+                                                          "Price",
+                                                          "Trunk Space (Including Frunk If Applicable)",
+                                                          "Segment",
+                                                          "NCAP Stars",
+                                                          "NCAP Adult Occupant Score (%)",
+                                                          "NCAP Child Occupant Score (%)",
+                                                          "NCAP Vulnerable Road Users Score (%)",
+                                                          "NCAP Safety Assist Score (%)",
+                                                          "NCAP Average Score (%)"
+                                              ),
+                                              selected = "Sales in 2019 (absolute)"
+                                  )
+                              )
+                            )
+                    ),
+                    
+                    tabItem(tabName = "dashboard_loyalty", 
+                            fluidRow(
+                              box(title = "Loyalty per brand (Work-in-progress)",
+                                  "Percentage of car buyers that chose the same brand when buying a new car",
+                                  status = "danger",
+                                  solidHeader = T,
+                                  plotOutput("loyalty_bar"),
+                                  checkboxGroupInput(inputId = "loyalty_checkboxes",
+                                                     label = "Choose class(es)",
+                                                     choices = c("Luxury", "Mass market"),
+                                                     selected = c("Luxury", "Mass market")
+                                  )
+                                  
+                              )
+                            )
+                    )
                             
                             
                     )  
