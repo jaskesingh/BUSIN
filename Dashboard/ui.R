@@ -71,12 +71,12 @@ shinyUI(
                 dashboardSidebar(
                   sidebarMenu(
                     sidebarSearchForm("searchText", "buttonSearch", "Search"),
-                    menuItem("Superchargers", tabName = "Superchargers", newTab = T, menuSubItem("Map", tabName = "Map"), menuSubItem("Statistics", tabName = "Statistics"), 
-                             menuSubItem("Competition", tabName = "Competition")),
                     menuItem("Growth", tabName = "Growth", newTab = T, menuSubItem("Sales per segment", tabName = "Salespersegment"), menuSubItem("Sales per fuel type", tabName = "fueltype")),
                     menuItem("Customers", tabName = "Customers", newTab = T, menuSubItem("Purchase process", tabName = "Purchaseprocess")),
                     menuItem("Sales", tabName = "Sales", newTab =T, menuSubItem("Periodic analysis", tabName = "Periodic")),
                     menuItem("Finance", tabName = "Omzet"),
+                    menuItem("Superchargers", tabName = "Superchargers", newTab = T, menuSubItem("Map", tabName = "Map"), menuSubItem("Statistics", tabName = "Statistics"), 
+                             menuSubItem("Competition", tabName = "Competition")),
                     menuItem("Expansion in Europe", tabName = "EU")
                   )),
                 dashboardBody(
@@ -264,15 +264,15 @@ shinyUI(
                             fluidRow(
                               box(title = "Car revenue",
                                   "In million",
-                                  solidHeader = T, status="danger", plotOutput("colrev")),
+                                  solidHeader = T, status="danger", plotlyOutput("colrev")),
                               box(title = "Free cashflow", 
-                                  "In million", solidHeader = T, status="danger", plotOutput(("colfrcash")))
+                                  "In million", solidHeader = T, status="danger", plotlyOutput(("colfrcash")))
                             ),
                             fluidRow(
                               box(title = "Gross profit", 
-                                  "In million", solidHeader = T, status="danger", plotOutput("colgrpr")),
+                                  "In million", solidHeader = T, status="danger", plotlyOutput("colgrpr")),
                               box(title = "Gross margin", 
-                                  "In percentage", solidHeader = T, status="danger", plotOutput("colgrmar")),
+                                  "In percentage", solidHeader = T, status="danger", plotlyOutput("colgrmar")),
                               #aanpasbare waardes
                               box(title = "Make changes to the graphs (Quarterly)",
                                   solidHeader = T, status="danger", sliderInput(inputId = "Yearrev", 
@@ -295,11 +295,11 @@ shinyUI(
                     tabItem(tabName = "EU",
                             fluidRow(
                               box(title = "AF passenger cars",
-                                  "Total fleet of passenger cars per alternative fuel (AF)", solidHeader = T, status="danger", plotOutput("colpascar"),
+                                  "Total fleet of passenger cars per alternative fuel (AF)", solidHeader = T, status="danger", plotlyOutput("colpascar"),
                                   checkboxGroupInput("EUcheck", "Choose the fuels for Europe or per country", c('BEV', 'CNG', 'H2', 'LNG', 'LPG', 'PHEV', 'Total'), 
                                                      selected = c('BEV', 'CNG', 'H2', 'LNG', 'LPG', 'PHEV'))),
                               box(title = "AF infrastructure",
-                                  "Total number of alternative fuel (AF) infrastructure per type of fuel",  solidHeader = T, status="danger",plotOutput("colinfr"),
+                                  "Total number of alternative fuel (AF) infrastructure per type of fuel",  solidHeader = T, status="danger",plotlyOutput("colinfr"),
                                   checkboxGroupInput("EUcheckinfr", "Choose the fuels for Europe or per country", c('Electricity', 'H2', 'Natural Gas', 'LPG', 'Total'), 
                                                      selected = c('Electricity', 'H2', 'Natural Gas', 'LPG')))
                             ),
