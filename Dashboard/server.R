@@ -106,6 +106,9 @@ Data <- data %>% gather(January:December, key=  "Month", value="Sales") %>% muta
 Data$Month <- as.integer(Data$Month)
 Data$Year <- as.factor(Data$Year) 
 
+#Customers: loyalty
+loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v2.xlsx", skip = 2)
+
 
 #Lien
 
@@ -601,8 +604,7 @@ shinyServer(function(input, output, session) {
     # Loyalty
     output$loyalty_bar <- renderPlot({
       
-      #Load data
-      loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v2.xlsx", skip = 2)
+      
       
       # Make tibble (already was, just to be sure)
       loyalty_per_brand_tibble = as_tibble(loyalty_per_brand_data)
