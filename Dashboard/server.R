@@ -20,6 +20,7 @@ library(leaflet)
 library(DT)
 library(rvest)
 library(stringr)
+library(tidyverse)
 
 #Caro
 

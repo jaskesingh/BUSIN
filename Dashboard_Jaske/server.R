@@ -3,7 +3,7 @@ library(shiny)
 library(shinydashboard)
 library(ggplot2)
 library(tidyr)
-library(dplyr)
+library(tidyverse)
 library(lubridate)
 library(readr)
 library(plotly)
@@ -14,7 +14,7 @@ eusurvey <- read.csv("data/hev1.csv")
 shinyServer(function(input, output) {
     
     output$ggcountry <- renderPlotly({
-        f2 <- eusurvey %>% filter(Country %in% input$gcountry)
+        f2 <- eusurvey %>% filter(Country == input$gcountry)
         p2 <- f2 %>% ggplot(aes(Gender)) + 
             geom_bar(aes(fill = buy_electric), position = "dodge") +
             facet_wrap(~Country) + 
