@@ -449,7 +449,8 @@ shinyServer(function(input, output, session) {
       Automotive_Revenue <- revvar$`Automotive Revenues Tesla`/1000000
       
       revvarp <- revvar %>% ggplot(aes(x = Quarter, y = Automotive_Revenue))+ geom_col() + 
-        labs(title = input$Yearrev, y = 'Automotive revenue')  + theme_minimal()
+        labs(title = input$Yearrev, y = 'Automotive revenue')  +  scale_y_continuous(limits = c(0, 8000), breaks = seq(0,8000, by= 1000)) +
+        theme_minimal()
       
     }
     else {
@@ -459,7 +460,8 @@ shinyServer(function(input, output, session) {
         mutate("total" = sum(`Automotive Revenues Tesla`, na.rm = TRUE)/1000000) %>% select(Year, total)%>% distinct()
       
       revvarp <- revvar %>% ggplot(aes(x = Year , y = total))+ geom_line() + geom_point() +
-        labs(y = 'Automotive revenue') + theme_minimal()
+        labs(y = 'Automotive revenue') + scale_y_continuous(limits = c(0, 21000), breaks = seq(0, 21000, by = 5000)) +
+        theme_minimal()
     }
     ggplotly(revvarp)
   })
@@ -471,7 +473,8 @@ shinyServer(function(input, output, session) {
       
       freecashvarp <- freecashvar %>% ggplot(aes(x= Quarter, y= free_cash_flow)) + 
         geom_col() + 
-        labs(title = input$Yearrev, y = 'Free cash flow') +  theme_minimal()
+        labs(title = input$Yearrev, y = 'Free cash flow') +  scale_y_continuous(limits = c(-1500, 1500), breaks = seq(-1500,1500, by = 500)) + 
+        theme_minimal()
       
     }
     else {
@@ -480,7 +483,8 @@ shinyServer(function(input, output, session) {
       
       freecashvarp <- freecashvar %>% ggplot(aes(x = Year , y = total))+ 
         geom_line() + geom_point() + 
-        labs(y = 'Free cash flow')  + scale_y_continuous(limits = c(-4000, 1300), breaks = seq(-4000, 1300, by= 1000)) + theme_minimal()
+        labs(y = 'Free cash flow')  + scale_y_continuous(limits = c(-4000, 1300), breaks = seq(-4000, 1300, by= 1000)) + 
+        theme_minimal()
       
     }
     ggplotly(freecashvarp)
@@ -504,7 +508,8 @@ shinyServer(function(input, output, session) {
       
       grossprofitvarp <-grossprofitvar %>% ggplot(aes(x = Year , y = total)) + 
         geom_line() + geom_point() + 
-        labs(y = "Gross profit")  + scale_y_continuous(limits = c(0, 5000), breaks = seq(0, 5000, by= 1000)) + theme_minimal()
+        labs(y = "Gross profit")  + scale_y_continuous(limits = c(0, 5000), breaks = seq(0, 5000, by= 1000)) + 
+        theme_minimal()
       
     }
     ggplotly(grossprofitvarp)
@@ -528,7 +533,8 @@ shinyServer(function(input, output, session) {
       
       grossmarginvarp <- grossmarginvar %>% ggplot(aes(x = Year , y = total)) + 
         geom_line() + geom_point() + 
-        labs(y = "Gross margin")  + scale_y_continuous(limits = c(0, 100), breaks = seq(0, 100, by= 10))+ theme_minimal()
+        labs(y = "Gross margin")  + scale_y_continuous(limits = c(0, 100), breaks = seq(0, 100, by= 10)) + 
+        theme_minimal()
       
     }
     ggplotly(grossmarginvarp)
@@ -541,21 +547,26 @@ shinyServer(function(input, output, session) {
       countriespasscarvar <- countriesafpassengercars %>% filter(Country == input$EUoptions, Fuel %in% input$EUcheck)
       value <- countriespasscarvar$waardes
       
+      
       countriespasscarvarp <- countriespasscarvar %>% 
         ggplot(aes(x = Year, y = value, fill = Fuel)) + 
         geom_col(position = "dodge") + 
         labs(title = input$EUoptions, y = '')  + 
+        scale_x_continuous(limits= c(min(countriesafpassengercars$Year), max(countriesafpassengercars$Year)) , 
+                           breaks = seq(min(countriesafpassengercars$Year), max(countriesafpassengercars$Year), by = 1)) +
         theme_minimal()
       
     }
-    else {
+    else { 
       countriespasscarvar <- countriesafpassengercars %>% filter(Fuel %in% input$EUcheck, Year == input$YearEU)
       value <- countriespasscarvar$waardes
+      
+      
       
       countriespasscarvarp <- countriespasscarvar %>% 
         ggplot(aes(x = Country, y = value, fill = Fuel ))+ 
         geom_col(position = "dodge") + 
-        labs(title = input$YearEU, y = '')  + 
+        labs(title = input$YearEU, y = '')  + scale_y_continuous(limits = c(0, 3600000), breaks = seq(0,4000000, by= 500000)) +
         coord_flip() + theme_minimal()
       
     }
@@ -569,7 +580,10 @@ shinyServer(function(input, output, session) {
       countriesinfrvarp <- countriesinfrvar %>% 
         ggplot(aes(x = Year, y = value, fill = Fuel))+ 
         geom_col(position = "dodge") + 
-        labs(title = input$EUoptions, y = '')   + theme_minimal()
+        labs(title = input$EUoptions, y = '')  + 
+        scale_x_continuous(limits = c(min(countriesafinfrastructure$Year), max(countriesafinfrastructure$Year)), 
+                           breaks = seq(min(countriesafinfrastructure$Year), max(countriesafinfrastructure$Year), by = 1)) + 
+        theme_minimal()
       
     }
     else {
@@ -579,7 +593,7 @@ shinyServer(function(input, output, session) {
       countriesinfrvarp <- countriesinfrvar %>% 
         ggplot(aes(x = Country, y = value, fill = Fuel))+ 
         geom_col(position = "dodge") + 
-        labs(title = input$YearEU, y = '')  + 
+        labs(title = input$YearEU, y = '')  + scale_y_continuous(limits = c(0, 70000), breaks = seq(0,70000, by= 10000)) +
         coord_flip() + theme_minimal()
       
     }
