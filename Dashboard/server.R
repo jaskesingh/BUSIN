@@ -173,7 +173,7 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
   
 # Growth: Comparison
   
-  growth_comp_data_5 <- read_xlsx("Dashboard/Data/growth_comparison_v5.xlsx")
+  growth_comp_data_5 <- read_xlsx("Data/growth_comparison_v5.xlsx")
   
   # Placeholder for presentation 10-11-20
     # Select
