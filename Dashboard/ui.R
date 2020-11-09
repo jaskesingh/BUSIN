@@ -20,6 +20,7 @@ library(leaflet)
 library(shinydashboard)
 library(stringr)
 library(DT)
+library(tidyverse)
 
 #Caro
 
