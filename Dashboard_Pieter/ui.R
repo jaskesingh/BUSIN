@@ -20,10 +20,10 @@ shinyUI(
       sidebarMenu(
         # Pitch document: Growth --> Comparison of electric vehicles of different brands
         # Maybe add icons in final dashboard (video 3)
-        menuItem("Growth (Later)", tabName =  "dashboard_growth"),
+        menuItem("Growth -> Comparison (WIP)", tabName =  "dashboard_growth"),
       
         # Pitch document: Customers --> Purchase history --> Loyalty
-        menuItem("Brand Loyalty (Work-In-Progress)", tabName = "dashboard_loyalty")
+        menuItem("Customers -> Brand Loyalty (WIP)", tabName = "dashboard_loyalty")
       )
     ),
     
