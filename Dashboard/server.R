@@ -576,7 +576,7 @@ shinyServer(function(input, output, session) {
         ggplot(aes(x = Country, y = value, fill = Fuel ))+ 
         geom_col(position = "dodge") + 
         labs(title = input$YearEU, y = '')  + scale_y_continuous(limits = c(0, 3600000), breaks = seq(0,4000000, by= 500000)) +
-        coord_flip() + theme_minimal()
+        coord_flip() + theme_minimal() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
       
     }
     ggplotly(countriespasscarvarp)
@@ -602,8 +602,9 @@ shinyServer(function(input, output, session) {
       countriesinfrvarp <- countriesinfrvar %>% 
         ggplot(aes(x = Country, y = value, fill = Fuel))+ 
         geom_col(position = "dodge") + 
-        labs(title = input$YearEU, y = '')  + scale_y_continuous(limits = c(0, 70000), breaks = seq(0,70000, by= 10000)) +
-        coord_flip() + theme_minimal()
+        labs(title = input$YearEU, y = '')  + scale_y_continuous(limits = c(0, 65000), breaks = seq(0,65000, by= 5000)) +
+        coord_flip() + theme_minimal() + 
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))
       
     }
     ggplotly(countriesinfrvarp)
