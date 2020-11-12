@@ -99,6 +99,7 @@ EuMS$Market.Share <- as.double(EuMS$Market.Share)
 #Klanten: aankoopproces
 aankoopproces <- read_xlsx("Data/Online.xlsx")
 aankoopproces <- aankoopproces %>% gather(`Not at all interested/not very interested`:`Somewhat interested/very interested`, key = "Interest", value="Percentage")
+aankoopproces$Interest <- ordered(aankoopproces$Interest, levels = c("Not at all interested/not very interested", "Neutral", "Somewhat interested/very interested"))
 
 #Verkoop: periodieke tesla verkoop
 data <- read_xlsx("Data/Monthly Tesla Vehicle Sales.xlsx")

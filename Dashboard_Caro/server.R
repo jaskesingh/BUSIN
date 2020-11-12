@@ -94,6 +94,7 @@ EuMS$Market.Share <- as.double(EuMS$Market.Share)
 #Klanten: aankoopproces
 aankoopproces <- read_xlsx("Data/Online.xlsx")
 aankoopproces <- aankoopproces %>% gather(`Not at all interested/not very interested`:`Somewhat interested/very interested`, key = "Interest", value="Percentage")
+aankoopproces$Interest <- ordered(aankoopproces$Interest, levels = c("Not at all interested/not very interested", "Neutral", "Somewhat interested/very interested"))
 
 #Verkoop: periodieke tesla verkoop
 data <- read_xlsx("Data/Monthly Tesla Vehicle Sales.xlsx")
@@ -199,7 +200,7 @@ shinyServer(function(input, output, session) {
     #histogram: concurrentie snellaadpalen
     output$hist02 <- renderPlotly({
         laadpalenC <- laadpalen %>% filter(Country %in% input$Country2)
-        h2 <- laadpalenC %>% ggplot(aes(x = Description, y = freq)) + geom_col() + facet_wrap(Country~.)+ theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+        h2 <- laadpalenC %>% ggplot(aes(x = Description, y = freq)) + geom_col() + facet_wrap(Country~., nrow = 3, ncol = 9 )+ theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
             scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + xlab("Brand")
         ggplotly(h2)})
     output$hist03 <- renderPlotly({
@@ -223,12 +224,12 @@ shinyServer(function(input, output, session) {
         )})
     
     #infobox sterkste stijger: groei: verkoop alle merken per segment WERKT NOG NIET
-    output$populairst <- renderValueBox({
-        VPSC2 <- VPS %>% filter(Segment %in% input$Segment, Year == max(input$Year2) & Year == max(input$Year2)-1)
-        valueBox(
-            paste0(VPSC2$Segment[max(for(i in input$Segment){VPSC2$Sales[VPSC2$Year == max(input$Year2) & VPSC2$Segment == i] - VPSC2$Sales[VPSC2$Year == max(input$Year2)-1 & VPSC2$Segment == i]})]),
-            subtitle= "Best sold segment", color = "red"
-        )})
+    #output$populairst <- renderValueBox({
+       # VPSC2 <- VPS %>% filter(Segment %in% input$Segment, Year == max(input$Year2) & Year == max(input$Year2)-1)
+        #valueBox(
+            #paste0(VPSC2$Segment[max(for(i in input$Segment){VPSC2$Sales[VPSC2$Year == max(input$Year2) & VPSC2$Segment == i] - VPSC2$Sales[VPSC2$Year == max(input$Year2)-1 & VPSC2$Segment == i]})]),
+            #subtitle= "Best sold segment", color = "red"
+       # )})
     
     #lijngrafiek: Groei: verkoop alle merken per segment
     output$line01 <- renderPlotly({
@@ -297,7 +298,8 @@ shinyServer(function(input, output, session) {
     #Hist klanten: aankoopproces
     output$hist07 <- renderPlotly({
         aankoopprocesC2 <- aankoopproces %>% filter(Country %in% input$Country4, Interest %in% input$Interest)
-        h7 <- aankoopprocesC2 %>% ggplot(aes(x = Country, y = Percentage)) + geom_col() + facet_wrap(Interest~.) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" ) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+        h7 <- aankoopprocesC2 %>% ggplot(aes(x = Country, y = Percentage, fill = ifelse(Percentage == max(aankoopprocesC2$Percentage[aankoopprocesC2$Interest == "Neutral"]), 'green', ifelse(Percentage == min(aankoopprocesC2$Percentage[aankoopprocesC2$Interest == "Neutral"]),'red', 'blue')))) + 
+            geom_col() + facet_wrap(Interest~.) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" ) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
             scale_y_continuous(limits = c(0, 70), breaks = seq(0,70, by= 10))
         ggplotly(h7)})
     

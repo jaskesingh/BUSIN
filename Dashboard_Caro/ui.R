@@ -192,18 +192,18 @@ shinyUI(
                                label = "Choose country",
                                choices = aankoopproces$Country,
                                multiple = TRUE,
-                               selected = "Belgium")),
+                               selected = c("Belgium", "Germany", "France", "UK", "Italy"))),
           tabPanel("Tab2", plotlyOutput("hist07"),
           selectInput(inputId = "Country4",
                       label = "Choose country",
                       choices = aankoopproces$Country,
                       multiple = TRUE,
-                      selected = "Belgium"),
+                      selected = c("Belgium", "Germany", "France", "UK", "Italy")),
           selectInput(inputId = "Interest",
                       label = "Choose level of interest",
                       choices = aankoopproces$Interest,
                       multiple = TRUE,
-                      selected = "Somewhat interested/very interested"))
+                      selected = c("Not at all interested/not very interested", "Neutral", "Somewhat interested/very interested")))
         )
       ),
       tabItem(
