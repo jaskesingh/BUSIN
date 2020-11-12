@@ -731,10 +731,19 @@ shinyServer(function(input, output, session) {
     })
     
     output$propev <- renderPlotly({
-      ggplotly(eusurvey %>% group_by(Country) %>% summarize(n=n(),prop=sum(buy_electric==1)/n()) %>%
-                 ggplot(aes(Country, prop)) + geom_point() + 
-                 labs(y = "Percentage of people willing to buy ev", x = "Countries") +
-                 theme(axis.text.x = element_text(angle = 60, hjust = 1))
+      teslacountries <- c("Austria", "Belgium", "Czech Republic", "Denmark", 
+                          "Finland", "France", "Germany", "Ireland", "Italy", 
+                          "Luxembourg", "Netherlands", "Norway", "Slovenia", 
+                          "Spain", "Sweden", "Switzerland")
+      
+      eusurvey$tesla_sold <- ifelse(eusurvey$Country %in% teslacountries, 1, 0) 
+      eusurvey <- eusurvey %>% mutate(tesla_sold = as.logical(tesla_sold))
+      
+      ggplotly(eusurvey %>% group_by(Country, tesla_sold) %>% summarize(n=n(),prop=sum(buy_electric==1)/n()) %>%
+                 ggplot(aes(Country, prop)) + geom_point(aes(color = tesla_sold)) + 
+                 labs(y = "Percentage of people willing to buy ev", x = "Countries", color = "Tesla sold") +
+                 theme(axis.text.x = element_text(angle = 60, hjust = 1)) + 
+                 scale_color_manual(values=c("black", "red"))
       )
     })
     
