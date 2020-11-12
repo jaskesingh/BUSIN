@@ -80,9 +80,6 @@ VPS$Sales <- as.double(VPS$Sales)
 nieuw <- read_xlsx("Data/Verkoop per brandstof (België) met market share.xlsx", sheet = "Nieuw")
 tweedehands <- read_xlsx("Data/Verkoop per brandstof (België) met market share.xlsx", sheet = "Tweedehands")
 eu <- read_xlsx("Data/% share of new passenger cars by fuel type in the EU.xlsx")
-EuMS <- eu %>% gather('2016', '2017', '2018', '2019',key = "Year", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
-EuMS$Year <- as.integer(EuMS$Year)
-EuMS$Market.Share <- as.double(EuMS$Market.Share)
 NieuwMS <- nieuw %>% gather(MS12, MS13, MS14, MS15, MS16, MS17, MS18, MS19,key = "Year", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
 NieuwMS$Year <- recode(NieuwMS$Year, MS12 = "2012", MS13 = "2013", MS14 = "2014", MS15 = "2015", MS16 = "2016", MS17 = "2017", MS18 = "2018", MS19 = "2019" )
 Nieuw <- nieuw %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
@@ -95,6 +92,9 @@ Tweedehands <- tweedehands %>% gather('2012', '2013', '2014', '2015', '2016', '2
 Tweedehands$Year <- as.integer(Tweedehands$Year)
 TweedehandsMS$Year <- as.integer(TweedehandsMS$Year)
 TweedehandsMS$Market.Share <- as.double(TweedehandsMS$Market.Share)
+EuMS <- eu %>% gather('2016', '2017', '2018', '2019',key = "Year", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
+EuMS$Year <- as.integer(EuMS$Year)
+EuMS$Market.Share <- as.double(EuMS$Market.Share)
 
 #Klanten: aankoopproces
 aankoopproces <- read_xlsx("Data/Online.xlsx")
@@ -172,8 +172,12 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
                                        levels = loyalty_per_brand_tibble$Brand)
   
 # Growth: Comparison
-  
+
+  # growth_comp_data_5 <- read_xlsx("Dashboard/Data/growth_comparison_v5.xlsx")
+  # View(growth_comp_data_5)
+
   growth_comp_data_5 <- read_xlsx("Data/growth_comparison_v5.xlsx")
+
   
   # Placeholder for presentation 10-11-20
     # Select
@@ -314,6 +318,13 @@ shinyServer(function(input, output, session) {
     p <- VPSC2 %>% ggplot(aes(x=Year, y=Sales)) + geom_line(aes(color = Segment)) + labs(title = "New cars sold in the EU by segment in million units over the years.") + 
       scale_x_continuous(breaks = c(2008:2019)) + scale_y_continuous(breaks= seq(0,6, by = 1)) + ylab("Cars sold") + theme_minimal()
     ggplotly(p)})
+  #histogram: groei: verkoop alle merken per segment
+  output$hist04 <- renderPlotly({
+    VPSC <- VPS %>% filter(Segment %in% input$Segment2, Year >= min(input$Year2) & Year <= max(input$Year2))
+    h4 <- VPSC %>% ggplot(aes(x = Segment, y = Sales)) + geom_col() + facet_wrap(Year~., ncol = 6, nrow = 2) + 
+      labs(title = "New cars sold in the EU by segment in million units for each year.") + theme_minimal() + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+      scale_y_continuous(limits = c(0,6), breaks = seq(0,6, by= 1)) + ylab("Cars sold") 
+    ggplotly(h4)})
   
   #lijn nieuw: groei: aandeel elektrische auto's op belgische en eu markt
   checkregion <- reactive({input$Region})
@@ -666,7 +677,7 @@ shinyServer(function(input, output, session) {
       
       # Te doen:
       # - Tesla in andere kleur (Puurder rood, rest mss in zachter rood, om toch in stijl te blijven)
-      # - Percentages ipv. 0.6 enzo
+      # - (Percentages in assen toevoegen)
       # - Percentages schaal tot 100%
       # - (Optioneel) Namen brands groter
       # - Ggplotly zodat je precieze percentage ook ziet. Dan kan mogelijk checkbox zelfs weg.(Want wil ...
@@ -731,10 +742,19 @@ shinyServer(function(input, output, session) {
     })
     
     output$propev <- renderPlotly({
-      ggplotly(eusurvey %>% group_by(Country) %>% summarize(n=n(),prop=sum(buy_electric==1)/n()) %>%
-                 ggplot(aes(Country, prop)) + geom_point() + 
-                 labs(y = "Percentage of people willing to buy ev", x = "Countries") +
-                 theme(axis.text.x = element_text(angle = 60, hjust = 1))
+      teslacountries <- c("Austria", "Belgium", "Czech Republic", "Denmark", 
+                          "Finland", "France", "Germany", "Ireland", "Italy", 
+                          "Luxembourg", "Netherlands", "Norway", "Slovenia", 
+                          "Spain", "Sweden", "Switzerland")
+      
+      eusurvey$tesla_sold <- ifelse(eusurvey$Country %in% teslacountries, 1, 0) 
+      eusurvey <- eusurvey %>% mutate(tesla_sold = as.logical(tesla_sold))
+      
+      ggplotly(eusurvey %>% group_by(Country, tesla_sold) %>% summarize(n=n(),prop=sum(buy_electric==1)/n()) %>%
+                 ggplot(aes(Country, prop)) + geom_point(aes(color = tesla_sold)) + 
+                 labs(y = "Percentage of people willing to buy ev", x = "Countries", color = "Tesla sold") +
+                 theme(axis.text.x = element_text(angle = 60, hjust = 1)) + 
+                 scale_color_manual(values=c("black", "red"))
       )
     })
     
