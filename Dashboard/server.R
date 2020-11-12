@@ -173,12 +173,12 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
   
 # Growth: Comparison
   
-<<<<<<< HEAD
+
   # growth_comp_data_5 <- read_xlsx("Dashboard/Data/growth_comparison_v5.xlsx")
   # View(growth_comp_data_5)
-=======
+
   growth_comp_data_5 <- read_xlsx("Data/growth_comparison_v5.xlsx")
->>>>>>> e6c9a339c1b6eb6efd32cf8bd6e4d5ec6ad1d14a
+
   
   # Placeholder for presentation 10-11-20
   # Clean names
@@ -211,12 +211,6 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
     growth_comp_sales_2019_1$year_2019_sales <- factor(growth_comp_sales_2019_1$year_2019_sales,
                                               levels = growth_comp_sales_2019_1$year_2019_sales)
     
-<<<<<<< HEAD
-    # View(growth_comp_sales_2019_1)
-    # str(growth_comp_sales_2019_1)
-    
-=======
->>>>>>> e6c9a339c1b6eb6efd32cf8bd6e4d5ec6ad1d14a
   
 #jaske
 
