@@ -326,7 +326,7 @@ shinyUI(
                               box(title = "Top 15 EV's of 2019 compared (Work-in-progress)",
                                   status = "danger",
                                   solidHeader = T,
-                                  plotOutput("growth_bar"),
+                                  plotOutput("growth_comparison_bar"),
                                   selectInput(inputId = "growth_select_box",
                                               label = "Select parameter for comparison",
                                               choices = c("Sales In 2019",
