@@ -683,7 +683,7 @@ shinyServer(function(input, output, session) {
         theme(axis.text.y = element_text(vjust=0.6)) + theme_minimal()
       
       # Te doen:
-      # - 58:45
+      # - 58:35 https://shiny.rstudio.com/tutorial/
       # - Tesla in andere kleur (Puurder rood, rest mss in zachter rood, om toch in stijl te blijven)
       # - (Percentages in assen toevoegen)
       # - Percentages schaal tot 100%
@@ -691,6 +691,7 @@ shinyServer(function(input, output, session) {
       # - Ggplotly zodat je precieze percentage ook ziet. Dan kan mogelijk checkbox zelfs weg.(Want wil ...
       #   ... kunnen filteren op luxury/mass market of beiden). Mss voegt plotly ook toe dat merken kan ...
       #   ... kiezen, anders eventueel zelf toevoegen
+      # - Eventueel 1:55:00 https://shiny.rstudio.com/tutorial/ voor breedte
       
       # Print plot
       loyalty_per_brand_plot

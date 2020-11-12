@@ -373,6 +373,7 @@ shinyUI(
                             fluidRow(
                               box(title = "Loyalty per brand (Work-in-progress)",
                                   "Percentage of car buyers that chose the same brand when buying a new car",
+                                  width = 12,
                                   status = "danger",
                                   solidHeader = T,
                                   plotOutput("loyalty_bar"),
