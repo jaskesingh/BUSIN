@@ -172,17 +172,12 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
                                        levels = loyalty_per_brand_tibble$Brand)
   
 # Growth: Comparison
-  
-<<<<<<< HEAD
 
   # growth_comp_data_5 <- read_xlsx("Dashboard/Data/growth_comparison_v5.xlsx")
   # View(growth_comp_data_5)
 
   growth_comp_data_5 <- read_xlsx("Data/growth_comparison_v5.xlsx")
 
-=======
-  growth_comp_data_5 <- read_xlsx("Data/growth_comparison_v5.xlsx")
->>>>>>> a5e3763c92e6d1d86f40028056bd7788b6a2926e
   
   # Placeholder for presentation 10-11-20
     # Select
