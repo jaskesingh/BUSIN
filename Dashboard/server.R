@@ -80,21 +80,21 @@ VPS$Sales <- as.double(VPS$Sales)
 nieuw <- read_xlsx("Data/Verkoop per brandstof (België) met market share.xlsx", sheet = "Nieuw")
 tweedehands <- read_xlsx("Data/Verkoop per brandstof (België) met market share.xlsx", sheet = "Tweedehands")
 eu <- read_xlsx("Data/% share of new passenger cars by fuel type in the EU.xlsx")
-NieuwMS <- nieuw %>% gather(MS12, MS13, MS14, MS15, MS16, MS17, MS18, MS19,key = "Year", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
-NieuwMS$Year <- recode(NieuwMS$Year, MS12 = "2012", MS13 = "2013", MS14 = "2014", MS15 = "2015", MS16 = "2016", MS17 = "2017", MS18 = "2018", MS19 = "2019" )
-Nieuw <- nieuw %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
-Nieuw$Year <- as.integer(Nieuw$Year)
-NieuwMS$Year <- as.integer(NieuwMS$Year)
-NieuwMS$Market.Share <- as.double(NieuwMS$Market.Share)
-TweedehandsMS <- tweedehands %>% gather(MS12, MS13, MS14, MS15, MS16, MS17, MS18, MS19,key = "Year", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
-TweedehandsMS$Year <- recode(TweedehandsMS$Year, MS12 = "2012", MS13 = "2013", MS14 = "2014", MS15 = "2015", MS16 = "2016", MS17 = "2017", MS18 = "2018", MS19 = "2019" )
-Tweedehands <- tweedehands %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
-Tweedehands$Year <- as.integer(Tweedehands$Year)
-TweedehandsMS$Year <- as.integer(TweedehandsMS$Year)
-TweedehandsMS$Market.Share <- as.double(TweedehandsMS$Market.Share)
 EuMS <- eu %>% gather('2016', '2017', '2018', '2019',key = "Year", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
 EuMS$Year <- as.integer(EuMS$Year)
 EuMS$Market.Share <- as.double(EuMS$Market.Share)
+Nieuw <- nieuw %>% gather(MS12, MS13, MS14, MS15, MS16, MS17, MS18, MS19,key = "MSYear", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
+Nieuw$Year <- recode(Nieuw$MSYear, MS12 = "2012", MS13 = "2013", MS14 = "2014", MS15 = "2015", MS16 = "2016", MS17 = "2017", MS18 = "2018", MS19 = "2019" )
+Nieuw <- nieuw %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
+Nieuw$Year <- as.integer(Nieuw$Year)
+Nieuw$Market.Share <- as.double(NieuwMS$Market.Share)
+Nieuw <- Nieuw %>% select(Fuel, Year, `Cars sold`, Market.Share)
+Tweedehands <- tweedehands %>% gather(MS12, MS13, MS14, MS15, MS16, MS17, MS18, MS19,key = "MSYear", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
+Tweedehands$Year <- recode(Tweedehands$MSYear, MS12 = "2012", MS13 = "2013", MS14 = "2014", MS15 = "2015", MS16 = "2016", MS17 = "2017", MS18 = "2018", MS19 = "2019" )
+Tweedehands <- tweedehands %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
+Tweedehands$Year <- as.integer(Tweedehands$Year)
+Tweedehands$Market.Share <- as.double(TweedehandsMS$Market.Share)
+Tweedehands <- Tweedehands %>% select(Fuel, Year, `Cars sold`, Market.Share)
 
 #Klanten: aankoopproces
 aankoopproces <- read_xlsx("Data/Online.xlsx")
@@ -172,7 +172,22 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
                                        levels = loyalty_per_brand_tibble$Brand)
   
 # Growth: Comparison
-
+  
+  growth_comp_data_5 <- read_xlsx("Data/growth_comparison_v5.xlsx")
+  
+  # Placeholder for presentation 10-11-20
+    # Select
+    growth_comp_sales_2019_1 <- growth_comp_data_5 %>% 
+                                  select(c("Submodel", "2019")) %>%
+                                  drop_na("2019") %>%
+                                  # Drop others and segment total
+                                  drop_na("Submodel")
+    
+    # To retain the order in the plot
+    growth_comp_sales_2019_1$"2019" <- factor(growth_comp_sales_2019_1$"2019",
+                                       levels = growth_comp_sales_2019_1$"2019")
+    
+  
 #jaske
 
 eusurvey <- read.csv("data/hev1.csv")
@@ -299,13 +314,6 @@ shinyServer(function(input, output, session) {
     p <- VPSC2 %>% ggplot(aes(x=Year, y=Sales)) + geom_line(aes(color = Segment)) + labs(title = "New cars sold in the EU by segment in million units over the years.") + 
       scale_x_continuous(breaks = c(2008:2019)) + scale_y_continuous(breaks= seq(0,6, by = 1)) + ylab("Cars sold") + theme_minimal()
     ggplotly(p)})
-  #histogram: groei: verkoop alle merken per segment
-  output$hist04 <- renderPlotly({
-    VPSC <- VPS %>% filter(Segment %in% input$Segment2, Year >= min(input$Year2) & Year <= max(input$Year2))
-    h4 <- VPSC %>% ggplot(aes(x = Segment, y = Sales)) + geom_col() + facet_wrap(Year~.) + 
-      labs(title = "New cars sold in the EU by segment in million units for each year.") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-      scale_y_continuous(limits = c(0,6), breaks = seq(0,6, by= 1)) + ylab("Cars sold") + theme_minimal()
-    ggplotly(h4)})
   
   #lijn nieuw: groei: aandeel elektrische auto's op belgische en eu markt
   checkregion <- reactive({input$Region})
@@ -327,7 +335,7 @@ shinyServer(function(input, output, session) {
   checktype <- reactive({input$Region2})
   output$pie02 <- renderPlotly({
     if(checktype() == 1){
-      NieuwMSC <- NieuwMS %>% filter(Year == input$Year5)
+      NieuwMSC <- Nieuw %>% filter(Year == input$Year5)
       fig1 <- plot_ly(NieuwMSC, labels = ~Fuel, values = ~Market.Share, type = 'pie')
       fig1 <- fig1 %>% layout(title = "Market share of new cars by fuel type in Belgium",
                               xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
@@ -335,7 +343,7 @@ shinyServer(function(input, output, session) {
     }
     else{
       #taart tweedehands: groei: aandeel elektrische auto's op belgische en eu markt
-      TweedehandsMSC <- TweedehandsMS %>% filter(Year == input$Year5)
+      TweedehandsMSC <- Tweedehands %>% filter(Year == input$Year5)
       fig2 <- plot_ly(TweedehandsMSC, labels = ~Fuel, values = ~Market.Share, type = 'pie')
       fig2 <- fig2 %>% layout(title = "Market share of second hand cars by fuel type in Belgium",
                               xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
@@ -575,7 +583,7 @@ shinyServer(function(input, output, session) {
         ggplot(aes(x = Country, y = value, fill = Fuel ))+ 
         geom_col(position = "dodge") + 
         labs(title = input$YearEU, y = '')  + scale_y_continuous(limits = c(0, 3600000), breaks = seq(0,4000000, by= 500000)) +
-        coord_flip() + theme_minimal()
+        coord_flip() + theme_minimal() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
       
     }
     ggplotly(countriespasscarvarp)
@@ -601,8 +609,9 @@ shinyServer(function(input, output, session) {
       countriesinfrvarp <- countriesinfrvar %>% 
         ggplot(aes(x = Country, y = value, fill = Fuel))+ 
         geom_col(position = "dodge") + 
-        labs(title = input$YearEU, y = '')  + scale_y_continuous(limits = c(0, 70000), breaks = seq(0,70000, by= 10000)) +
-        coord_flip() + theme_minimal()
+        labs(title = input$YearEU, y = '')  + scale_y_continuous(limits = c(0, 65000), breaks = seq(0,65000, by= 5000)) +
+        coord_flip() + theme_minimal() + 
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))
       
     }
     ggplotly(countriesinfrvarp)

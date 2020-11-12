@@ -63,6 +63,7 @@ Free_cashflow <- read_xlsx("Data/Tesla's free cash flow by quarter 2020 world wi
 
 #uitbreiding in europa tabblad
 countriesafpassengercars <- read_xlsx("Data/Countries overview of af passenger cars.xlsx", skip = 2 , col_types = c("numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))
+teslapercountrysales <- read_xlsx("Data/Verkoop landen tesla.xlsx", skip = 1, col_types = c("text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric")) %>% gather('2013', '2014', '2015', '2016', '2017', '2018', '2019', key = 'jaar', value = 'waarde')
 
 #jaske
 eusurvey <- read.csv("data/hev1.csv")
@@ -120,7 +121,7 @@ shinyUI(
                                       label = "Choose country",
                                       choices = verkoo$Country,
                                       multiple = TRUE,
-                                      selected = "Belgium")
+                                      selected = c("Belgium", "Austria", "Czech Republic", "Denmark", "Finland", "France", "Germany", "Greece", "Ireland", "Italy", "Luxembourg", "Netherlands", "Norway", "Portugal", "Romania", "Slovenia", "Spain", "Sweden", "Switzerland"))
                         )
                       )
                     ),
@@ -151,23 +152,7 @@ shinyUI(
                                       label = "Choose segment",
                                       choices = VPS$Segment,
                                       multiple = TRUE,
-                                      selected = "SUV")
-                        )
-                      ),
-                      fluidRow(
-                        box(
-                          title = "New cars sold in the EU by segment in million units for each year", width = 12,
-                          solidHeader = T, status = 'danger', plotlyOutput("hist04"),
-                          sliderInput(inputId = "Year2",
-                                      label = "Choose year",
-                                      min = 2008,
-                                      max = 2019,
-                                      value = c(2008, 2019)),
-                          selectInput(inputId = "Segment2",
-                                      label = "Choose segment",
-                                      choices = VPS$Segment,
-                                      multiple = TRUE,
-                                      selected = "SUV")
+                                      selected = c("Lower Medium (C)", "Luxury (E+F)", "MPV", "Small (A+B)", "SUV", "Upper Medium (D)"))
                         )
                       )
                     ),
@@ -231,18 +216,18 @@ shinyUI(
                                              label = "Choose country",
                                              choices = aankoopproces$Country,
                                              multiple = TRUE,
-                                             selected = "Belgium")),
+                                             selected = c("Belgium", "Germany", "France", "UK", "Italy"))),
                         tabPanel("Tab2", plotlyOutput("hist07"),
                                  selectInput(inputId = "Country4",
                                              label = "Choose country",
                                              choices = aankoopproces$Country,
                                              multiple = TRUE,
-                                             selected = "Belgium"),
+                                             selected = c("Belgium", "Germany", "France", "UK", "Italy")),
                                  selectInput(inputId = "Interest",
                                              label = "Choose level of interest",
                                              choices = aankoopproces$Interest,
                                              multiple = TRUE,
-                                             selected = "Somewhat interested/very interested"))
+                                             selected = c("Not at all interested/not very interested", "Neutral", "Somewhat interested/very interested")))
                       )
                     ),
                     tabItem(
@@ -332,7 +317,8 @@ shinyUI(
                               box(title = "Tesla sales in Europe per year", solidHeader = T, status="danger", 
                                   selectInput(inputId = "teslajaar",
                                               label = "choose the year you want to see (blue is new that year)",
-                                              choices = list("2013", "2014", "2015", "2016", "2017", "2018", "2019")),
+                                              choices = unique(teslapercountrysales$jaar),
+                                              selected = 2013),
                                   plotOutput("distPlot")))
                           ),
                     tabItem(tabName = "dashboard_growth",
