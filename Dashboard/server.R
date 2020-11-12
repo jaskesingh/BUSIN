@@ -721,7 +721,7 @@ shinyServer(function(input, output, session) {
       
       # Te doen:
       # - Tesla in andere kleur (Puurder rood, rest mss in zachter rood, om toch in stijl te blijven)
-      # - Percentages ipv. 0.6 enzo
+      # - (Percentages in assen toevoegen)
       # - Percentages schaal tot 100%
       # - (Optioneel) Namen brands groter
       # - Ggplotly zodat je precieze percentage ook ziet. Dan kan mogelijk checkbox zelfs weg.(Want wil ...
