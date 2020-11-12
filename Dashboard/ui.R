@@ -145,6 +145,9 @@ shinyUI(
                     tabItem(
                       tabName = "Salespersegment",
                       fluidRow(
+                        valueBoxOutput("bestsoldsegment")
+                      ),
+                      fluidRow(
                         box(
                           title = "New cars sold in the EU by segment in million units over the years", width = 12,
                           solidHeader = T, status = 'danger', plotlyOutput("line01"),
@@ -152,7 +155,12 @@ shinyUI(
                                       label = "Choose segment",
                                       choices = VPS$Segment,
                                       multiple = TRUE,
-                                      selected = c("Lower Medium (C)", "Luxury (E+F)", "MPV", "Small (A+B)", "SUV", "Upper Medium (D)"))
+                                      selected = c("Lower Medium (C)", "Luxury (E+F)", "MPV", "Small (A+B)", "SUV", "Upper Medium (D)")),
+                          sliderInput(inputId = "Year2",
+                                      label = "Choose year",
+                                      min = 2008,
+                                      max = 2019,
+                                      value = c(2008, 2019))
                         )
                       )
                     ),
