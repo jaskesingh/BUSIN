@@ -80,6 +80,9 @@ VPS$Sales <- as.double(VPS$Sales)
 nieuw <- read_xlsx("Data/Verkoop per brandstof (België) met market share.xlsx", sheet = "Nieuw")
 tweedehands <- read_xlsx("Data/Verkoop per brandstof (België) met market share.xlsx", sheet = "Tweedehands")
 eu <- read_xlsx("Data/% share of new passenger cars by fuel type in the EU.xlsx")
+EuMS <- eu %>% gather('2016', '2017', '2018', '2019',key = "Year", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
+EuMS$Year <- as.integer(EuMS$Year)
+EuMS$Market.Share <- as.double(EuMS$Market.Share)
 NieuwMS <- nieuw %>% gather(MS12, MS13, MS14, MS15, MS16, MS17, MS18, MS19,key = "Year", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
 NieuwMS$Year <- recode(NieuwMS$Year, MS12 = "2012", MS13 = "2013", MS14 = "2014", MS15 = "2015", MS16 = "2016", MS17 = "2017", MS18 = "2018", MS19 = "2019" )
 Nieuw <- nieuw %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
@@ -92,9 +95,6 @@ Tweedehands <- tweedehands %>% gather('2012', '2013', '2014', '2015', '2016', '2
 Tweedehands$Year <- as.integer(Tweedehands$Year)
 TweedehandsMS$Year <- as.integer(TweedehandsMS$Year)
 TweedehandsMS$Market.Share <- as.double(TweedehandsMS$Market.Share)
-EuMS <- eu %>% gather('2016', '2017', '2018', '2019',key = "Year", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
-EuMS$Year <- as.integer(EuMS$Year)
-EuMS$Market.Share <- as.double(EuMS$Market.Share)
 
 #Klanten: aankoopproces
 aankoopproces <- read_xlsx("Data/Online.xlsx")
@@ -173,20 +173,50 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
   
 # Growth: Comparison
   
+<<<<<<< HEAD
+  # growth_comp_data_5 <- read_xlsx("Dashboard/Data/growth_comparison_v5.xlsx")
+  # View(growth_comp_data_5)
+=======
   growth_comp_data_5 <- read_xlsx("Data/growth_comparison_v5.xlsx")
+>>>>>>> e6c9a339c1b6eb6efd32cf8bd6e4d5ec6ad1d14a
   
   # Placeholder for presentation 10-11-20
-    # Select
+  # Clean names
+  colnames(growth_comp_data_5) <- c("row-number", "electric_car_ranked_by_sales", "electric_car",
+                                    "submodel", "year_2019_sales", "year_2018_sales", 
+                                    "change_in_sales_from_2018_to_2019_in_percent",
+                                    "percent_of_model_in_2019_was_EV", "percent_of_model_in_2018_was_EV",
+                                    "market_share_in_2019_in_percent", "market_share_in_2018_in_percent",
+                                    "range", "top_speed_km_per_h", "acceleration_0_to_100_km_per_h",
+                                    "horsepower", "top_charging_speed_km_per_h", "price",
+                                    "trunk_space_including_frunk_if_applicable", "segment", 
+                                    "ncap_stars", "ncap_adult_occupant", "ncap_child_occumant", 
+                                    "ncap_vulnerable_road_users", "ncap_safety_assist",
+                                    "ncap_average_percent"
+                                    )
+  
+  # Select
     growth_comp_sales_2019_1 <- growth_comp_data_5 %>% 
-                                  select(c("Submodel", "2019")) %>%
-                                  drop_na("2019") %>%
+                                  select(c("submodel", "year_2019_sales")) %>%
+                                  drop_na("year_2019_sales") %>%
                                   # Drop others and segment total
-                                  drop_na("Submodel")
+                                  drop_na("submodel")
+    
+    
+    
+    # Reverse order (high to low)
+    growth_comp_sales_2019_1 <- growth_comp_sales_2019_1[order(desc(growth_comp_sales_2019_1$year_2019_sales)), ]
     
     # To retain the order in the plot
-    growth_comp_sales_2019_1$"2019" <- factor(growth_comp_sales_2019_1$"2019",
-                                       levels = growth_comp_sales_2019_1$"2019")
+    growth_comp_sales_2019_1$year_2019_sales <- factor(growth_comp_sales_2019_1$year_2019_sales,
+                                              levels = growth_comp_sales_2019_1$year_2019_sales)
     
+<<<<<<< HEAD
+    # View(growth_comp_sales_2019_1)
+    # str(growth_comp_sales_2019_1)
+    
+=======
+>>>>>>> e6c9a339c1b6eb6efd32cf8bd6e4d5ec6ad1d14a
   
 #jaske
 
@@ -314,13 +344,6 @@ shinyServer(function(input, output, session) {
     p <- VPSC2 %>% ggplot(aes(x=Year, y=Sales)) + geom_line(aes(color = Segment)) + labs(title = "New cars sold in the EU by segment in million units over the years.") + 
       scale_x_continuous(breaks = c(2008:2019)) + scale_y_continuous(breaks= seq(0,6, by = 1)) + ylab("Cars sold") + theme_minimal()
     ggplotly(p)})
-  #histogram: groei: verkoop alle merken per segment
-  output$hist04 <- renderPlotly({
-    VPSC <- VPS %>% filter(Segment %in% input$Segment2, Year >= min(input$Year2) & Year <= max(input$Year2))
-    h4 <- VPSC %>% ggplot(aes(x = Segment, y = Sales)) + geom_col() + facet_wrap(Year~., ncol = 6, nrow = 2) + 
-      labs(title = "New cars sold in the EU by segment in million units for each year.") + theme_minimal() + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-      scale_y_continuous(limits = c(0,6), breaks = seq(0,6, by= 1)) + ylab("Cars sold") 
-    ggplotly(h4)})
   
   #lijn nieuw: groei: aandeel elektrische auto's op belgische en eu markt
   checkregion <- reactive({input$Region})
@@ -660,6 +683,36 @@ shinyServer(function(input, output, session) {
       hist(faithful$eruptions, breaks = input$bins_growth)
     })
     
+    # Growth comparisons
+    output$growth_comparison_bar <- renderPlot({
+      # Create plot
+          growth_comp_plot <- ggplot(growth_comp_sales_2019_1,
+                                     aes(x = year_2019_sales,
+                                         y = submodel)) +
+            geom_bar(stat = "identity",
+                     fill = "tomato3") +
+            theme(axis.text.y = element_text(angle = 65, vjust=0.6)) +
+            theme_minimal()
+
+          growth_comp_plot
+                
+                # Ook dit leidt tot niks.
+                # growth_comp_sales_2019_1 <- growth_comp_sales_2019_1 %>%
+                #                             mutate(year_2019_sales = fct_reorder(year_2019_sales, submodel))
+                # View(growth_comp_sales_2019_1)
+                # str(growth_comp_sales_2019_1)
+                # growth_comp_sales_2019_1$year_2019_sales <- as.numeric(growth_comp_sales_2019_1$year_2019_sales)
+                # 
+                # growth_comp_plot <- ggplot(growth_comp_sales_2019_1,
+                #                            aes(x = year_2019_sales,
+                #                                y = submodel)) +
+                #   geom_col(fill = "tomato3") +
+                #   theme_minimal() +
+                #   theme(axis.text.x = element_text(angle = 65, vjust=0.6))
+                # 
+                # growth_comp_plot
+    })
+    
     # Loyalty
     output$loyalty_bar <- renderPlot({
       
@@ -669,7 +722,8 @@ shinyServer(function(input, output, session) {
                                            y = Brand)) +
         geom_bar(stat = "identity",
                  fill = "tomato3") +
-        theme(axis.text.y = element_text(vjust=0.6)) + theme_minimal()
+        theme(axis.text.y = element_text(vjust=0.6)) + 
+        theme_minimal()
       
       # Te doen:
       # - Tesla in andere kleur (Puurder rood, rest mss in zachter rood, om toch in stijl te blijven)

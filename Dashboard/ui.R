@@ -154,22 +154,6 @@ shinyUI(
                                       multiple = TRUE,
                                       selected = c("Lower Medium (C)", "Luxury (E+F)", "MPV", "Small (A+B)", "SUV", "Upper Medium (D)"))
                         )
-                      ),
-                      fluidRow(
-                        box(
-                          title = "New cars sold in the EU by segment in million units for each year", width = 12,
-                          solidHeader = T, status = 'danger', plotlyOutput("hist04"),
-                          sliderInput(inputId = "Year2",
-                                      label = "Choose year",
-                                      min = 2008,
-                                      max = 2019,
-                                      value = c(2008, 2019)),
-                          selectInput(inputId = "Segment2",
-                                      label = "Choose segment",
-                                      choices = VPS$Segment,
-                                      multiple = TRUE,
-                                      selected = c("Lower Medium (C)", "Luxury (E+F)", "MPV", "Small (A+B)", "SUV", "Upper Medium (D)"))
-                        )
                       )
                     ),
                     tabItem(
@@ -342,7 +326,7 @@ shinyUI(
                               box(title = "Top 15 EV's of 2019 compared (Work-in-progress)",
                                   status = "danger",
                                   solidHeader = T,
-                                  plotOutput("growth_bar"),
+                                  plotOutput("growth_comparison_bar"),
                                   selectInput(inputId = "growth_select_box",
                                               label = "Select parameter for comparison",
                                               choices = c("Sales In 2019",
