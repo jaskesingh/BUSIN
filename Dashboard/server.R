@@ -171,26 +171,26 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
   loyalty_per_brand_tibble$Brand <- factor(loyalty_per_brand_tibble$Brand,
                                        levels = loyalty_per_brand_tibble$Brand)
   
-# Growth: Comparison
-
-  # growth_comp_data_5 <- read_xlsx("Dashboard/Data/growth_comparison_v5.xlsx")
-  # View(growth_comp_data_5)
-
-  # Ik denk correctere versie
-  # growth_comp_data_5 <- read_xlsx("Data/growth_comparison_v5.xlsx")
-
-  
-  # Placeholder for presentation 10-11-20
-    # Select
-    growth_comp_sales_2019_1 <- growth_comp_data_5 %>% 
-                                  select(c("Submodel", "2019")) %>%
-                                  drop_na("2019") %>%
-                                  # Drop others and segment total
-                                  drop_na("Submodel")
-    
-    # To retain the order in the plot
-    growth_comp_sales_2019_1$"2019" <- factor(growth_comp_sales_2019_1$"2019",
-                                       levels = growth_comp_sales_2019_1$"2019")
+# # Growth: Comparison
+# 
+#   # growth_comp_data_5 <- read_xlsx("Dashboard/Data/growth_comparison_v5.xlsx")
+#   # View(growth_comp_data_5)
+# 
+#   # Ik denk correctere versie
+#   # growth_comp_data_5 <- read_xlsx("Data/growth_comparison_v5.xlsx")
+# 
+#   
+#   # Placeholder for presentation 10-11-20
+#     # Select
+#     growth_comp_sales_2019_1 <- growth_comp_data_5 %>% 
+#                                   select(c("Submodel", "2019")) %>%
+#                                   drop_na("2019") %>%
+#                                   # Drop others and segment total
+#                                   drop_na("Submodel")
+#     
+#     # To retain the order in the plot
+#     growth_comp_sales_2019_1$"2019" <- factor(growth_comp_sales_2019_1$"2019",
+#                                        levels = growth_comp_sales_2019_1$"2019")
     
   
 #jaske
@@ -694,6 +694,40 @@ shinyServer(function(input, output, session) {
       
       # Print plot
       loyalty_per_brand_plot
+    })
+    
+    # Growth comparisons
+    output$growth_comparison_bar <- renderPlot({
+      
+      
+      # Create plot
+      # growth_comp_plot <- ggplot(growth_comp_sales_2019_1,
+      #                            aes(x = year_2019_sales,
+      #                                y = submodel)) +
+      #   geom_bar(stat = "identity",
+      #            fill = "tomato3") +
+      #   theme(axis.text.y = element_text(angle = 65, vjust=0.6)) +
+      #   theme_minimal()
+      # 
+      # growth_comp_plot
+      
+      
+      # Ook dit leidt tot niks.
+      # growth_comp_sales_2019_1 <- growth_comp_sales_2019_1 %>%
+      #                             mutate(year_2019_sales = fct_reorder(year_2019_sales, submodel))
+      # View(growth_comp_sales_2019_1)
+      # str(growth_comp_sales_2019_1)
+      # growth_comp_sales_2019_1$year_2019_sales <- as.numeric(growth_comp_sales_2019_1$year_2019_sales)
+      # 
+      # growth_comp_plot <- ggplot(growth_comp_sales_2019_1,
+      #                            aes(x = year_2019_sales,
+      #                                y = submodel)) +
+      #   geom_col(fill = "tomato3") +
+      #   theme_minimal() +
+      #   theme(axis.text.x = element_text(angle = 65, vjust=0.6))
+      # 
+      # growth_comp_plot
+      
     })
 
 ########################################################################################################################
