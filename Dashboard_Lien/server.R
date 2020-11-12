@@ -43,9 +43,9 @@ Gross_profit <- Gross_profit %>% unite(Year, Quarter, col = "Date", sep = " ")
 Free_cashflow <- Free_cashflow %>% unite(Year, Quarter, col = "Date", sep = " ") 
 Gross_Margin <- Gross_Margin %>% unite(Year, Quarter, col = "Date", sep = " ") 
 
-Revenuetabel <- rename(Revenuetabel, c("Revenue" = "Automotive Revenues Tesla"))
-Gross_profit <- Gross_profit %>% rename(c("Gross Profit"= "Automotive gross profit GAAP"))
-Gross_Margin <- Gross_Margin %>% rename( c("Gross Margin" = "Gross margin Automotive GAAP"))
+Revenuetabel <- rename(Revenuetabel, c("Automotive Revenues Tesla" = "Revenue"))
+Gross_profit <- Gross_profit %>% rename(c("Automotive gross profit GAAP" = "Gross Profit"))
+Gross_Margin <- Gross_Margin %>% rename( c("Gross margin Automotive GAAP" = "Gross Margin"))
 
 Revenuetabelnorm <- Revenuetabel %>% select(Date, Revenue)
 Gross_profitnorm <- Gross_profit %>% select(Date, `Gross Profit`)
@@ -165,7 +165,6 @@ shinyServer(function(input, output) {
     
   })
   output$linefin <- renderPlotly({
-    Financial_numbers_gather_som <- Financial_numbers_gather_som %>% mutate(negativetotal = (total < 0))
     
     y    <- Financial_numbers_gather_som$Year
     Yearrevline <- seq(min(y), max(y))
