@@ -312,19 +312,21 @@ shinyServer(function(input, output, session) {
                           yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))})
   
   
+  #infobox best verkocht segment: groei: verkoop alle merken per segment
+  output$bestsoldsegment <- renderValueBox({
+    VPSC2 <- VPS %>% filter(Segment %in% input$Segment, Year == max(input$Year2))
+    valueBox(
+      paste0(VPSC2$Segment[VPSC2$Sales == max(VPSC2$Sales)]),
+      subtitle= paste("Best sold segment in ", max(input$Year2)), color = "red"
+    )})
+  
   #lijngrafiek: Groei: verkoop alle merken per segment
   output$line01 <- renderPlotly({
-    VPSC2 <- VPS %>% filter(Segment %in% input$Segment)
+    VPSC2 <- VPS %>% filter(Segment %in% input$Segment, Year >= min(input$Year2) & Year <= max(input$Year2))
     p <- VPSC2 %>% ggplot(aes(x=Year, y=Sales)) + geom_line(aes(color = Segment)) + labs(title = "New cars sold in the EU by segment in million units over the years.") + 
       scale_x_continuous(breaks = c(2008:2019)) + scale_y_continuous(breaks= seq(0,6, by = 1)) + ylab("Cars sold") + theme_minimal()
     ggplotly(p)})
-  #histogram: groei: verkoop alle merken per segment
-  output$hist04 <- renderPlotly({
-    VPSC <- VPS %>% filter(Segment %in% input$Segment2, Year >= min(input$Year2) & Year <= max(input$Year2))
-    h4 <- VPSC %>% ggplot(aes(x = Segment, y = Sales)) + geom_col() + facet_wrap(Year~., ncol = 6, nrow = 2) + 
-      labs(title = "New cars sold in the EU by segment in million units for each year.") + theme_minimal() + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-      scale_y_continuous(limits = c(0,6), breaks = seq(0,6, by= 1)) + ylab("Cars sold") 
-    ggplotly(h4)})
+ 
   
   #lijn nieuw: groei: aandeel elektrische auto's op belgische en eu markt
   checkregion <- reactive({input$Region})
