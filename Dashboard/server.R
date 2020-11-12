@@ -176,7 +176,8 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
   # growth_comp_data_5 <- read_xlsx("Dashboard/Data/growth_comparison_v5.xlsx")
   # View(growth_comp_data_5)
 
-  growth_comp_data_5 <- read_xlsx("Data/growth_comparison_v5.xlsx")
+  # Ik denk correctere versie
+  # growth_comp_data_5 <- read_xlsx("Data/growth_comparison_v5.xlsx")
 
   
   # Placeholder for presentation 10-11-20
@@ -663,7 +664,11 @@ shinyServer(function(input, output, session) {
     output$histogram_growth <- renderPlot({
       hist(faithful$eruptions, breaks = input$bins_growth)
     })
-    
+
+########################################################################################################################
+####################################### temporary mark to quickly find code back ####################################### 
+########################################################################################################################     
+        
     # Loyalty
     output$loyalty_bar <- renderPlot({
       
@@ -676,6 +681,7 @@ shinyServer(function(input, output, session) {
         theme(axis.text.y = element_text(vjust=0.6)) + theme_minimal()
       
       # Te doen:
+      # - 58:45
       # - Tesla in andere kleur (Puurder rood, rest mss in zachter rood, om toch in stijl te blijven)
       # - (Percentages in assen toevoegen)
       # - Percentages schaal tot 100%
@@ -687,7 +693,11 @@ shinyServer(function(input, output, session) {
       # Print plot
       loyalty_per_brand_plot
     })
-    
+
+########################################################################################################################
+####################################### temporary mark to quickly find code back ####################################### 
+########################################################################################################################    
+        
     output$ggcountry <- renderPlotly({
       f2 <- eusurvey %>% filter(Country %in% input$gcountry)
       p2 <- f2 %>% ggplot(aes(Gender)) + 

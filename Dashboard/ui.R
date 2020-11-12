@@ -336,9 +336,6 @@ shinyUI(
                                                           "Share In EV Market In 2018",
                                                           "Percent Of This Model That Was EV In 2019",
                                                           "Percent Of This Model That Was EV In 2018",
-                                                          # De 7 dingen hierboven zouden eventueel ook ...
-                                                          # ... als pie chart kunnen, met best dan de ...
-                                                          # info per jaar via plotly (toch zeker % en sales)
                                                           "Range",
                                                           "Top speed (km/h)",
                                                           "Acceleration (0-100 km/h)",
@@ -360,6 +357,10 @@ shinyUI(
                             )
                     ),
                     
+########################################################################################################################
+####################################### temporary mark to quickly find code back ####################################### 
+######################################################################################################################## 
+
                     tabItem(tabName = "dashboard_loyalty", 
                             fluidRow(
                               box(title = "Loyalty per brand (Work-in-progress)",
@@ -377,6 +378,10 @@ shinyUI(
                             )
                     ),
                     
+########################################################################################################################
+####################################### temporary mark to quickly find code back ####################################### 
+######################################################################################################################## 
+
                       tabItem(
                         tabName = "survey",
                         fluidRow(
