@@ -653,14 +653,20 @@ shinyServer(function(input, output, session) {
     })
 
 ########################################################################################################################
-####################################### temporary mark to quickly find code back ####################################### 
+####################################### Temporary mark to quickly find code back ####################################### 
 ########################################################################################################################     
         
     # Loyalty
     output$loyalty_bar <- renderPlot({
       
+      # Filter based on input
+      # View(loyalty_per_brand_tibble)
+      loyalty_per_brand_chosen_class <- loyalty_per_brand_tibble %>% filter(Classification == input$loyalty_checkboxes)
+      # View(loyalty_per_brand_chosen_class)
+      
+      
       # Create plot
-      loyalty_per_brand_plot <- ggplot(loyalty_per_brand_tibble,
+      loyalty_per_brand_plot <- ggplot(loyalty_per_brand_chosen_class,
                                        aes(x = Percentage,
                                            y = Brand)) +
         geom_bar(stat = "identity",
@@ -672,6 +678,8 @@ shinyServer(function(input, output, session) {
       # - Tesla in andere kleur (Puurder rood, rest mss in zachter rood, om toch in stijl te blijven)
       # - (Percentages in assen toevoegen)
       # - Percentages schaal tot 100%
+      # - KPI: Rank
+      # - KPI 2: Percentage (80%)
       # - (Optioneel) Namen brands groter
       # - Ggplotly zodat je precieze percentage ook ziet. Dan kan mogelijk checkbox zelfs weg.(Want wil ...
       #   ... kunnen filteren op luxury/mass market of beiden). Mss voegt plotly ook toe dat merken kan ...
@@ -717,7 +725,7 @@ shinyServer(function(input, output, session) {
     })
 
 ########################################################################################################################
-####################################### temporary mark to quickly find code back ####################################### 
+####################################### Temporary mark to quickly find code back ####################################### 
 ########################################################################################################################    
         
     output$ggcountry <- renderPlotly({
