@@ -18,7 +18,7 @@ library(lubridate)
 library(readr)
 library(plotly)
 library(maps)
-
+library(gghighlight)
 
 
 #finance
@@ -167,7 +167,8 @@ shinyServer(function(input, output) {
     financevarpcol <- financevar %>% ggplot(aes(x = Quarter, y = value, fill = typenumber))+ geom_col(position = "dodge") + 
       labs(title = input$Yearrev, y = 'Value') + scale_fill_manual(values = c("blue2", "royalblue1", "skyblue3")) +  
       scale_y_continuous(limits = c(-1500, 8000), breaks = seq(-1500,8000, by= 500)) +  
-      theme_minimal() + geom_hline(yintercept = 0, color = "black", size = 1.5)
+      theme_minimal() + gghighlight(value >= 0) + geom_hline(yintercept = 0, color = "black", size = 1.5)
+      
     
     ggplotly(financevarpcol)
     
@@ -180,9 +181,10 @@ shinyServer(function(input, output) {
     financevar <- Financial_numbers_gather_som %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline), typenumber != "totalgrossmargin") %>% group_by(Year, typenumber) %>% 
       mutate("total" = sum(finvalue, na.rm = TRUE)) %>% select(Year, total, typenumber)%>% distinct()
     
-    financevarpline <- financevar %>% ggplot(aes(x = Year , y = total, color = typenumber))+ geom_line() + geom_point() +
+    financevarpline <- financevar %>% ggplot(aes(x = Year , y = total, color = typenumber))+ geom_line() + 
       labs(y = 'Value') + 
-      theme_minimal() + scale_color_manual(values = c("blue2", "royalblue1", "skyblue3")) + geom_hline(yintercept = 0, color = "black", size = 1.5)
+      theme_minimal() + scale_color_manual(values = c("blue2", "royalblue1", "skyblue3")) + geom_hline(yintercept = 0, color = "black", size = 1.5) + 
+      gghighlight(total >= 0)
     ggplotly(financevarpline)
   })
   
