@@ -123,22 +123,19 @@ Free_cashflow <- read_xlsx("Data/Tesla's free cash flow by quarter 2020 world wi
 
 ##cleaning
 Revenuetabel <- Revenue %>% group_by(Year) %>% 
-  mutate("totalrevenue" = sum(`Automotive Revenues Tesla`, na.rm = TRUE)/1000000)
+  mutate("totalrevenue" = sum(Revenue, na.rm = TRUE)/1000000)
 Free_cashflow <- Free_cashflow %>% group_by(Year) %>% 
   mutate("totalfreecashflow" = sum(`free cash flow`, na.rm = TRUE)/1000000)
 Gross_profit <- Gross_profit %>% group_by(Year) %>% 
-  mutate("totalgrossprofit" = sum(`Automotive gross profit GAAP`, na.rm = TRUE)/1000000)
+  mutate("totalgrossprofit" = sum(`Gross Profit`, na.rm = TRUE)/1000000)
 Gross_Margin <- Gross_Margin %>% group_by(Year) %>% 
-  mutate("totalgrossmargin" = sum(`Gross margin Automotive GAAP`, na.rm = TRUE))
+  mutate("totalgrossmargin" = sum(`Gross Margin`, na.rm = TRUE))
 
 Revenuetabel <- Revenuetabel %>% unite(Year, Quarter, col = "Date", sep = " ") 
 Gross_profit <- Gross_profit %>% unite(Year, Quarter, col = "Date", sep = " ") 
 Free_cashflow <- Free_cashflow %>% unite(Year, Quarter, col = "Date", sep = " ") 
 Gross_Margin <- Gross_Margin %>% unite(Year, Quarter, col = "Date", sep = " ") 
 
-Revenuetabel <- rename(Revenuetabel, c("Revenue" = "Automotive Revenues Tesla"))
-Gross_profit <- Gross_profit %>% rename(c("Gross Profit" = "Automotive gross profit GAAP"))
-Gross_Margin <- Gross_Margin %>% rename( c("Gross Margin" = "Gross margin Automotive GAAP"))
 
 Revenuetabelnorm <- Revenuetabel %>% select(Date, Revenue)
 Gross_profitnorm <- Gross_profit %>% select(Date, `Gross Profit`)
