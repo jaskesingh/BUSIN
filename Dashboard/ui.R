@@ -150,7 +150,8 @@ shinyUI(
                       ),
                       fluidRow(
                         box(
-                          title = "New cars sold in the EU by segment in million units over the years", width = 12,
+                          title = "New cars sold in the EU by segment in million units over the years", 
+                          width = 12,
                           solidHeader = T, status = 'danger', plotlyOutput("line01"),
                           selectInput(inputId = "Segment",
                                       label = "Choose segment",
@@ -377,7 +378,7 @@ shinyUI(
                                   solidHeader = T,
                                   plotOutput("loyalty_bar"),
                                   checkboxGroupInput(inputId = "loyalty_checkboxes",
-                                                     label = "Choose class(es)",
+                                                     label = "Choose class(es) to compare Tesla with",
                                                      choices = c("Luxury", "Mass market"),
                                                      selected = c("Luxury", "Mass market")
                                   )

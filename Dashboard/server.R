@@ -22,6 +22,9 @@ library(rvest)
 library(stringr)
 library(tidyverse)
 
+# Toegevoegd op 13/11
+library(scales)
+
 #Caro
 
 #Map + table01 + infoboxen
@@ -209,11 +212,14 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
 
 # Customers: loyalty
 
-  # Keep for now
+  # v2
   # loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v2.xlsx", skip = 2)
   
-  # New
-  loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v3.xlsx", skip = 2)
+  # v3
+  # loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v3.xlsx", skip = 2)
+  
+  # v4
+  loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v4.xlsx", skip = 2)
   
   # Make tibble (already was, just to be sure)
   loyalty_per_brand_tibble = as_tibble(loyalty_per_brand_data)
@@ -224,12 +230,10 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
   # Clean names
   colnames(loyalty_per_brand_tibble) <- c("Ranking", "Brand", "Percentage", "Classification")
   
-  # Reverse order (high to low)
-  loyalty_per_brand_tibble <- loyalty_per_brand_tibble[order(loyalty_per_brand_tibble$Percentage), ]
+  # Select row with Tesla to add to both luxury and mass market
+  loyalty_per_brand_Tesla <- loyalty_per_brand_tibble %>% filter(Brand == "Tesla")
+
   
-  # To retain the order in the plot
-  loyalty_per_brand_tibble$Brand <- factor(loyalty_per_brand_tibble$Brand,
-                                       levels = loyalty_per_brand_tibble$Brand)
   
 # # Growth: Comparison
 # 
@@ -643,10 +647,26 @@ shinyServer(function(input, output, session) {
     # Loyalty
     output$loyalty_bar <- renderPlot({
       
-      # Filter based on input
-      # View(loyalty_per_brand_tibble)
-      loyalty_per_brand_chosen_class <- loyalty_per_brand_tibble %>% filter(Classification == input$loyalty_checkboxes)
-      # View(loyalty_per_brand_chosen_class)
+      # Filter based on input ...
+      loyalty_per_brand_chosen_class <- loyalty_per_brand_tibble %>% filter(Classification %in% input$loyalty_checkboxes)
+      
+      # But we want to make sure Tesla is always shown. So, we remove Tesla (even if it's not there) ...
+      loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% filter(!Brand %in% c("Tesla"))
+      
+      # ... and then add it in each case (Yes, this is a longer than needed workaround, but it works :-) )
+      loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% add_row(Ranking = loyalty_per_brand_Tesla$Ranking,
+                                                                                   Brand = loyalty_per_brand_Tesla$Brand,
+                                                                                   Percentage = loyalty_per_brand_Tesla$Percentage,
+                                                                                   Classification = loyalty_per_brand_Tesla$Classification,
+                                                                                   )
+
+      # Reverse order (high to low)
+      loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class[order(loyalty_per_brand_chosen_class$Percentage), ]
+      
+      # Make sure we retain the order in the plot
+      loyalty_per_brand_chosen_class$Brand <- factor(loyalty_per_brand_chosen_class$Brand,
+                                               levels = loyalty_per_brand_chosen_class$Brand)
+      
       
       
       # Create plot
@@ -655,13 +675,17 @@ shinyServer(function(input, output, session) {
                                            y = Brand)) +
         geom_bar(stat = "identity",
                  fill = "tomato3") +
-        theme(axis.text.y = element_text(vjust=0.6)) + theme_minimal()
+        theme_minimal() +
+        scale_x_continuous(breaks = seq(0, 1, 0.1),
+                           limits = c(0, 1),
+                           labels = percent_format(accuracy = 1),
+                           expand = expand_scale(mult = c(0, 0.01)))
       
       # Te doen:
+      # - horizontale lijnen grid weg
+      # - Percentages toevoegen
       # - 58:35 https://shiny.rstudio.com/tutorial/
       # - Tesla in andere kleur (Puurder rood, rest mss in zachter rood, om toch in stijl te blijven)
-      # - (Percentages in assen toevoegen)
-      # - Percentages schaal tot 100%
       # - KPI: Rank
       # - KPI 2: Percentage (80%)
       # - (Optioneel) Namen brands groter
@@ -669,6 +693,8 @@ shinyServer(function(input, output, session) {
       #   ... kunnen filteren op luxury/mass market of beiden). Mss voegt plotly ook toe dat merken kan ...
       #   ... kiezen, anders eventueel zelf toevoegen
       # - Eventueel 1:55:00 https://shiny.rstudio.com/tutorial/ voor breedte
+      # - data: loyaliteit oude versies wegdoen. 
+      # - Ruim mijn code overal op. 
       
       # Print plot
       loyalty_per_brand_plot
