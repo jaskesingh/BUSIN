@@ -24,6 +24,7 @@ library(tidyverse)
 
 # Toegevoegd op 13/11
 library(scales)
+library(ggExtra)
 
 #Caro
 
@@ -641,20 +642,20 @@ shinyServer(function(input, output, session) {
     # Loyalty
     output$loyalty_bar <- renderPlot({
       
-      # Filter based on input ...
+      # Filter based on input, ...
       loyalty_per_brand_chosen_class <- loyalty_per_brand_tibble %>% filter(Classification %in% input$loyalty_checkboxes)
       
-      # But we want to make sure Tesla is always shown. So, we remove Tesla (even if it's not there) ...
+      # ... however, we want to make sure Tesla is always shown. So, we remove Tesla (even if it's not there) ...
       loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% filter(!Brand %in% c("Tesla"))
       
-      # ... and then add it in each case (Yes, this is a longer than needed workaround, but it works :-) )
+      # ... and then add it in each case. (Yes, this are probably shorter ways to do this, but it works :-) )
       loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% add_row(Ranking = loyalty_per_brand_Tesla$Ranking,
                                                                                    Brand = loyalty_per_brand_Tesla$Brand,
                                                                                    Percentage = loyalty_per_brand_Tesla$Percentage,
                                                                                    Classification = loyalty_per_brand_Tesla$Classification,
                                                                                    )
 
-      # Reverse order (high to low)
+      # Reverse order (so the barplot shows the values from high to low)
       loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class[order(loyalty_per_brand_chosen_class$Percentage), ]
       
       # Make sure we retain the order in the plot
@@ -663,33 +664,38 @@ shinyServer(function(input, output, session) {
       
       
       
-      # Create plot
+      # Create the plot
       loyalty_per_brand_plot <- ggplot(loyalty_per_brand_chosen_class,
                                        aes(x = Percentage,
-                                           y = Brand)) +
-        geom_bar(stat = "identity",
-                 fill = "tomato3") +
+                                           y = Brand,
+                                           fill = factor(ifelse(Brand == "Tesla", "Highlighted", "Normal")))) +
+        geom_col() + 
         theme_minimal() +
+        scale_fill_manual(name = "Hidden_legend", 
+                          values = c("red2", "coral2")) +
         scale_x_continuous(breaks = seq(0, 1, 0.1),
                            limits = c(0, 1),
                            labels = percent_format(accuracy = 1),
-                           expand = expand_scale(mult = c(0, 0.01)))
+                           expand = expansion(mult = c(0, 0.01))
+                           ) +
+        removeGridY() +
+        theme(axis.text = element_text(size = 12),
+              axis.title = element_text(size = 15),
+              legend.position = "none") 
+        
+      # Display plot
+      loyalty_per_brand_plot
+      
+      
       
       # Te doen:
-      # - horizontale lijnen grid weg
-      # - Tesla in andere kleur (Puurder rood, rest mss in zachter rood, om toch in stijl te blijven)
       # - KPI: Rank
       # - KPI 2: Percentage (80%)
-      # - (Optioneel) Namen brands groter
       # - Ggplotly zodat je precieze percentage ook ziet. Dan kan mogelijk checkbox zelfs weg.(Want wil ...
       #   ... kunnen filteren op luxury/mass market of beiden). Mss voegt plotly ook toe dat merken kan ...
-      #   ... kiezen, anders eventueel zelf toevoegen
-      # - Eventueel 1:55:00 https://shiny.rstudio.com/tutorial/ voor breedte
-      # - data: loyaliteit oude versies wegdoen. 
-      # - Ruim mijn code overal op. 
+      #   ... kiezen
       
-      # Print plot
-      loyalty_per_brand_plot
+
     })
     
     # Growth comparisons
@@ -723,6 +729,9 @@ shinyServer(function(input, output, session) {
       #   theme(axis.text.x = element_text(angle = 65, vjust=0.6))
       # 
       # growth_comp_plot
+      
+      # Te doen:
+      # - Op einde: code opruimen, oude datasets weggooien.
       
     })
 
