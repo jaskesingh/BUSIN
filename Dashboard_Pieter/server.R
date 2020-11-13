@@ -26,7 +26,6 @@ library(scales)
       # str(growth_comp_data_4)
 
 
-
 # Test script die later verwijderd wordt
 # Loyalty
 # 
