@@ -135,6 +135,9 @@ shinyUI(
         tabItem(
           tabName = "fueltype",
             fluidRow(
+              valueBoxOutput("bestsoldfuel")
+            ),
+            fluidRow(
               box(
                 title = "Number of cars sold in Belgium", solidHeader = T, status = 'danger', plotlyOutput("line02"),
                 radioButtons("Region", label= "Choose which kind of cars you want to see on the graph", choices = list("New" = 1, "Second hand" = 2)),
