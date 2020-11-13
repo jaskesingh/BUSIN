@@ -211,17 +211,11 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
 #Pieter
 
 # Customers: loyalty
-
-  # v2
-  # loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v2.xlsx", skip = 2)
   
-  # v3
-  # loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v3.xlsx", skip = 2)
-  
-  # v4
+  # Load data
   loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v4.xlsx", skip = 2)
   
-  # Make tibble (already was, just to be sure)
+  # Make tibble (already was, but just to be sure)
   loyalty_per_brand_tibble = as_tibble(loyalty_per_brand_data)
   
   # Change to numeric (already was, but just to be sure)
@@ -230,7 +224,7 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
   # Clean names
   colnames(loyalty_per_brand_tibble) <- c("Ranking", "Brand", "Percentage", "Classification")
   
-  # Select row with Tesla to add to both luxury and mass market
+  # Select row with Tesla to later add to both luxury and mass market
   loyalty_per_brand_Tesla <- loyalty_per_brand_tibble %>% filter(Brand == "Tesla")
 
   
@@ -392,22 +386,6 @@ shinyServer(function(input, output, session) {
       scale_x_continuous(breaks = c(2008:2019)) + scale_y_continuous(breaks= seq(0,6, by = 1)) + ylab("Cars sold") + theme_minimal()
     ggplotly(p)})
  
-  
-  #infobox best verkocht brandstof: groei: aandeel elektrische auto's op belgische en eu markt
-  output$bestsoldfuel <- renderValueBox({
-    if(checkregion() == 1){
-    NieuwC <- Nieuw %>% filter(Fuel %in% input$Fuel, Year == max(input$Year3))
-    valueBox(
-      paste0(NieuwC$Fuel[NieuwC$`Cars sold` == max(NieuwC$`Cars sold`)]),
-      subtitle= paste("Best sold type of car in Belgium in ", max(input$Year3)), color = "red"
-    )}
-    else{
-      TweedehandsC <- Tweedehands %>% filter(Fuel %in% input$Fuel, Year == max(input$Year3))
-      valueBox(
-        paste0(TweedehandsC$Fuel[TweedehandsC$`Cars sold` == max(TweedehandsC$`Cars sold`)]),
-        subtitle= paste("Best sold type of second hand car in Belgium in ", max(input$Year3)), color = "red"
-      )
-    }})
   
   #lijn nieuw: groei: aandeel elektrische auto's op belgische en eu markt
   checkregion <- reactive({input$Region})
@@ -699,8 +677,6 @@ shinyServer(function(input, output, session) {
       
       # Te doen:
       # - horizontale lijnen grid weg
-      # - Percentages toevoegen
-      # - 58:35 https://shiny.rstudio.com/tutorial/
       # - Tesla in andere kleur (Puurder rood, rest mss in zachter rood, om toch in stijl te blijven)
       # - KPI: Rank
       # - KPI 2: Percentage (80%)
