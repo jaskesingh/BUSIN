@@ -18,6 +18,7 @@ library(leaflet)
 library(DT)
 library(rvest)
 library(stringr)
+library(gghighlight)
 
 #Map + table01 + infoboxen
 superchargers <- read_xlsx("Data/Superchargers.xlsx")
@@ -200,8 +201,8 @@ shinyServer(function(input, output, session) {
     #histogram: concurrentie snellaadpalen
     output$hist02 <- renderPlotly({
         laadpalenC <- laadpalen %>% filter(Country %in% input$Country2)
-        h2 <- laadpalenC %>% ggplot(aes(x = Description, y = freq)) + geom_col() + facet_wrap(Country~., nrow = 3, ncol = 9 )+ theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-            scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + xlab("Brand")
+        h2 <- ggplot(laadpalenC, aes(x = Description, y = freq)) + geom_col() + facet_wrap(Country~., nrow = 3, ncol = 9 )+ theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+            scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + xlab("Brand") 
         ggplotly(h2)})
     output$hist03 <- renderPlotly({
         laadpalenC <- laadpalen %>% filter(Country %in% input$Country2)
@@ -314,15 +315,17 @@ shinyServer(function(input, output, session) {
     #Hist klanten: aankoopproces
     output$hist07 <- renderPlotly({
         aankoopprocesC2 <- aankoopproces %>% filter(Country %in% input$Country4, Interest %in% input$Interest)
-        h7 <- aankoopprocesC2 %>% ggplot(aes(x = Country, y = Percentage, fill = ifelse(Percentage == max(aankoopprocesC2$Percentage[aankoopprocesC2$Interest == "Neutral"]), 'green', ifelse(Percentage == min(aankoopprocesC2$Percentage[aankoopprocesC2$Interest == "Neutral"]),'red', 'blue')))) + 
+        h7 <- aankoopprocesC2 %>% ggplot(aes(x = Country, y = Percentage), color = 'green') + 
             geom_col() + facet_wrap(Interest~.) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" ) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
             scale_y_continuous(limits = c(0, 70), breaks = seq(0,70, by= 10))
+        h7 <- h7 + gghighlight(Percentage == max(aankoopprocesC2$Percentage[Interest == "Neutral"]), calculate_per_facet = TRUE)
         ggplotly(h7)})
     
     #line verkoop: periodieke tesla verkoop
     output$line04 <- renderPlotly({
         DataC <- Data %>% filter(Month >= min(input$Month) & Month <= max(input$Month), Year %in% input$Year9)
-        p4 <- DataC %>% ggplot(aes(x= Month, y = Sales, na.rm = T)) + geom_line(aes(color = Year)) + scale_x_continuous(breaks = seq(0,12, by = 1))
+        MeanSales <- DataC %>% group_by(Month) %>% summarise(Sales = mean(Sales, na.rm = T) )
+        p4 <- DataC %>% ggplot(aes(x= Month, y = Sales, na.rm = T)) + geom_line(aes(color = Year)) + geom_line(data = MeanSales, color = 'black') + scale_x_continuous(breaks = seq(0,12, by = 1))
         ggplotly(p4)
     })
     

@@ -250,8 +250,8 @@ shinyUI(
                     tabItem(
                       tabName = "Periodic",
                       tabBox(
-                        title = "Periodic Tesla sales over the years.", height = 12, width = 12,
-                        tabPanel("Tab1", plotlyOutput("line04")),
+                        title = "Periodic Tesla sales over the years.", height = 12, width = 12, 
+                        tabPanel("Tab1", h2("Black line is the mean sales of all the selected years"), plotlyOutput("line04")),
                         tabPanel("Tab2", plotlyOutput("hist08")),
                         sliderInput(inputId = "Month",
                                     label = "Choose month",
@@ -263,7 +263,7 @@ shinyUI(
                                     label = "Choose year",
                                     choices = Data$Year,
                                     multiple = TRUE,
-                                    selected = c("2019","2020"))
+                                    selected = c("2016", "2017", "2018", "2019","2020"))
                       )
                     ),
                     #finance

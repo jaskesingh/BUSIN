@@ -64,3 +64,11 @@ taart <- taart %>% mutate(ratio = round(freq/sum(freq)*100))
 taart %>% ggplot(aes(x="", y = ratio, fill = Description)) + geom_bar(width = 1, stat = "identity") + coord_polar("y", start=0) + labs(title = "Superchargers market share")
 ```
 
+```{r}
+Most <- laadpalen %>% spread(key = Description, value = freq) %>% mutate(most = Tesla > `IONITY High Power Charging`)
+```
+
+```{r}
+Most %>% mutate(most = Tesla > `IONITY High Power Charging`)
+```
+
