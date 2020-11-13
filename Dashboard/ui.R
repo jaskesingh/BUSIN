@@ -263,7 +263,7 @@ shinyUI(
                                     selected = c("2019","2020"))
                       )
                     ),
-                    #financiele tabblad
+                    #finance
                     tabItem(tabName = "Omzet",
                             h2("Financial numbers worldwide, based on automotive sector"),
                             fluidRow(
@@ -273,36 +273,24 @@ shinyUI(
                             ),    
                             #Grafieken voor financiele cijfers
                             fluidRow(
-                              box(title = "Car revenue",
+                              box(title = "Yearly",
                                   "In million",
-                                  solidHeader = T, status="danger", plotlyOutput("colrev")),
-                              box(title = "Free cashflow", 
-                                  "In million", solidHeader = T, status="danger", plotlyOutput(("colfrcash")))
-                            ),
-                            fluidRow(
-                              box(title = "Gross profit", 
-                                  "In million", solidHeader = T, status="danger", plotlyOutput("colgrpr")),
-                              box(title = "Gross margin", 
-                                  "In percentage", solidHeader = T, status="danger", plotlyOutput("colgrmar")),
-                              #aanpasbare waardes
-                              box(title = "Make changes to the graphs (Quarterly)",
-                                  solidHeader = T, status="danger", sliderInput(inputId = "Yearrev", 
-                                                                                label = "Choose year to give the quarters of",
-                                                                                min = min(Revenue$Year),
-                                                                                max = max(Revenue$Year),
-                                                                                value = 2020,
-                                                                                sep = ""),
-                                  checkboxInput("Quarterly", "Quarterly overview", value = FALSE)
+                                  solidHeader = T, status="danger", plotlyOutput("linefin"),sliderInput(inputId = "Yearrevline", 
+                                                                                                        label = "Choose the range of years to appear",
+                                                                                                        min = min(Revenue$Year),
+                                                                                                        max = max(Revenue$Year),
+                                                                                                        value = c(min(Revenue$Year),max(Revenue$Year)),
+                                                                                                        sep = "")
                               ),
-                              box(title = "Make changes to the graph (Yearly)", solidHeader = T, status="danger",
-                                  sliderInput(inputId = "Yearrevline", 
-                                              label = "Choose the range of years to appear",
-                                              min = min(Revenue$Year),
-                                              max = max(Revenue$Year),
-                                              value = c(min(Revenue$Year),max(Revenue$Year)),
-                                              sep = "")
-                              )
+                              box(title = "Quarterly", 
+                                  "In million", solidHeader = T, status="danger", plotlyOutput("colfin"), sliderInput(inputId = "Yearrev", 
+                                                                                                                      label = "Choose year to give the quarters of",
+                                                                                                                      min = min(Revenue$Year),
+                                                                                                                      max = max(Revenue$Year),
+                                                                                                                      value = 2020, 
+                                                                                                                      sep = ""))
                             )
+                            
                             
                     ),
                     tabItem(tabName = "EU",
@@ -339,6 +327,7 @@ shinyUI(
                                               selected = 2013),
                                   plotOutput("distPlot")))
                           ),
+                    
                     tabItem(tabName = "dashboard_growth",
                             fluidRow(
                               box(title = "Top 15 EV's of 2019 compared (Work-in-progress)",
@@ -376,7 +365,7 @@ shinyUI(
                     ),
                     
 ########################################################################################################################
-####################################### temporary mark to quickly find code back ####################################### 
+####################################### Temporary mark to quickly find code back ####################################### 
 ######################################################################################################################## 
 
                     tabItem(tabName = "dashboard_loyalty", 
@@ -398,7 +387,7 @@ shinyUI(
                     ),
                     
 ########################################################################################################################
-####################################### temporary mark to quickly find code back ####################################### 
+####################################### Temporary mark to quickly find code back ####################################### 
 ######################################################################################################################## 
 
                       tabItem(
