@@ -116,7 +116,8 @@ shinyUI(
                                       label = "Choose year",
                                       min = 2013,
                                       max = 2019,
-                                      value = 2019),
+                                      value = 2019,
+                                      sep = ""),
                           selectInput(inputId = "Country",
                                       label = "Choose country",
                                       choices = verkoo$Country,
@@ -160,7 +161,8 @@ shinyUI(
                                       label = "Choose year",
                                       min = 2008,
                                       max = 2019,
-                                      value = c(2008, 2019))
+                                      value = c(2008, 2019),
+                                      sep = "")
                         )
                       )
                     ),
@@ -174,7 +176,8 @@ shinyUI(
                                       label = "Choose year",
                                       min = 2012,
                                       max = 2019,
-                                      value = c(2012, 2019)),
+                                      value = c(2012, 2019),
+                                      sep = ""),
                           selectInput(inputId = "Fuel",
                                       label = "Choose fuel type",
                                       choices = nieuw$Fuel,
@@ -189,7 +192,8 @@ shinyUI(
                                       label = "Choose year",
                                       min = 2012,
                                       max = 2019,
-                                      value = 2019)
+                                      value = 2019,
+                                      sep = "")
                         )
                       ),
                       fluidRow(
@@ -199,7 +203,8 @@ shinyUI(
                                       label = "Choose year",
                                       min = 2016,
                                       max = 2019,
-                                      value = c(2016, 2019)),
+                                      value = c(2016, 2019),
+                                      sep = ""),
                           selectInput(inputId = "Fuel3",
                                       label = "Choose fuel type",
                                       choices = eu$Fuel,
@@ -211,7 +216,8 @@ shinyUI(
                                       label = "Choose year",
                                       min = 2016,
                                       max = 2019,
-                                      value = 2019)
+                                      value = 2019,
+                                      sep = "")
                         )
                       )
                     ),
@@ -248,7 +254,8 @@ shinyUI(
                                     label = "Choose month",
                                     min = 1,
                                     max = 12,
-                                    value = c(1, 12)),
+                                    value = c(1, 12),
+                                    sep = ""),
                         selectInput(inputId = "Year9",
                                     label = "Choose year",
                                     choices = Data$Year,
@@ -256,7 +263,7 @@ shinyUI(
                                     selected = c("2019","2020"))
                       )
                     ),
-                    #financiele tabblad
+                    #finance
                     tabItem(tabName = "Omzet",
                             h2("Financial numbers worldwide, based on automotive sector"),
                             fluidRow(
@@ -266,34 +273,24 @@ shinyUI(
                             ),    
                             #Grafieken voor financiele cijfers
                             fluidRow(
-                              box(title = "Car revenue",
+                              box(title = "Yearly",
                                   "In million",
-                                  solidHeader = T, status="danger", plotlyOutput("colrev")),
-                              box(title = "Free cashflow", 
-                                  "In million", solidHeader = T, status="danger", plotlyOutput(("colfrcash")))
-                            ),
-                            fluidRow(
-                              box(title = "Gross profit", 
-                                  "In million", solidHeader = T, status="danger", plotlyOutput("colgrpr")),
-                              box(title = "Gross margin", 
-                                  "In percentage", solidHeader = T, status="danger", plotlyOutput("colgrmar")),
-                              #aanpasbare waardes
-                              box(title = "Make changes to the graphs (Quarterly)",
-                                  solidHeader = T, status="danger", sliderInput(inputId = "Yearrev", 
-                                                                                label = "Choose year to give the quarters of",
-                                                                                min = min(Revenue$Year),
-                                                                                max = max(Revenue$Year),
-                                                                                value = 2020),
-                                  checkboxInput("Quarterly", "Quarterly overview", value = FALSE)
+                                  solidHeader = T, status="danger", plotlyOutput("linefin"),sliderInput(inputId = "Yearrevline", 
+                                                                                                        label = "Choose the range of years to appear",
+                                                                                                        min = min(Revenue$Year),
+                                                                                                        max = max(Revenue$Year),
+                                                                                                        value = c(min(Revenue$Year),max(Revenue$Year)),
+                                                                                                        sep = "")
                               ),
-                              box(title = "Make changes to the graph (Yearly)", solidHeader = T, status="danger",
-                                  sliderInput(inputId = "Yearrevline", 
-                                              label = "Choose the range of years to appear",
-                                              min = min(Revenue$Year),
-                                              max = max(Revenue$Year),
-                                              value = c(min(Revenue$Year),max(Revenue$Year)))
-                              )
+                              box(title = "Quarterly", 
+                                  "In million", solidHeader = T, status="danger", plotlyOutput("colfin"), sliderInput(inputId = "Yearrev", 
+                                                                                                                      label = "Choose year to give the quarters of",
+                                                                                                                      min = min(Revenue$Year),
+                                                                                                                      max = max(Revenue$Year),
+                                                                                                                      value = 2020, 
+                                                                                                                      sep = ""))
                             )
+                            
                             
                     ),
                     tabItem(tabName = "EU",
@@ -314,7 +311,8 @@ shinyUI(
                                               label = "Choose year for the values in Europe",
                                               min = min(countriesafpassengercars$Year),
                                               max = max(countriesafpassengercars$Year),
-                                              value = 2020),
+                                              value = 2020,
+                                              sep = ""),
                                   
                                   selectInput("EUoptions", "Choose a country of Europe", 
                                               c('Ausria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia',

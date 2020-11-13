@@ -43,9 +43,9 @@ Gross_profit <- Gross_profit %>% unite(Year, Quarter, col = "Date", sep = " ")
 Free_cashflow <- Free_cashflow %>% unite(Year, Quarter, col = "Date", sep = " ") 
 Gross_Margin <- Gross_Margin %>% unite(Year, Quarter, col = "Date", sep = " ") 
 
-Revenuetabel <- rename(Revenuetabel, c("Automotive Revenues Tesla" = "Revenue"))
-Gross_profit <- Gross_profit %>% rename(c("Automotive gross profit GAAP" = "Gross Profit"))
-Gross_Margin <- Gross_Margin %>% rename( c("Gross margin Automotive GAAP" = "Gross Margin"))
+Revenuetabel <- rename(Revenuetabel, c("Revenue" = "Automotive Revenues Tesla"))
+Gross_profit <- Gross_profit %>% rename(c("Gross Profit" = "Automotive gross profit GAAP"))
+Gross_Margin <- Gross_Margin %>% rename( c("Gross Margin" = "Gross margin Automotive GAAP"))
 
 Revenuetabelnorm <- Revenuetabel %>% select(Date, Revenue)
 Gross_profitnorm <- Gross_profit %>% select(Date, `Gross Profit`)
@@ -129,11 +129,20 @@ shinyServer(function(input, output) {
   
   output$frcashbox <- renderValueBox({
     somjaar <- Financial_numbers_gather_som %>% filter(Year == input$Yearrev, typenumber == 'totalfreecashflow') %>% group_by(Year)
-      valueBox(
+    if(somjaar$finvalue[]>=0) {  
+    valueBox(
         paste0(format(round(somjaar$finvalue[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
         subtitle = paste0("Free cashflow ", input$Yearrev, " in million"), 
         icon = icon("dollar-sign"), color = 'red'
       )
+    }
+    else {
+      valueBox(
+        paste0(format(round(somjaar$finvalue[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
+        subtitle = paste0("Free cashflow ", input$Yearrev, " in million"), 
+        icon = icon("dollar-sign"), color = 'purple'
+      )
+    }
   })
   
   output$grprbox <- renderValueBox({
