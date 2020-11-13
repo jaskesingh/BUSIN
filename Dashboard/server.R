@@ -21,6 +21,11 @@ library(DT)
 library(rvest)
 library(stringr)
 library(tidyverse)
+library(gghighlight)
+
+# Toegevoegd op 13/11
+library(scales)
+library(ggExtra)
 
 #Caro
 
@@ -208,14 +213,11 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
 #Pieter
 
 # Customers: loyalty
-
-  # Keep for now
-  # loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v2.xlsx", skip = 2)
   
-  # New
-  loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v3.xlsx", skip = 2)
+  # Load data
+  loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v4.xlsx", skip = 2)
   
-  # Make tibble (already was, just to be sure)
+  # Make tibble (already was, but just to be sure)
   loyalty_per_brand_tibble = as_tibble(loyalty_per_brand_data)
   
   # Change to numeric (already was, but just to be sure)
@@ -224,12 +226,10 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
   # Clean names
   colnames(loyalty_per_brand_tibble) <- c("Ranking", "Brand", "Percentage", "Classification")
   
-  # Reverse order (high to low)
-  loyalty_per_brand_tibble <- loyalty_per_brand_tibble[order(loyalty_per_brand_tibble$Percentage), ]
+  # Select row with Tesla to later add to both luxury and mass market
+  loyalty_per_brand_Tesla <- loyalty_per_brand_tibble %>% filter(Brand == "Tesla")
+
   
-  # To retain the order in the plot
-  loyalty_per_brand_tibble$Brand <- factor(loyalty_per_brand_tibble$Brand,
-                                       levels = loyalty_per_brand_tibble$Brand)
   
 # # Growth: Comparison
 # 
@@ -387,7 +387,22 @@ shinyServer(function(input, output, session) {
     p <- VPSC2 %>% ggplot(aes(x=Year, y=Sales)) + geom_line(aes(color = Segment)) + labs(title = "New cars sold in the EU by segment in million units over the years.") + 
       scale_x_continuous(breaks = c(2008:2019)) + scale_y_continuous(breaks= seq(0,6, by = 1)) + ylab("Cars sold") + theme_minimal()
     ggplotly(p)})
- 
+  
+  #infobox best verkocht brandstof: groei: aandeel elektrische auto's op belgische en eu markt
+  output$bestsoldfuel <- renderValueBox({
+    if(checkregion() == 1){
+      NieuwC <- Nieuw %>% filter(Fuel %in% input$Fuel, Year == max(input$Year3))
+      valueBox(
+        paste0(NieuwC$Fuel[NieuwC$`Cars sold` == max(NieuwC$`Cars sold`)]),
+        subtitle= paste("Best sold type of car in Belgium in ", max(input$Year3)), color = "red"
+      )}
+    else{
+      TweedehandsC <- Tweedehands %>% filter(Fuel %in% input$Fuel, Year == max(input$Year3))
+      valueBox(
+        paste0(TweedehandsC$Fuel[TweedehandsC$`Cars sold` == max(TweedehandsC$`Cars sold`)]),
+        subtitle= paste("Best sold type of second hand car in Belgium in ", max(input$Year3)), color = "red"
+      )
+    }})
   
   #lijn nieuw: groei: aandeel elektrische auto's op belgische en eu markt
   checkregion <- reactive({input$Region})
@@ -456,7 +471,8 @@ shinyServer(function(input, output, session) {
   #line verkoop: periodieke tesla verkoop
   output$line04 <- renderPlotly({
     DataC <- Data %>% filter(Month >= min(input$Month) & Month <= max(input$Month), Year %in% input$Year9)
-    p4 <- DataC %>% ggplot(aes(x= Month, y = Sales, na.rm = T)) + geom_line(aes(color = Year)) + scale_x_continuous(breaks = seq(0,12, by = 1))
+    MeanSales <- DataC %>% group_by(Month) %>% summarise(Sales = mean(Sales, na.rm = T) )
+    p4 <- DataC %>% ggplot(aes(x= Month, y = Sales, na.rm = T)) + geom_line(aes(color = Year)) + geom_line(data = MeanSales, color = 'black') + scale_x_continuous(breaks = seq(0,12, by = 1))
     ggplotly(p4)
   })
   
@@ -533,9 +549,10 @@ shinyServer(function(input, output, session) {
     financevar <- Financial_numbers_gather_som %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline), typenumber != "totalgrossmargin") %>% group_by(Year, typenumber) %>% 
       mutate("total" = sum(finvalue, na.rm = TRUE)) %>% select(Year, total, typenumber)%>% distinct()
     
-    financevarpline <- financevar %>% ggplot(aes(x = Year , y = total, color = typenumber))+ geom_line() + geom_point() +
+    financevarpline <- financevar %>% ggplot(aes(x = Year , y = total, color = typenumber))+ geom_line() +
       labs(y = 'Value') + 
-      theme_minimal() + scale_color_manual(values = c("blue2", "royalblue1", "skyblue3")) + geom_hline(yintercept = 0, color = "black", size = 1.5)
+      theme_minimal() + scale_color_manual(values = c("blue2", "royalblue1", "skyblue3")) + geom_hline(yintercept = 0, color = "black", size = 1.5) + 
+      gghighlight(total >= 0)
     ggplotly(financevarpline)
   })
   
@@ -637,33 +654,66 @@ shinyServer(function(input, output, session) {
     })
 
 ########################################################################################################################
-####################################### temporary mark to quickly find code back ####################################### 
+####################################### Temporary mark to quickly find code back ####################################### 
 ########################################################################################################################     
         
     # Loyalty
     output$loyalty_bar <- renderPlot({
       
-      # Create plot
-      loyalty_per_brand_plot <- ggplot(loyalty_per_brand_tibble,
+      # Filter based on input, ...
+      loyalty_per_brand_chosen_class <- loyalty_per_brand_tibble %>% filter(Classification %in% input$loyalty_checkboxes)
+      
+      # ... however, we want to make sure Tesla is always shown. So, we remove Tesla (even if it's not there) ...
+      loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% filter(!Brand %in% c("Tesla"))
+      
+      # ... and then add it in each case. (Yes, this are probably shorter ways to do this, but it works :-) )
+      loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% add_row(Ranking = loyalty_per_brand_Tesla$Ranking,
+                                                                                   Brand = loyalty_per_brand_Tesla$Brand,
+                                                                                   Percentage = loyalty_per_brand_Tesla$Percentage,
+                                                                                   Classification = loyalty_per_brand_Tesla$Classification,
+                                                                                   )
+
+      # Reverse order (so the barplot shows the values from high to low)
+      loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class[order(loyalty_per_brand_chosen_class$Percentage), ]
+      
+      # Make sure we retain the order in the plot
+      loyalty_per_brand_chosen_class$Brand <- factor(loyalty_per_brand_chosen_class$Brand,
+                                               levels = loyalty_per_brand_chosen_class$Brand)
+      
+      
+      
+      # Create the plot
+      loyalty_per_brand_plot <- ggplot(loyalty_per_brand_chosen_class,
                                        aes(x = Percentage,
-                                           y = Brand)) +
-        geom_bar(stat = "identity",
-                 fill = "tomato3") +
-        theme(axis.text.y = element_text(vjust=0.6)) + theme_minimal()
+                                           y = Brand,
+                                           fill = factor(ifelse(Brand == "Tesla", "Highlighted", "Normal")))) +
+        geom_col() + 
+        theme_minimal() +
+        scale_fill_manual(name = "Hidden_legend", 
+                          values = c("red2", "coral2")) +
+        scale_x_continuous(breaks = seq(0, 1, 0.1),
+                           limits = c(0, 1),
+                           labels = percent_format(accuracy = 1),
+                           expand = expansion(mult = c(0, 0.01))
+                           ) +
+        removeGridY() +
+        theme(axis.text = element_text(size = 12),
+              axis.title = element_text(size = 15),
+              legend.position = "none") 
+        
+      # Display plot
+      loyalty_per_brand_plot
+      
+      
       
       # Te doen:
-      # - 58:35 https://shiny.rstudio.com/tutorial/
-      # - Tesla in andere kleur (Puurder rood, rest mss in zachter rood, om toch in stijl te blijven)
-      # - (Percentages in assen toevoegen)
-      # - Percentages schaal tot 100%
-      # - (Optioneel) Namen brands groter
+      # - KPI: Rank
+      # - KPI 2: Percentage (80%)
       # - Ggplotly zodat je precieze percentage ook ziet. Dan kan mogelijk checkbox zelfs weg.(Want wil ...
       #   ... kunnen filteren op luxury/mass market of beiden). Mss voegt plotly ook toe dat merken kan ...
-      #   ... kiezen, anders eventueel zelf toevoegen
-      # - Eventueel 1:55:00 https://shiny.rstudio.com/tutorial/ voor breedte
+      #   ... kiezen
       
-      # Print plot
-      loyalty_per_brand_plot
+
     })
     
     # Growth comparisons
@@ -698,10 +748,13 @@ shinyServer(function(input, output, session) {
       # 
       # growth_comp_plot
       
+      # Te doen:
+      # - Op einde: code opruimen, oude datasets weggooien.
+      
     })
 
 ########################################################################################################################
-####################################### temporary mark to quickly find code back ####################################### 
+####################################### Temporary mark to quickly find code back ####################################### 
 ########################################################################################################################    
         
     output$ggcountry <- renderPlotly({
