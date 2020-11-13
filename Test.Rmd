@@ -17,32 +17,25 @@ library(tidyr)
 library(plyr)
 library(dplyr)
 library(lubridate)
-nieuw <- read_xlsx("Data/Verkoop per brandstof (België) met market share.xlsx", sheet = "Nieuw")
-tweedehands <- read_xlsx("Data/Verkoop per brandstof (België) met market share.xlsx", sheet = "Tweedehands")
-```
-
-```{r}
-Nieuw <- nieuw %>% gather(MS12, MS13, MS14, MS15, MS16, MS17, MS18, MS19,key = "MSYear", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
-Nieuw$MSYear <- recode(Nieuw$MSYear, MS12 = "2012", MS13 = "2013", MS14 = "2014", MS15 = "2015", MS16 = "2016", MS17 = "2017", MS18 = "2018", MS19 = "2019" )
-Nieuw <- nieuw %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
-Nieuw$Year <- as.integer(Nieuw$Year)
-Nieuw$Market.Share <- as.double(Nieuw$Market.Share)
-Nieuw <- Nieuw %>% select(Fuel, Year, `Cars sold`, Market.Share)
-```
-
-```{r}
-Tweedehands <- tweedehands %>% gather(MS12, MS13, MS14, MS15, MS16, MS17, MS18, MS19,key = "MSYear", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
-Tweedehands$Year <- recode(Tweedehands$MSYear, MS12 = "2012", MS13 = "2013", MS14 = "2014", MS15 = "2015", MS16 = "2016", MS17 = "2017", MS18 = "2018", MS19 = "2019" )
-Tweedehands <- tweedehands %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
-Tweedehands$Year <- as.integer(Tweedehands$Year)
-Tweedehands$Market.Share <- as.double(Tweedehands$Market.Share)
-Tweedehands <- Tweedehands %>% select(Fuel, Year, `Cars sold`, Market.Share)
-```
-
-```{r}
-low <- Nieuw %>% filter(Year == 2019, Market.Share < 0.01)
-sum <- low %>% select('Cars sold', Market.Share) %>% colSums(dims = 1,2)
-Nieuw <- Nieuw %>% add_row(Fuel = "Alternative fuels", Year)
-
+ionity <- read_xlsx("Data/ionity_locations.xlsx")
+ionity$Supercharger <- ionity$name
+ionity$Stalls <- ionity$charger_count
+ionity$Open.Date <- ionity$golive
+ionity$Latitude <- ionity$coords.lat
+ionity$Longitude <- ionity$coords.lng
+ionity$Status <- ionity$description
+ionity$Description <- ionity$title
+ionity$Country <- ionity$geo_state.country
+ionity$City <- ionity$city
+ionity$State <- ionity$geo_state.name_en
+ionity <- ionity %>% filter(Status != 'now building' | Status != 'Now building')
+ionity <- ionity %>% select(Supercharger, Stalls, Latitude, Longitude, Description, City, State, Country, Open.Date)
+teslapalen <- superchargers %>% mutate(Description = 'Tesla') %>% filter(Status == 'OPEN') %>% select(Supercharger, Stalls, Latitude, Longitude, Description, City, State, Country, Open.Date)
+ionity$Open.Date <- as.POSIXct(ionity$Open.Date, format = "%Y-%m-%d %H:%M")
+laadpalen <- bind_rows(ionity, teslapalen)
+laadpalen$Country <- as.factor(laadpalen$Country)
+taart <- plyr::count(laadpalen, "Description")
+laadpalen <- plyr::count(laadpalen, c("Description", "Country"))
+taart <- taart %>% dplyr::mutate(ratio = round(freq/sum(freq)*100))
 ```
 
