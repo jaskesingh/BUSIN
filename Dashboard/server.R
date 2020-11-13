@@ -386,7 +386,22 @@ shinyServer(function(input, output, session) {
     p <- VPSC2 %>% ggplot(aes(x=Year, y=Sales)) + geom_line(aes(color = Segment)) + labs(title = "New cars sold in the EU by segment in million units over the years.") + 
       scale_x_continuous(breaks = c(2008:2019)) + scale_y_continuous(breaks= seq(0,6, by = 1)) + ylab("Cars sold") + theme_minimal()
     ggplotly(p)})
- 
+  
+  #infobox best verkocht brandstof: groei: aandeel elektrische auto's op belgische en eu markt
+  output$bestsoldfuel <- renderValueBox({
+    if(checkregion() == 1){
+      NieuwC <- Nieuw %>% filter(Fuel %in% input$Fuel, Year == max(input$Year3))
+      valueBox(
+        paste0(NieuwC$Fuel[NieuwC$`Cars sold` == max(NieuwC$`Cars sold`)]),
+        subtitle= paste("Best sold type of car in Belgium in ", max(input$Year3)), color = "red"
+      )}
+    else{
+      TweedehandsC <- Tweedehands %>% filter(Fuel %in% input$Fuel, Year == max(input$Year3))
+      valueBox(
+        paste0(TweedehandsC$Fuel[TweedehandsC$`Cars sold` == max(TweedehandsC$`Cars sold`)]),
+        subtitle= paste("Best sold type of second hand car in Belgium in ", max(input$Year3)), color = "red"
+      )
+    }})
   
   #lijn nieuw: groei: aandeel elektrische auto's op belgische en eu markt
   checkregion <- reactive({input$Region})
