@@ -783,13 +783,11 @@ shinyServer(function(input, output, session) {
       
       
       # Te doen:
-      # - KPI: Rank echt maken
-      # - Eventueel: goal laten zetten? 
+      # - Eventueel: goal laten zetten? Bespreek met teamleden
       # - Ggplotly zodat je precieze percentage ook ziet. Dan kan mogelijk checkbox zelfs weg.(Want wil ...
       #   ... kunnen filteren op luxury/mass market of beiden). Mss voegt plotly ook toe dat merken kan ...
       #   ... kiezen
-      # - Meld dat loyaliteit af is en dat je een nieuw pakket nodig hebt. 
-      
+
 
     })
     
