@@ -448,6 +448,14 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  #infobox best verkocht brandstof: groei: aandeel elektrische auto's op belgische en eu markt
+  output$bestsoldfueleu <- renderValueBox({
+    EuMSC <- EuMS %>% filter(Year == input$Year7)
+    valueBox(
+      paste0(EuMSC$Fuel[EuMSC$Market.Share == max(EuMSC$Market.Share)]),
+      subtitle= paste("Best sold type of car in the EU in ", input$Year7), color = "red"
+    )})
+  
   #taart eu: groei: aandeel elektrische auto's op belgische en eu markt
   output$pie04 <- renderPlotly({
     EuMSC <- EuMS %>% filter(Year == input$Year7)
@@ -472,7 +480,8 @@ shinyServer(function(input, output, session) {
   #Hist klanten: aankoopproces
   output$hist07 <- renderPlotly({
     aankoopprocesC2 <- aankoopproces %>% filter(Country %in% input$Country4, Interest %in% input$Interest)
-    h7 <- aankoopprocesC2 %>% ggplot(aes(x = Country, y = Percentage)) + geom_col() + facet_wrap(Interest~.) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" ) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    aankoopprocesC2 <- aankoopprocesC2 %>% group_by(Interest) %>% mutate(highlight = ifelse(Percentage == max(Percentage), "max", ifelse(Percentage == min(Percentage), "min", "gem")))
+    h7 <- aankoopprocesC2 %>% ggplot(aes(x = Country, y = Percentage, fill = highlight)) + geom_col() + facet_wrap(Interest~.) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" ) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
       scale_y_continuous(limits = c(0, 70), breaks = seq(0,70, by= 10)) + theme_minimal()
     ggplotly(h7)})
   
