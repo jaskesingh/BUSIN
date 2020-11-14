@@ -128,21 +128,23 @@ shinyUI(
                     ),
                     tabItem(
                       tabName = "Competition",
-                      tabBox(
-                        title ="Number of supercharger stations per country", height = 12,
-                        tabPanel("Tab1", plotlyOutput("hist02")),
-                        tabPanel("Tab2", plotlyOutput("hist03")),
-                        selectInput(inputId = "Country2",
+                      fluidRow(
+                        box(
+                            title ="Number of supercharger stations per country", width = 12,
+                            solidHeader = T, status = "danger",
+                            plotlyOutput("hist02"),
+                            selectInput(inputId = "Country2",
                                     label = "Choose country",
                                     choices = superchargers$Country,
                                     multiple = TRUE,
                                     selected = "Belgium")
-                      ),
-                      box(
-                        title = "Superchargers market share", height = 12,
-                        solidHeader = T, status = 'danger', plotlyOutput("pie01")
-                      )
-                    ),
+                      )),
+                      fluidRow(
+                        box(
+                          title = "Superchargers market share", width = 12, 
+                          solidHeader = T, status = 'danger', plotlyOutput("pie01")
+                        )
+                      )),
                     tabItem(
                       tabName = "Salespersegment",
                       fluidRow(
