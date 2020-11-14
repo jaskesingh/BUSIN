@@ -128,21 +128,23 @@ shinyUI(
                     ),
                     tabItem(
                       tabName = "Competition",
-                      tabBox(
-                        title ="Number of supercharger stations per country", height = 12,
-                        tabPanel("Tab1", plotlyOutput("hist02")),
-                        tabPanel("Tab2", plotlyOutput("hist03")),
-                        selectInput(inputId = "Country2",
+                      fluidRow(
+                        box(
+                            title ="Number of supercharger stations per country", width = 12,
+                            solidHeader = T, status = "danger",
+                            plotlyOutput("hist02"),
+                            selectInput(inputId = "Country2",
                                     label = "Choose country",
                                     choices = superchargers$Country,
                                     multiple = TRUE,
                                     selected = "Belgium")
-                      ),
-                      box(
-                        title = "Superchargers market share", height = 12,
-                        solidHeader = T, status = 'danger', plotlyOutput("pie01")
-                      )
-                    ),
+                      )),
+                      fluidRow(
+                        box(
+                          title = "Superchargers market share", width = 12, 
+                          solidHeader = T, status = 'danger', plotlyOutput("pie01")
+                        )
+                      )),
                     tabItem(
                       tabName = "Salespersegment",
                       fluidRow(
@@ -170,7 +172,8 @@ shinyUI(
                     tabItem(
                       tabName = "fueltype",
                       fluidRow(
-                        valueBoxOutput("bestsoldfuel")
+                        valueBoxOutput("bestsoldfuel"),
+                        valueBoxOutput("bestsoldfueleu")
                       ),
                       fluidRow(
                         box(
@@ -252,7 +255,7 @@ shinyUI(
                       tabName = "Periodic",
                       tabBox(
                         title = "Periodic Tesla sales over the years.", height = 12, width = 12, 
-                        tabPanel("Tab1", h2("Black line is the mean sales of all the selected years"), plotlyOutput("line04")),
+                        tabPanel("Tab1", "Black line is the mean sales of all the selected years", plotlyOutput("line04")),
                         tabPanel("Tab2", plotlyOutput("hist08")),
                         sliderInput(inputId = "Month",
                                     label = "Choose month",
@@ -381,7 +384,8 @@ shinyUI(
 
                     tabItem(tabName = "dashboard_loyalty", 
                             fluidRow(
-                              valueBoxOutput("loyalty_percentage_of_tesla")
+                              valueBoxOutput("loyalty_percentage_of_tesla"),
+                              valueBoxOutput("loyalty_rank_of_tesla")
                             ),
                             fluidRow(
                               box(title = "Loyalty per brand (Work-in-progress)",
