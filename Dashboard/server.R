@@ -690,8 +690,8 @@ shinyServer(function(input, output, session) {
         loyalty_perc_of_tesla <- loyalty_per_brand_ranked_Tesla$Percentage
         
         # Convert to percentage
-        loyalty_perc_of_tesla <-percent(loyalty_perc_of_tesla,
-                                        accuracy = 0.1)
+        loyalty_perc_of_tesla <- percent(loyalty_perc_of_tesla,
+                                         accuracy = 0.1)
 
         # Display Valuebox
         valueBox(
@@ -756,26 +756,31 @@ shinyServer(function(input, output, session) {
         loyalty_per_brand_chosen_class$Brand <- factor(loyalty_per_brand_chosen_class$Brand,
                                                  levels = loyalty_per_brand_chosen_class$Brand)
         
-        
+        # View(loyalty_per_brand_chosen_class)
         
         # Create the plot
         loyalty_per_brand_plot <- ggplot(loyalty_per_brand_chosen_class,
                                          aes(x = Percentage,
                                              y = Brand,
-                                             fill = factor(ifelse(Brand == "Tesla", "Highlighted", "Normal")))) +
-          geom_col() + 
-          theme_minimal() +
-          scale_fill_manual(name = "Hidden_legend", 
-                            values = c("red2", "coral2")) +
-          scale_x_continuous(breaks = seq(0, 1, 0.1),
-                             limits = c(0, 1),
-                             labels = percent_format(accuracy = 1),
-                             expand = expansion(mult = c(0, 0.01))
-                             ) +
-          removeGridY() +
-          theme(axis.text = element_text(size = 12),
-                axis.title = element_text(size = 15),
-                legend.position = "none") 
+                                             fill = factor(ifelse(Brand == "Tesla", "Highlighted", "Normal"))
+                                             )
+                                         ) +
+                                         geom_col() + 
+                                         theme_minimal() +
+                                         scale_fill_manual(name = "Hidden_legend", 
+                                                           values = c("red2", "coral2")) +
+                                         scale_x_continuous(breaks = seq(0, 1, 0.1),
+                                                            limits = c(0, 1),
+                                                            labels = percent_format(accuracy = 1),
+                                                            expand = expansion(mult = c(0, 0.01))
+                                                            ) +
+                                         removeGridY() +
+                                         theme(axis.text = element_text(size = 12),
+                                               axis.title = element_text(size = 15),
+                                               legend.position = "none") # +
+                                         # geom_text(aes(x = 0, label = (Percentage*100)),
+                                                   # hjust = 0
+                                                   # )
           
         # Display plot
         loyalty_per_brand_plot
