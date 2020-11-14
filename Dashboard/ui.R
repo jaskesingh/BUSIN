@@ -170,7 +170,8 @@ shinyUI(
                     tabItem(
                       tabName = "fueltype",
                       fluidRow(
-                        valueBoxOutput("bestsoldfuel")
+                        valueBoxOutput("bestsoldfuel"),
+                        valueBoxOutput("bestsoldfueleu")
                       ),
                       fluidRow(
                         box(
@@ -252,7 +253,7 @@ shinyUI(
                       tabName = "Periodic",
                       tabBox(
                         title = "Periodic Tesla sales over the years.", height = 12, width = 12, 
-                        tabPanel("Tab1", h2("Black line is the mean sales of all the selected years"), plotlyOutput("line04")),
+                        tabPanel("Tab1", "Black line is the mean sales of all the selected years", plotlyOutput("line04")),
                         tabPanel("Tab2", plotlyOutput("hist08")),
                         sliderInput(inputId = "Month",
                                     label = "Choose month",

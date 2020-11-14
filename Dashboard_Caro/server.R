@@ -201,9 +201,10 @@ shinyServer(function(input, output, session) {
     #histogram: concurrentie snellaadpalen
     output$hist02 <- renderPlotly({
         laadpalenC <- laadpalen %>% filter(Country %in% input$Country2)
-        h2 <- ggplot(laadpalenC, aes(x = Description, y = freq)) + geom_col() + facet_wrap(Country~., nrow = 3, ncol = 9 )+ theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+        h2 <- ggplot(laadpalenC, aes(x = Description, y = freq)) + geom_col() + facet_wrap(Country~., nrow = 3, ncol = 9 ) + gghighlight(max(freq), calculate_per_facet = T) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
             scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + xlab("Brand") 
         ggplotly(h2)})
+    
     output$hist03 <- renderPlotly({
         laadpalenC <- laadpalen %>% filter(Country %in% input$Country2)
         h3 <- laadpalenC %>% ggplot(aes(x = Country, y = freq)) + geom_col(aes(fill = Description)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
@@ -214,7 +215,8 @@ shinyServer(function(input, output, session) {
     output$pie01 <- renderPlotly({
         fig <- plot_ly(taart, labels = ~Description, values = ~ratio, type = 'pie')
         fig <- fig %>% layout(xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-                          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))})
+                          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+        })
     
     #infobox best verkocht segment: groei: verkoop alle merken per segment
     output$bestsoldsegment <- renderValueBox({
@@ -291,6 +293,14 @@ shinyServer(function(input, output, session) {
         }
         })
     
+    #infobox best verkocht brandstof: groei: aandeel elektrische auto's op belgische en eu markt
+    output$bestsoldfueleu <- renderValueBox({
+        EuMSC <- EuMS %>% filter(Year == input$Year7)
+        valueBox(
+            paste0(EuMSC$Fuel[EuMSC$Market.Share == max(EuMSC$Market.Share)]),
+            subtitle= paste("Best sold type of car in the EU in ", input$Year7), color = "red"
+        )})
+    
     #taart eu: groei: aandeel elektrische auto's op belgische en eu markt
     output$pie04 <- renderPlotly({
         EuMSC <- EuMS %>% filter(Year == input$Year7)
@@ -315,10 +325,10 @@ shinyServer(function(input, output, session) {
     #Hist klanten: aankoopproces
     output$hist07 <- renderPlotly({
         aankoopprocesC2 <- aankoopproces %>% filter(Country %in% input$Country4, Interest %in% input$Interest)
-        h7 <- aankoopprocesC2 %>% ggplot(aes(x = Country, y = Percentage), color = 'green') + 
+        aankoopprocesC2 <- aankoopprocesC2 %>% group_by(Interest) %>% mutate(highlight = ifelse(Percentage == max(Percentage), "max", ifelse(Percentage == min(Percentage), "min", "gem")))
+        h7 <- aankoopprocesC2 %>% ggplot(aes(x = Country, y = Percentage, fill = highlight)) + 
             geom_col() + facet_wrap(Interest~.) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" ) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
             scale_y_continuous(limits = c(0, 70), breaks = seq(0,70, by= 10))
-        h7 <- h7 + gghighlight(Percentage == max(aankoopprocesC2$Percentage[Interest == "Neutral"]), calculate_per_facet = TRUE)
         ggplotly(h7)})
     
     #line verkoop: periodieke tesla verkoop
