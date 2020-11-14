@@ -374,13 +374,16 @@ shinyUI(
 
                     tabItem(tabName = "dashboard_loyalty", 
                             fluidRow(
+                              valueBoxOutput("loyalty_percentage_of_tesla")
+                            ),
+                            fluidRow(
                               box(title = "Loyalty per brand (Work-in-progress)",
                                   "Percentage of car buyers that chose the same brand when buying a new car",
                                   width = 12,
                                   status = "danger",
                                   solidHeader = T,
                                   plotOutput("loyalty_bar",
-                                             height = "600px"),
+                                             height = "500px"),
                                   checkboxGroupInput(inputId = "loyalty_checkboxes",
                                                      label = "Choose class(es) to compare Tesla with",
                                                      choices = c("Luxury", "Mass market"),

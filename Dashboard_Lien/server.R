@@ -18,7 +18,7 @@ library(lubridate)
 library(readr)
 library(plotly)
 library(maps)
-
+library(gghighlight)
 
 
 #finance
@@ -30,22 +30,18 @@ Free_cashflow <- read_xlsx("Data/Tesla's free cash flow by quarter 2020 world wi
 
 ##cleaning
 Revenuetabel <- Revenue %>% group_by(Year) %>% 
-  mutate("totalrevenue" = sum(`Automotive Revenues Tesla`, na.rm = TRUE)/1000000)
+  mutate("totalrevenue" = sum(Revenue, na.rm = TRUE)/1000000)
 Free_cashflow <- Free_cashflow %>% group_by(Year) %>% 
   mutate("totalfreecashflow" = sum(`free cash flow`, na.rm = TRUE)/1000000)
 Gross_profit <- Gross_profit %>% group_by(Year) %>% 
-  mutate("totalgrossprofit" = sum(`Automotive gross profit GAAP`, na.rm = TRUE)/1000000)
+  mutate("totalgrossprofit" = sum(`Gross Profit`, na.rm = TRUE)/1000000)
 Gross_Margin <- Gross_Margin %>% group_by(Year) %>% 
-  mutate("totalgrossmargin" = sum(`Gross margin Automotive GAAP`, na.rm = TRUE))
+  mutate("totalgrossmargin" = sum(`Gross Margin`, na.rm = TRUE))
 
 Revenuetabel <- Revenuetabel %>% unite(Year, Quarter, col = "Date", sep = " ") 
 Gross_profit <- Gross_profit %>% unite(Year, Quarter, col = "Date", sep = " ") 
 Free_cashflow <- Free_cashflow %>% unite(Year, Quarter, col = "Date", sep = " ") 
 Gross_Margin <- Gross_Margin %>% unite(Year, Quarter, col = "Date", sep = " ") 
-
-Revenuetabel <- rename(Revenuetabel, c("Revenue" = "Automotive Revenues Tesla"))
-Gross_profit <- Gross_profit %>% rename(c("Gross Profit" = "Automotive gross profit GAAP"))
-Gross_Margin <- Gross_Margin %>% rename( c("Gross Margin" = "Gross margin Automotive GAAP"))
 
 Revenuetabelnorm <- Revenuetabel %>% select(Date, Revenue)
 Gross_profitnorm <- Gross_profit %>% select(Date, `Gross Profit`)
@@ -168,6 +164,7 @@ shinyServer(function(input, output) {
       labs(title = input$Yearrev, y = 'Value') + scale_fill_manual(values = c("blue2", "royalblue1", "skyblue3")) +  
       scale_y_continuous(limits = c(-1500, 8000), breaks = seq(-1500,8000, by= 500)) +  
       theme_minimal() + geom_hline(yintercept = 0, color = "black", size = 1.5)
+      
     
     ggplotly(financevarpcol)
     
@@ -180,9 +177,10 @@ shinyServer(function(input, output) {
     financevar <- Financial_numbers_gather_som %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline), typenumber != "totalgrossmargin") %>% group_by(Year, typenumber) %>% 
       mutate("total" = sum(finvalue, na.rm = TRUE)) %>% select(Year, total, typenumber)%>% distinct()
     
-    financevarpline <- financevar %>% ggplot(aes(x = Year , y = total, color = typenumber))+ geom_line() + geom_point() +
+    financevarpline <- financevar %>% ggplot(aes(x = Year , y = total, color = typenumber))+ geom_line() + 
       labs(y = 'Value') + 
-      theme_minimal() + scale_color_manual(values = c("blue2", "royalblue1", "skyblue3")) + geom_hline(yintercept = 0, color = "black", size = 1.5)
+      theme_minimal() + scale_color_manual(values = c("blue2", "royalblue1", "skyblue3")) + geom_hline(yintercept = 0, color = "black", size = 1.5) + 
+      gghighlight(total >= 0)
     ggplotly(financevarpline)
   })
   

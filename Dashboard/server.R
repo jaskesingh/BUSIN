@@ -21,6 +21,7 @@ library(DT)
 library(rvest)
 library(stringr)
 library(tidyverse)
+library(gghighlight)
 
 # Toegevoegd op 13/11
 library(scales)
@@ -122,22 +123,19 @@ Free_cashflow <- read_xlsx("Data/Tesla's free cash flow by quarter 2020 world wi
 
 ##cleaning
 Revenuetabel <- Revenue %>% group_by(Year) %>% 
-  mutate("totalrevenue" = sum(`Automotive Revenues Tesla`, na.rm = TRUE)/1000000)
+  mutate("totalrevenue" = sum(Revenue, na.rm = TRUE)/1000000)
 Free_cashflow <- Free_cashflow %>% group_by(Year) %>% 
   mutate("totalfreecashflow" = sum(`free cash flow`, na.rm = TRUE)/1000000)
 Gross_profit <- Gross_profit %>% group_by(Year) %>% 
-  mutate("totalgrossprofit" = sum(`Automotive gross profit GAAP`, na.rm = TRUE)/1000000)
+  mutate("totalgrossprofit" = sum(`Gross Profit`, na.rm = TRUE)/1000000)
 Gross_Margin <- Gross_Margin %>% group_by(Year) %>% 
-  mutate("totalgrossmargin" = sum(`Gross margin Automotive GAAP`, na.rm = TRUE))
+  mutate("totalgrossmargin" = sum(`Gross Margin`, na.rm = TRUE))
 
 Revenuetabel <- Revenuetabel %>% unite(Year, Quarter, col = "Date", sep = " ") 
 Gross_profit <- Gross_profit %>% unite(Year, Quarter, col = "Date", sep = " ") 
 Free_cashflow <- Free_cashflow %>% unite(Year, Quarter, col = "Date", sep = " ") 
 Gross_Margin <- Gross_Margin %>% unite(Year, Quarter, col = "Date", sep = " ") 
 
-Revenuetabel <- rename(Revenuetabel, c("Revenue" = "Automotive Revenues Tesla"))
-Gross_profit <- Gross_profit %>% rename(c("Gross Profit" = "Automotive gross profit GAAP"))
-Gross_Margin <- Gross_Margin %>% rename( c("Gross Margin" = "Gross margin Automotive GAAP"))
 
 Revenuetabelnorm <- Revenuetabel %>% select(Date, Revenue)
 Gross_profitnorm <- Gross_profit %>% select(Date, `Gross Profit`)
@@ -225,9 +223,12 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
   # Clean names
   colnames(loyalty_per_brand_tibble) <- c("Ranking", "Brand", "Percentage", "Classification")
   
+  # Select columns that will be needed
+  loyalty_per_brand_tibble <- loyalty_per_brand_tibble %>%
+                              select(-Ranking)
+  
   # Select row with Tesla to later add to both luxury and mass market
   loyalty_per_brand_Tesla <- loyalty_per_brand_tibble %>% filter(Brand == "Tesla")
-
   
   
 # # Growth: Comparison
@@ -548,9 +549,10 @@ shinyServer(function(input, output, session) {
     financevar <- Financial_numbers_gather_som %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline), typenumber != "totalgrossmargin") %>% group_by(Year, typenumber) %>% 
       mutate("total" = sum(finvalue, na.rm = TRUE)) %>% select(Year, total, typenumber)%>% distinct()
     
-    financevarpline <- financevar %>% ggplot(aes(x = Year , y = total, color = typenumber))+ geom_line() + geom_point() +
+    financevarpline <- financevar %>% ggplot(aes(x = Year , y = total, color = typenumber))+ geom_line() +
       labs(y = 'Value') + 
-      theme_minimal() + scale_color_manual(values = c("blue2", "royalblue1", "skyblue3")) + geom_hline(yintercept = 0, color = "black", size = 1.5)
+      theme_minimal() + scale_color_manual(values = c("blue2", "royalblue1", "skyblue3")) + geom_hline(yintercept = 0, color = "black", size = 1.5) + 
+      gghighlight(total >= 0)
     ggplotly(financevarpline)
   })
   
@@ -656,51 +658,72 @@ shinyServer(function(input, output, session) {
 ########################################################################################################################     
         
     # Loyalty
-    output$loyalty_bar <- renderPlot({
-      
-      # Filter based on input, ...
-      loyalty_per_brand_chosen_class <- loyalty_per_brand_tibble %>% filter(Classification %in% input$loyalty_checkboxes)
-      
-      # ... however, we want to make sure Tesla is always shown. So, we remove Tesla (even if it's not there) ...
-      loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% filter(!Brand %in% c("Tesla"))
-      
-      # ... and then add it in each case. (Yes, this are probably shorter ways to do this, but it works :-) )
-      loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% add_row(Ranking = loyalty_per_brand_Tesla$Ranking,
-                                                                                   Brand = loyalty_per_brand_Tesla$Brand,
-                                                                                   Percentage = loyalty_per_brand_Tesla$Percentage,
-                                                                                   Classification = loyalty_per_brand_Tesla$Classification,
-                                                                                   )
-
-      # Reverse order (so the barplot shows the values from high to low)
-      loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class[order(loyalty_per_brand_chosen_class$Percentage), ]
-      
-      # Make sure we retain the order in the plot
-      loyalty_per_brand_chosen_class$Brand <- factor(loyalty_per_brand_chosen_class$Brand,
-                                               levels = loyalty_per_brand_chosen_class$Brand)
-      
-      
-      
-      # Create the plot
-      loyalty_per_brand_plot <- ggplot(loyalty_per_brand_chosen_class,
-                                       aes(x = Percentage,
-                                           y = Brand,
-                                           fill = factor(ifelse(Brand == "Tesla", "Highlighted", "Normal")))) +
-        geom_col() + 
-        theme_minimal() +
-        scale_fill_manual(name = "Hidden_legend", 
-                          values = c("red2", "coral2")) +
-        scale_x_continuous(breaks = seq(0, 1, 0.1),
-                           limits = c(0, 1),
-                           labels = percent_format(accuracy = 1),
-                           expand = expansion(mult = c(0, 0.01))
-                           ) +
-        removeGridY() +
-        theme(axis.text = element_text(size = 12),
-              axis.title = element_text(size = 15),
-              legend.position = "none") 
+    
+      # KPI's
+      output$loyalty_percentage_of_tesla <- renderValueBox({
         
-      # Display plot
-      loyalty_per_brand_plot
+        # Select percentage
+        loyalty_perc_of_tesla <- loyalty_per_brand_Tesla$Percentage
+        
+        # Convert to percentage
+        loyalty_perc_of_tesla <-percent(loyalty_perc_of_tesla,
+                                        accuracy = 0.1)
+        # print(loyalty_perc_of_tesla)
+
+        # Display Valuebox
+        valueBox(
+          loyalty_perc_of_tesla,
+          subtitle = "Loyalty percentage of Tesla",
+          color = "red"
+        )
+        
+      })
+    
+      # Graph
+      output$loyalty_bar <- renderPlot({
+        
+        # Filter based on input, ...
+        loyalty_per_brand_chosen_class <- loyalty_per_brand_tibble %>% filter(Classification %in% input$loyalty_checkboxes)
+        
+        # ... however, we want to make sure Tesla is always shown. So, we remove Tesla (even if it's not there) ...
+        loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% filter(!Brand %in% c("Tesla"))
+        
+        # ... and then add it in each case. (Yes, this are probably shorter ways to do this, but it works :-) )
+        loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% add_row(Brand = loyalty_per_brand_Tesla$Brand,
+                                                                                     Percentage = loyalty_per_brand_Tesla$Percentage,
+                                                                                     Classification = loyalty_per_brand_Tesla$Classification,
+                                                                                     )
+  
+        # Reverse order (so the barplot shows the values from high to low)
+        loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class[order(loyalty_per_brand_chosen_class$Percentage), ]
+        
+        # Make sure we retain the order in the plot
+        loyalty_per_brand_chosen_class$Brand <- factor(loyalty_per_brand_chosen_class$Brand,
+                                                 levels = loyalty_per_brand_chosen_class$Brand)
+        
+        
+        
+        # Create the plot
+        loyalty_per_brand_plot <- ggplot(loyalty_per_brand_chosen_class,
+                                         aes(x = Percentage,
+                                             y = Brand,
+                                             fill = factor(ifelse(Brand == "Tesla", "Highlighted", "Normal")))) +
+          geom_col() + 
+          theme_minimal() +
+          scale_fill_manual(name = "Hidden_legend", 
+                            values = c("red2", "coral2")) +
+          scale_x_continuous(breaks = seq(0, 1, 0.1),
+                             limits = c(0, 1),
+                             labels = percent_format(accuracy = 1),
+                             expand = expansion(mult = c(0, 0.01))
+                             ) +
+          removeGridY() +
+          theme(axis.text = element_text(size = 12),
+                axis.title = element_text(size = 15),
+                legend.position = "none") 
+          
+        # Display plot
+        loyalty_per_brand_plot
       
       
       
