@@ -293,20 +293,27 @@ shinyUI(
                                                                                                                       max = max(Revenue$Year),
                                                                                                                       value = 2020, 
                                                                                                                       sep = ""))
+                            ),
+                            fluidRow(
+                              box(title = "Gross Margin",
+                                     "In percentage",
+                                     solidHeader = T, status = "danger", plotlyOutput("grossmargin"), sliderInput(inputId = "Yeargrossmargin", 
+                                                                                                                  label = "Choose the range of years to appear",
+                                                                                                                  min = min(Revenue$Year),
+                                                                                                                  max = max(Revenue$Year),
+                                                                                                                  value = c(min(Revenue$Year),max(Revenue$Year)),
+                                                                                                                  sep = ""))
                             )
-                            
                             
                     ),
                     tabItem(tabName = "EU",
                             fluidRow(
                               box(title = "AF passenger cars",
                                   "Total fleet of passenger cars per alternative fuel (AF)", solidHeader = T, status="danger", plotlyOutput("colpascar"),
-                                  checkboxGroupInput("EUcheck", "Choose the fuels for Europe or per country", c('BEV', 'CNG', 'H2', 'LNG', 'LPG', 'PHEV', 'Total'), 
-                                                     selected = c('BEV', 'CNG', 'H2', 'LNG', 'LPG', 'PHEV'))),
+                                  ),
                               box(title = "AF infrastructure",
-                                  "Total number of alternative fuel (AF) infrastructure per type of fuel",  solidHeader = T, status="danger",plotlyOutput("colinfr"),
-                                  checkboxGroupInput("EUcheckinfr", "Choose the fuels for Europe or per country", c('Electricity', 'H2', 'Natural Gas', 'LPG', 'Total'), 
-                                                     selected = c('Electricity', 'H2', 'Natural Gas', 'LPG')))
+                                  "Total number of alternative fuel (AF) infrastructure per type of fuel", solidHeader = T, status="danger", plotlyOutput("colinfr"),
+                                  )
                             ),
                             fluidRow(
                               box(title = "Choose your options", solidHeader = T, status="danger", 
@@ -374,13 +381,16 @@ shinyUI(
 
                     tabItem(tabName = "dashboard_loyalty", 
                             fluidRow(
+                              valueBoxOutput("loyalty_percentage_of_tesla")
+                            ),
+                            fluidRow(
                               box(title = "Loyalty per brand (Work-in-progress)",
                                   "Percentage of car buyers that chose the same brand when buying a new car",
                                   width = 12,
                                   status = "danger",
                                   solidHeader = T,
                                   plotOutput("loyalty_bar",
-                                             height = "600px"),
+                                             height = "500px"),
                                   checkboxGroupInput(inputId = "loyalty_checkboxes",
                                                      label = "Choose class(es) to compare Tesla with",
                                                      choices = c("Luxury", "Mass market"),
