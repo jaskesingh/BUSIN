@@ -214,31 +214,34 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
 
 # Customers: loyalty
   
-  # Load data
-  loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v4.xlsx", skip = 2)
-  
-  # Make tibble (already was, but just to be sure)
-  loyalty_per_brand_tibble = as_tibble(loyalty_per_brand_data)
-  
-  # Change to numeric (already was, but just to be sure)
-  loyalty_per_brand_tibble$Percentage <- as.numeric(loyalty_per_brand_tibble$Percentage)
-  
-  # Clean names
-  colnames(loyalty_per_brand_tibble) <- c("Ranking", "Brand", "Percentage", "Classification")
-  
-  # Delete Ranking as it has been made in excel. We want to make it based on the data loaded in R
+  # Load and prep data
+
+    # Load data
+    loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v4.xlsx", skip = 2)
     
+    # Make tibble (already was, but just to be sure)
+    loyalty_per_brand_tibble = as_tibble(loyalty_per_brand_data)
+    
+    # Change to numeric (already was, but just to be sure)
+    loyalty_per_brand_tibble$Percentage <- as.numeric(loyalty_per_brand_tibble$Percentage)
+    
+    # Clean names
+    colnames(loyalty_per_brand_tibble) <- c("Ranking", "Brand", "Percentage", "Classification")
+  
+  
+  
+  # Delete Ranking as it has been made in excel. We want to make it based on the data loaded in R.
+  
     # Delete Ranking
     loyalty_per_brand_tibble <- loyalty_per_brand_tibble %>%
-                              select(-Ranking)
-  
-    # 
-  
-  # Select row with Tesla to later add to both luxury and mass market
-  loyalty_per_brand_Tesla <- loyalty_per_brand_tibble %>% filter(Brand == "Tesla")
-  
-  
-  
+      select(-Ranking)
+    
+    # Rank the tibble
+    loyalty_per_brand_ranked_tibble <- loyalty_per_brand_tibble[order(-loyalty_per_brand_tibble$Percentage), ]
+
+    # Add Ranking
+    loyalty_per_brand_ranked_tibble <- mutate(loyalty_per_brand_ranked_tibble, Rank = row_number())
+
 # # Growth: Comparison
 # 
 #   # growth_comp_data_5 <- read_xlsx("Dashboard/Data/growth_comparison_v5.xlsx")
@@ -676,11 +679,15 @@ shinyServer(function(input, output, session) {
         
     # Loyalty
     
-      # KPI percentage
+      # KPI Loyalty in percent
       output$loyalty_percentage_of_tesla <- renderValueBox({
         
+        # Filter so only row with Tesla remains
+        loyalty_per_brand_ranked_Tesla <- loyalty_per_brand_ranked_tibble %>%
+                                          filter(Brand == "Tesla")
+        
         # Select percentage
-        loyalty_perc_of_tesla <- loyalty_per_brand_Tesla$Percentage
+        loyalty_perc_of_tesla <- loyalty_per_brand_ranked_Tesla$Percentage
         
         # Convert to percentage
         loyalty_perc_of_tesla <-percent(loyalty_perc_of_tesla,
@@ -695,16 +702,17 @@ shinyServer(function(input, output, session) {
         
       })
       
-      # KPI Highest rank
+      # KPI Rank
       output$loyalty_rank_of_tesla <- renderValueBox({
         
         # Fetch Tesla's rank
-
-          # Rank the tibble
-          loyalty_per_brand_ranked_tibble <- loyalty_per_brand_tibble[order(-loyalty_per_brand_tibble$Percentage), ]
-
-          # Which row has Tesla? That's its rank
-          loyalty_rank_tesla_number <- which(loyalty_per_brand_ranked_tibble$Brand == "Tesla")
+        
+          # Filter so only row with Tesla remains
+          loyalty_per_brand_ranked_Tesla <- loyalty_per_brand_ranked_tibble %>%
+                                            filter(Brand == "Tesla") 
+          
+          # Select Tesla's rank
+          loyalty_rank_tesla_number <- loyalty_per_brand_ranked_Tesla$Rank
           
           # Add correct ordinal suffix
           loyalty_ordinal_rank_tesla <- toOrdinal(loyalty_rank_tesla_number)
@@ -722,17 +730,24 @@ shinyServer(function(input, output, session) {
       # Graph
       output$loyalty_bar <- renderPlot({
         
-        # Filter based on input, ...
-        loyalty_per_brand_chosen_class <- loyalty_per_brand_tibble %>% filter(Classification %in% input$loyalty_checkboxes)
+        # Filter based on input
+        loyalty_per_brand_chosen_class <- loyalty_per_brand_ranked_tibble %>% filter(Classification %in% input$loyalty_checkboxes)
         
-        # ... however, we want to make sure Tesla is always shown. So, we remove Tesla (even if it's not there) ...
-        loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% filter(!Brand %in% c("Tesla"))
+        # Regardless of the end users selection, we want to make sure Tesla is included in the comparison.  
+          
+          # That's why we first select Tesla from our ranked tibble and store it safely ...
+          loyalty_per_brand_ranked_Tesla <- loyalty_per_brand_ranked_tibble %>%
+          filter(Brand == "Tesla") 
         
-        # ... and then add it in each case. (Yes, this are probably shorter ways to do this, but it works :-) )
-        loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% add_row(Brand = loyalty_per_brand_Tesla$Brand,
-                                                                                     Percentage = loyalty_per_brand_Tesla$Percentage,
-                                                                                     Classification = loyalty_per_brand_Tesla$Classification,
-                                                                                     )
+          # ... and then, from the dataset that the end user selected, we remove Tesla (even if it's not there)...
+          loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% filter(!Brand %in% c("Tesla"))
+          
+          # ... followed by adding it back from our safely stored row. Now we know for sure that Tesla is included, and only once so.
+          loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% add_row(Brand = loyalty_per_brand_Tesla$Brand,
+                                                                                       Percentage = loyalty_per_brand_Tesla$Percentage,
+                                                                                       Classification = loyalty_per_brand_Tesla$Classification,
+                                                                                       Rank = loyalty_per_brand_ranked_Tesla$Rank
+                                                                                       )
   
         # Reverse order (so the barplot shows the values from high to low)
         loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class[order(loyalty_per_brand_chosen_class$Percentage), ]
