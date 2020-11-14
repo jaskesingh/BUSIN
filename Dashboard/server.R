@@ -223,9 +223,12 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
   # Clean names
   colnames(loyalty_per_brand_tibble) <- c("Ranking", "Brand", "Percentage", "Classification")
   
+  # Select columns that will be needed
+  loyalty_per_brand_tibble <- loyalty_per_brand_tibble %>%
+                              select(-Ranking)
+  
   # Select row with Tesla to later add to both luxury and mass market
   loyalty_per_brand_Tesla <- loyalty_per_brand_tibble %>% filter(Brand == "Tesla")
-
   
   
 # # Growth: Comparison
@@ -664,8 +667,7 @@ shinyServer(function(input, output, session) {
       loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% filter(!Brand %in% c("Tesla"))
       
       # ... and then add it in each case. (Yes, this are probably shorter ways to do this, but it works :-) )
-      loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% add_row(Ranking = loyalty_per_brand_Tesla$Ranking,
-                                                                                   Brand = loyalty_per_brand_Tesla$Brand,
+      loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% add_row(Brand = loyalty_per_brand_Tesla$Brand,
                                                                                    Percentage = loyalty_per_brand_Tesla$Percentage,
                                                                                    Classification = loyalty_per_brand_Tesla$Classification,
                                                                                    )
