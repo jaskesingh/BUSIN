@@ -367,7 +367,7 @@ shinyServer(function(input, output, session) {
   #histogram: concurrentie snellaadpalen
   output$hist02 <- renderPlotly({
     laadpalenC <- laadpalen %>% filter(Country %in% input$Country2)
-    laadpalenC <- laadpalenC %>% group_by(Country) %>% mutate(Winner = ifelse(freq[Description == "Tesla"] == max(freq), "Higher", ifelse(freq[Description == "Tesla"] == min(freq), "Lower", "Tie")))
+    laadpalenC <- laadpalenC %>% group_by(Country) %>% mutate(Winner = ifelse(freq[Description == "Tesla"] == max(freq), "Tesla", ifelse(freq[Description == "Tesla"] == min(freq), "Ionity", "Tie")))
     h2 <- laadpalenC %>% ggplot(aes(x = Description, y = freq, fill = Winner)) + geom_col() + gghighlight(Description == "Tesla", calculate_per_facet = T) + facet_wrap(Country~., nrow = 3, ncol = 9) + theme_minimal() +
       theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
       scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + xlab("Brand") 
@@ -491,13 +491,6 @@ shinyServer(function(input, output, session) {
     p4 <- DataC %>% ggplot(aes(x= Month, y = Sales, na.rm = T)) + geom_line(aes(color = Year)) + geom_line(data = MeanSales, color = 'black') + scale_x_continuous(breaks = seq(0,12, by = 1))
     ggplotly(p4)
   })
-  
-  #hist verkoop: periodieke tesla verkoop
-  output$hist08 <- renderPlotly({
-    DataC2 <- Data %>% filter(Month >= min(input$Month) & Month <= max(input$Month), Year %in% input$Year9)
-    h8 <- DataC2 %>% ggplot(aes(x = Month, y = Sales, na.rm = T)) + geom_col() + facet_wrap(Year~.) + labs(title = "Periodic Tesla sales over the years.") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_x_continuous(breaks = seq(0,12, by = 1)) +
-      scale_y_continuous(limits = c(0, 25000), breaks = seq(0,25000, by= 5000)) + ylab("Sales") + theme_minimal()
-    ggplotly(h8)})
   
   
   #financieel tabblad
