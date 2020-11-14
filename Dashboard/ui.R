@@ -374,7 +374,8 @@ shinyUI(
 
                     tabItem(tabName = "dashboard_loyalty", 
                             fluidRow(
-                              valueBoxOutput("loyalty_percentage_of_tesla")
+                              valueBoxOutput("loyalty_percentage_of_tesla"),
+                              valueBoxOutput("loyalty_rank_of_tesla")
                             ),
                             fluidRow(
                               box(title = "Loyalty per brand (Work-in-progress)",

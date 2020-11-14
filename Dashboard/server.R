@@ -27,6 +27,9 @@ library(gghighlight)
 library(scales)
 library(ggExtra)
 
+# Toegevoegd op 14/11
+library(toOrdinal)
+
 #Caro
 
 #Map + table01 + infoboxen
@@ -223,12 +226,17 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
   # Clean names
   colnames(loyalty_per_brand_tibble) <- c("Ranking", "Brand", "Percentage", "Classification")
   
-  # Select columns that will be needed
-  loyalty_per_brand_tibble <- loyalty_per_brand_tibble %>%
+  # Delete Ranking as it has been made in excel. We want to make it based on the data loaded in R
+    
+    # Delete Ranking
+    loyalty_per_brand_tibble <- loyalty_per_brand_tibble %>%
                               select(-Ranking)
+  
+    # 
   
   # Select row with Tesla to later add to both luxury and mass market
   loyalty_per_brand_Tesla <- loyalty_per_brand_tibble %>% filter(Brand == "Tesla")
+  
   
   
 # # Growth: Comparison
@@ -659,7 +667,7 @@ shinyServer(function(input, output, session) {
         
     # Loyalty
     
-      # KPI's
+      # KPI percentage
       output$loyalty_percentage_of_tesla <- renderValueBox({
         
         # Select percentage
@@ -668,16 +676,39 @@ shinyServer(function(input, output, session) {
         # Convert to percentage
         loyalty_perc_of_tesla <-percent(loyalty_perc_of_tesla,
                                         accuracy = 0.1)
-        # print(loyalty_perc_of_tesla)
 
         # Display Valuebox
         valueBox(
           loyalty_perc_of_tesla,
-          subtitle = "Loyalty percentage of Tesla",
+          subtitle = "Loyalty of Tesla's customers",
           color = "red"
         )
         
       })
+      
+      # KPI Highest rank
+      output$loyalty_rank_of_tesla <- renderValueBox({
+        
+        # Fetch Tesla's rank
+
+          # Rank the tibble
+          loyalty_per_brand_ranked_tibble <- loyalty_per_brand_tibble[order(-loyalty_per_brand_tibble$Percentage), ]
+
+          # Which row has Tesla? That's its rank
+          loyalty_rank_tesla_number <- which(loyalty_per_brand_ranked_tibble$Brand == "Tesla")
+          
+          # Add correct ordinal suffix
+          loyalty_ordinal_rank_tesla <- toOrdinal(loyalty_rank_tesla_number)
+
+        # Display Valuebox
+        valueBox(
+          loyalty_ordinal_rank_tesla,
+          subtitle = "Place of Tesla in loyalty ranking",
+          color = "red"
+        )
+        
+      })
+      
     
       # Graph
       output$loyalty_bar <- renderPlot({
@@ -728,11 +759,12 @@ shinyServer(function(input, output, session) {
       
       
       # Te doen:
-      # - KPI: Rank
-      # - KPI 2: Percentage (80%)
+      # - KPI: Rank echt maken
+      # - Eventueel: goal laten zetten? 
       # - Ggplotly zodat je precieze percentage ook ziet. Dan kan mogelijk checkbox zelfs weg.(Want wil ...
       #   ... kunnen filteren op luxury/mass market of beiden). Mss voegt plotly ook toe dat merken kan ...
       #   ... kiezen
+      # - Meld dat loyaliteit af is en dat je een nieuw pakket nodig hebt. 
       
 
     })
