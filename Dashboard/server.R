@@ -357,21 +357,32 @@ shinyServer(function(input, output, session) {
     superchargersC <- plyr::count(superchargersC, "Country")
     ratio <- full_join(superchargersC, verkooC, by = 'Country')
     ratio$freq <- as.integer(ratio$freq)
-    ratio[is.na(ratio)] = 0
     ratio$Country <- as.factor(ratio$Country)
-    h1 <- ratio %>% ggplot(aes(x= freq, y = Sales, label = Country)) + geom_point() + geom_text(check_overlap = TRUE, nudge_x = 2, size = 3) + labs(title = paste0("Teslas/supercharger station in ", input$Year)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-      scale_y_continuous(limits = c(0, 31000), breaks = seq(0,31000, by= 5000)) + scale_x_continuous(limits = c(0, 80), breaks = seq(0, 80, by = 10)) + ylab(label = "Number of Teslas sold" ) + xlab(label = "Number of supercharger stations")
+    ratio <- ratio %>% mutate(Teslas_per_Supercharger = Sales/freq)
+    ratio$Teslas_per_Supercharger <- as.double(ratio$Teslas_per_Supercharger)
+    h1 <- ratio %>% ggplot(aes(x= Country, y = Teslas_per_Supercharger)) + geom_col() + labs(title = paste0("Teslas/supercharger station in ", input$Year)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+      scale_y_continuous(limits = c(0, 1400), breaks = seq(0,1400, by= 200)) + ylab(label = "Teslas per supercharger station" ) + theme_minimal()
     ggplotly(h1)
   })
   
   #histogram: concurrentie snellaadpalen
   output$hist02 <- renderPlotly({
     laadpalenC <- laadpalen %>% filter(Country %in% input$Country2)
+<<<<<<< HEAD
     laadpalenC <- laadpalenC %>% group_by(Country) %>% mutate(Winner = ifelse(freq[Description == "Tesla"] == max(freq), "Tesla", ifelse(freq[Description == "Tesla"] == min(freq), "Ionity", "Tie")))
     h2 <- laadpalenC %>% ggplot(aes(x = Description, y = freq, fill = Winner)) + geom_col() + gghighlight(Description == "Tesla", calculate_per_facet = T) + facet_wrap(Country~., nrow = 3, ncol = 9) + theme_minimal() +
       theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
       scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + xlab("Brand") 
+=======
+    h2 <- laadpalenC %>% ggplot(aes(x = Description, y = freq)) + geom_col() + facet_wrap(Country~.)+ theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+      scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + xlab("Brand") + theme_minimal()
+>>>>>>> ea04c2e59fb95e89b6edd8ade0d199248b1d1c9d
     ggplotly(h2)})
+  output$hist03 <- renderPlotly({
+    laadpalenC <- laadpalen %>% filter(Country %in% input$Country2)
+    h3 <- laadpalenC %>% ggplot(aes(x = Country, y = freq)) + geom_col(aes(fill = Description)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+      scale_y_continuous(limits = c(0, 200), breaks = seq(0,200, by= 50)) + ylab("Number of supercharger stations") + theme_minimal()
+    ggplotly(h3)})
   
   #taartdiagram: concurrentie snellaadpalen
   output$pie01 <- renderPlotly({
@@ -679,8 +690,8 @@ shinyServer(function(input, output, session) {
         loyalty_perc_of_tesla <- loyalty_per_brand_ranked_Tesla$Percentage
         
         # Convert to percentage
-        loyalty_perc_of_tesla <-percent(loyalty_perc_of_tesla,
-                                        accuracy = 0.1)
+        loyalty_perc_of_tesla <- percent(loyalty_perc_of_tesla,
+                                         accuracy = 0.1)
 
         # Display Valuebox
         valueBox(
@@ -744,27 +755,30 @@ shinyServer(function(input, output, session) {
         # Make sure we retain the order in the plot
         loyalty_per_brand_chosen_class$Brand <- factor(loyalty_per_brand_chosen_class$Brand,
                                                  levels = loyalty_per_brand_chosen_class$Brand)
-        
-        
-        
+
         # Create the plot
         loyalty_per_brand_plot <- ggplot(loyalty_per_brand_chosen_class,
                                          aes(x = Percentage,
                                              y = Brand,
-                                             fill = factor(ifelse(Brand == "Tesla", "Highlighted", "Normal")))) +
-          geom_col() + 
-          theme_minimal() +
-          scale_fill_manual(name = "Hidden_legend", 
-                            values = c("red2", "coral2")) +
-          scale_x_continuous(breaks = seq(0, 1, 0.1),
-                             limits = c(0, 1),
-                             labels = percent_format(accuracy = 1),
-                             expand = expansion(mult = c(0, 0.01))
-                             ) +
-          removeGridY() +
-          theme(axis.text = element_text(size = 12),
-                axis.title = element_text(size = 15),
-                legend.position = "none") 
+                                             fill = factor(ifelse(Brand == "Tesla", "Highlighted", "Normal"))
+                                             )
+                                         ) +
+                                         geom_col() + 
+                                         theme_minimal() +
+                                         scale_fill_manual(name = "Hidden_legend", 
+                                                           values = c("red2", "coral2")) +
+                                         scale_x_continuous(breaks = seq(0, 1, 0.1),
+                                                            limits = c(0, 1),
+                                                            labels = percent_format(accuracy = 1),
+                                                            expand = expansion(mult = c(0, 0.01))
+                                                            ) +
+                                         removeGridY() +
+                                         theme(axis.text = element_text(size = 12),
+                                               axis.title = element_text(size = 15),
+                                               legend.position = "none") # +
+                                         # geom_text(aes(x = 0, label = (Percentage*100)),
+                                                   # hjust = 0
+                                                   # )
           
         # Display plot
         loyalty_per_brand_plot
@@ -772,13 +786,11 @@ shinyServer(function(input, output, session) {
       
       
       # Te doen:
-      # - KPI: Rank echt maken
-      # - Eventueel: goal laten zetten? 
+      # - Eventueel: goal laten zetten? Bespreek met teamleden
       # - Ggplotly zodat je precieze percentage ook ziet. Dan kan mogelijk checkbox zelfs weg.(Want wil ...
       #   ... kunnen filteren op luxury/mass market of beiden). Mss voegt plotly ook toe dat merken kan ...
       #   ... kiezen
-      # - Meld dat loyaliteit af is en dat je een nieuw pakket nodig hebt. 
-      
+
 
     })
     
