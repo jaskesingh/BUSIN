@@ -27,6 +27,9 @@ library(gghighlight)
 library(scales)
 library(ggExtra)
 
+# Toegevoegd op 14/11
+library(toOrdinal)
+
 #Caro
 
 #Map + table01 + infoboxen
@@ -173,7 +176,6 @@ Financial_numberssom$'totalfreecashflow' <- as.numeric(Financial_numberssom$'tot
 
 Financial_numbers_gather_som <- Financial_numberssom %>% gather('totalrevenue', 'totalgrossprofit', 'totalgrossmargin', 'totalfreecashflow', key = 'typenumber', value = 'finvalue') %>% select(Year, typenumber, finvalue) %>% distinct()
 
-
 ##financiele cijfers, functies
 financefunction <- function(yearinput,df) {
   financefunction <- df %>% filter(df$Year == yearinput)
@@ -183,7 +185,8 @@ financefunction <- function(yearinput,df) {
 #uitbreiding europa
 countriesafpassengercars <- read_xlsx("Data/Countries overview of af passenger cars.xlsx", skip = 2 , col_types = c("numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))
 countriesafinfrastructure <- read_xlsx("Data/countries overview of af infrastructure.xlsx", skip = 2 , col_types = c("numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric"))
-
+countriesafinfrastructure <- countriesafinfrastructure %>% mutate("Electricity (BEV + PHEV)" = Electricity,  "Natural Gas (CNG + LNG)" = `Natural Gas`)
+countriesafinfrastructure <- countriesafinfrastructure %>% select("Year", "Country", "Electricity (BEV + PHEV)", "H2", "Natural Gas (CNG + LNG)", "LPG", "Total")
 
 #uitbreiding europa, data in juiste vorm krijgen
 countriesafpassengercars <- countriesafpassengercars %>% gather('BEV', 'H2', 'CNG', 'LNG', 'PHEV', 'LPG', 'Total', key = 'Fuel', value = 'waardes')
@@ -191,7 +194,7 @@ countriesafpassengercars$Country[1:2457] <- c('Ausria', 'Belgium', 'Bulgaria', '
                                               'Finland', 'France', 'Germany', 'Greece', 'Hungria', 'Ireland', 'Italy', 'Latvia', 'Lithuania',
                                               'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia',
                                               'Spain', 'Sweden')
-countriesafinfrastructure <- countriesafinfrastructure %>% gather('Electricity', 'H2', 'Natural Gas', 'LPG', 'Total', key = 'Fuel', value = 'waardes')
+countriesafinfrastructure <- countriesafinfrastructure %>% gather('Electricity (BEV + PHEV)', 'H2', 'Natural Gas (CNG + LNG)', 'LPG', 'Total', key = 'Fuel', value = 'waardes')
 countriesafinfrastructure$Country[1:1755] <- c('Ausria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia',
                                                'Finland', 'France', 'Germany', 'Greece', 'Hungria', 'Ireland', 'Italy', 'Latvia', 'Lithuania',
                                                'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia',
@@ -211,23 +214,34 @@ tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
 
 # Customers: loyalty
   
-  # Load data
-  loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v4.xlsx", skip = 2)
-  
-  # Make tibble (already was, but just to be sure)
-  loyalty_per_brand_tibble = as_tibble(loyalty_per_brand_data)
-  
-  # Change to numeric (already was, but just to be sure)
-  loyalty_per_brand_tibble$Percentage <- as.numeric(loyalty_per_brand_tibble$Percentage)
-  
-  # Clean names
-  colnames(loyalty_per_brand_tibble) <- c("Ranking", "Brand", "Percentage", "Classification")
-  
-  # Select row with Tesla to later add to both luxury and mass market
-  loyalty_per_brand_Tesla <- loyalty_per_brand_tibble %>% filter(Brand == "Tesla")
+  # Load and prep data
 
+    # Load data
+    loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v4.xlsx", skip = 2)
+    
+    # Make tibble (already was, but just to be sure)
+    loyalty_per_brand_tibble = as_tibble(loyalty_per_brand_data)
+    
+    # Change to numeric (already was, but just to be sure)
+    loyalty_per_brand_tibble$Percentage <- as.numeric(loyalty_per_brand_tibble$Percentage)
+    
+    # Clean names
+    colnames(loyalty_per_brand_tibble) <- c("Ranking", "Brand", "Percentage", "Classification")
   
   
+  
+  # Delete Ranking as it has been made in excel. We want to make it based on the data loaded in R.
+  
+    # Delete Ranking
+    loyalty_per_brand_tibble <- loyalty_per_brand_tibble %>%
+      select(-Ranking)
+    
+    # Rank the tibble
+    loyalty_per_brand_ranked_tibble <- loyalty_per_brand_tibble[order(-loyalty_per_brand_tibble$Percentage), ]
+
+    # Add Ranking
+    loyalty_per_brand_ranked_tibble <- mutate(loyalty_per_brand_ranked_tibble, Rank = row_number())
+
 # # Growth: Comparison
 # 
 #   # growth_comp_data_5 <- read_xlsx("Dashboard/Data/growth_comparison_v5.xlsx")
@@ -343,25 +357,21 @@ shinyServer(function(input, output, session) {
     superchargersC <- plyr::count(superchargersC, "Country")
     ratio <- full_join(superchargersC, verkooC, by = 'Country')
     ratio$freq <- as.integer(ratio$freq)
+    ratio[is.na(ratio)] = 0
     ratio$Country <- as.factor(ratio$Country)
-    ratio <- ratio %>% mutate(Teslas_per_Supercharger = Sales/freq)
-    ratio$Teslas_per_Supercharger <- as.double(ratio$Teslas_per_Supercharger)
-    h1 <- ratio %>% ggplot(aes(x= Country, y = Teslas_per_Supercharger)) + geom_col() + labs(title = paste0("Teslas/supercharger station in ", input$Year)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-      scale_y_continuous(limits = c(0, 1400), breaks = seq(0,1400, by= 200)) + ylab(label = "Teslas per supercharger station" ) + theme_minimal()
+    h1 <- ratio %>% ggplot(aes(x= freq, y = Sales)) + geom_point() + geom_text(aes(label = Country), check_overlap = TRUE, nudge_x = 2, size = 3) + labs(title = paste0("Teslas/supercharger station in ", input$Year)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+      scale_y_continuous(limits = c(0, 31000), breaks = seq(0,31000, by= 5000)) + scale_x_continuous(limits = c(0, 80), breaks = seq(0, 80, by = 10)) + ylab(label = "Number of Teslas sold" ) + xlab(label = "Number of supercharger stations")
     ggplotly(h1)
   })
   
   #histogram: concurrentie snellaadpalen
   output$hist02 <- renderPlotly({
     laadpalenC <- laadpalen %>% filter(Country %in% input$Country2)
-    h2 <- laadpalenC %>% ggplot(aes(x = Description, y = freq)) + geom_col() + facet_wrap(Country~.)+ theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-      scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + xlab("Brand") + theme_minimal()
+    laadpalenC <- laadpalenC %>% group_by(Country) %>% mutate(Winner = ifelse(freq[Description == "Tesla"] == max(freq), "Tesla", ifelse(freq[Description == "Tesla"] == min(freq), "Ionity", "Tie")))
+    h2 <- laadpalenC %>% ggplot(aes(x = Description, y = freq, fill = Winner)) + geom_col() + gghighlight(Description == "Tesla", calculate_per_facet = T) + facet_wrap(Country~., nrow = 3, ncol = 9) + theme_minimal() +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+      scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + xlab("Brand") 
     ggplotly(h2)})
-  output$hist03 <- renderPlotly({
-    laadpalenC <- laadpalen %>% filter(Country %in% input$Country2)
-    h3 <- laadpalenC %>% ggplot(aes(x = Country, y = freq)) + geom_col(aes(fill = Description)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-      scale_y_continuous(limits = c(0, 200), breaks = seq(0,200, by= 50)) + ylab("Number of supercharger stations") + theme_minimal()
-    ggplotly(h3)})
   
   #taartdiagram: concurrentie snellaadpalen
   output$pie01 <- renderPlotly({
@@ -437,6 +447,14 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  #infobox best verkocht brandstof: groei: aandeel elektrische auto's op belgische en eu markt
+  output$bestsoldfueleu <- renderValueBox({
+    EuMSC <- EuMS %>% filter(Year == input$Year7)
+    valueBox(
+      paste0(EuMSC$Fuel[EuMSC$Market.Share == max(EuMSC$Market.Share)]),
+      subtitle= paste("Best sold type of car in the EU in ", input$Year7), color = "red"
+    )})
+  
   #taart eu: groei: aandeel elektrische auto's op belgische en eu markt
   output$pie04 <- renderPlotly({
     EuMSC <- EuMS %>% filter(Year == input$Year7)
@@ -461,7 +479,8 @@ shinyServer(function(input, output, session) {
   #Hist klanten: aankoopproces
   output$hist07 <- renderPlotly({
     aankoopprocesC2 <- aankoopproces %>% filter(Country %in% input$Country4, Interest %in% input$Interest)
-    h7 <- aankoopprocesC2 %>% ggplot(aes(x = Country, y = Percentage)) + geom_col() + facet_wrap(Interest~.) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" ) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    aankoopprocesC2 <- aankoopprocesC2 %>% group_by(Interest) %>% mutate(highlight = ifelse(Percentage == max(Percentage), "max", ifelse(Percentage == min(Percentage), "min", "gem")))
+    h7 <- aankoopprocesC2 %>% ggplot(aes(x = Country, y = Percentage, fill = highlight)) + geom_col() + facet_wrap(Interest~.) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" ) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
       scale_y_continuous(limits = c(0, 70), breaks = seq(0,70, by= 10)) + theme_minimal()
     ggplotly(h7)})
   
@@ -472,13 +491,6 @@ shinyServer(function(input, output, session) {
     p4 <- DataC %>% ggplot(aes(x= Month, y = Sales, na.rm = T)) + geom_line(aes(color = Year)) + geom_line(data = MeanSales, color = 'black') + scale_x_continuous(breaks = seq(0,12, by = 1))
     ggplotly(p4)
   })
-  
-  #hist verkoop: periodieke tesla verkoop
-  output$hist08 <- renderPlotly({
-    DataC2 <- Data %>% filter(Month >= min(input$Month) & Month <= max(input$Month), Year %in% input$Year9)
-    h8 <- DataC2 %>% ggplot(aes(x = Month, y = Sales, na.rm = T)) + geom_col() + facet_wrap(Year~.) + labs(title = "Periodic Tesla sales over the years.") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_x_continuous(breaks = seq(0,12, by = 1)) +
-      scale_y_continuous(limits = c(0, 25000), breaks = seq(0,25000, by= 5000)) + ylab("Sales") + theme_minimal()
-    ggplotly(h8)})
   
   
   #financieel tabblad
@@ -541,23 +553,39 @@ shinyServer(function(input, output, session) {
   })
   output$linefin <- renderPlotly({
     
+    
     y    <- Financial_numbers_gather_som$Year
     Yearrevline <- seq(min(y), max(y))
     financevar <- Financial_numbers_gather_som %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline), typenumber != "totalgrossmargin") %>% group_by(Year, typenumber) %>% 
       mutate("total" = sum(finvalue, na.rm = TRUE)) %>% select(Year, total, typenumber)%>% distinct()
     
+    financevar$col = cut(financevar$total, c(-Inf, 0, Inf))
+    
     financevarpline <- financevar %>% ggplot(aes(x = Year , y = total, color = typenumber))+ geom_line() +
       labs(y = 'Value') + 
       theme_minimal() + scale_color_manual(values = c("blue2", "royalblue1", "skyblue3")) + geom_hline(yintercept = 0, color = "black", size = 1.5) + 
-      gghighlight(total >= 0)
+      gghighlight(total >= 0) 
     ggplotly(financevarpline)
+  })
+  
+  output$grossmargin <- renderPlotly({
+    y <- Financial_numbers_gather_som$Year
+    Yeargrossmargin <- seq(min(y), max(y))
+    financevarmar <- Financial_numbers_gather_som %>% filter(Year >= min(input$Yeargrossmargin) & Year <= max(input$Yeargrossmargin), typenumber == "totalgrossmargin") %>% group_by(Year, typenumber) %>% 
+      mutate("total" = sum(finvalue, na.rm = TRUE)) %>% select(Year, total, typenumber) %>% distinct()
+    
+    financevarmarp <- financevarmar %>% ggplot(aes(x = Year, y = total, color = typenumber)) + geom_line() + 
+      labs(y = 'Value') + scale_y_continuous(limits = c(0,100), breaks = seq(0, 100, by= 5)) +
+      theme_minimal() + scale_color_manual(values = c("midnightblue")) + theme(legend.position = "none")
+    ggplotly(financevarmarp)
   })
   
   #Uitbreiding naar de EU
   checkeurope <- reactive({input$Europe})
   output$colpascar <- renderPlotly({
+    
     if (checkeurope() == 2) {
-      countriespasscarvar <- countriesafpassengercars %>% filter(Country == input$EUoptions, Fuel %in% input$EUcheck)
+      countriespasscarvar <- countriesafpassengercars %>% filter(Country == input$EUoptions)
       value <- countriespasscarvar$waardes
       
       
@@ -567,11 +595,12 @@ shinyServer(function(input, output, session) {
         labs(title = input$EUoptions, y = '')  + 
         scale_x_continuous(limits= c(min(countriesafpassengercars$Year), max(countriesafpassengercars$Year)) , 
                            breaks = seq(min(countriesafpassengercars$Year), max(countriesafpassengercars$Year), by = 1)) +
-        theme_minimal()
+        theme_minimal() + scale_fill_manual(values = c("red", "orange", "green", "lightseagreen", "blue", "purple", "maroon1"))
+        
       
     }
     else { 
-      countriespasscarvar <- countriesafpassengercars %>% filter(Fuel %in% input$EUcheck, Year == input$YearEU)
+      countriespasscarvar <- countriesafpassengercars %>% filter(Year == input$YearEU)
       value <- countriespasscarvar$waardes
       
       
@@ -580,14 +609,15 @@ shinyServer(function(input, output, session) {
         ggplot(aes(x = Country, y = value, fill = Fuel ))+ 
         geom_col(position = "dodge") + 
         labs(title = input$YearEU, y = '')  + scale_y_continuous(limits = c(0, 3600000), breaks = seq(0,4000000, by= 500000)) +
-        coord_flip() + theme_minimal() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        coord_flip() + theme_minimal() + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+        scale_fill_manual(values = c("red", "orange", "green", "lightseagreen", "blue", "purple", "maroon1"))
       
     }
     ggplotly(countriespasscarvarp)
   })
   output$colinfr <- renderPlotly({
     if (checkeurope() == 2) {
-      countriesinfrvar <- countriesafinfrastructure %>% filter(Country == input$EUoptions, Fuel %in% input$EUcheckinfr)
+      countriesinfrvar <- countriesafinfrastructure %>% filter(Country == input$EUoptions)
       value <- countriesinfrvar$waardes
       
       countriesinfrvarp <- countriesinfrvar %>% 
@@ -596,19 +626,21 @@ shinyServer(function(input, output, session) {
         labs(title = input$EUoptions, y = '')  + 
         scale_x_continuous(limits = c(min(countriesafinfrastructure$Year), max(countriesafinfrastructure$Year)), 
                            breaks = seq(min(countriesafinfrastructure$Year), max(countriesafinfrastructure$Year), by = 1)) + 
-        theme_minimal()
+        theme_minimal() + 
+      scale_fill_manual(values = c("purple", "green", "blue", "orange", "maroon1"))
       
     }
     else {
-      countriesinfrvar <- countriesafinfrastructure %>% filter(Fuel %in% input$EUcheckinfr, Year == input$YearEU)
+      countriesinfrvar <- countriesafinfrastructure %>% filter(Year == input$YearEU)
       value <- countriesinfrvar$waardes
       
       countriesinfrvarp <- countriesinfrvar %>% 
         ggplot(aes(x = Country, y = value, fill = Fuel))+ 
         geom_col(position = "dodge") + 
         labs(title = input$YearEU, y = '')  + scale_y_continuous(limits = c(0, 65000), breaks = seq(0,65000, by= 5000)) +
-        coord_flip() + theme_minimal() + 
-        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        coord_flip() + theme_minimal() +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))  + 
+        scale_fill_manual(values = c("purple", "green", "blue", "orange", "maroon1"))
       
     }
     ggplotly(countriesinfrvarp)
@@ -641,7 +673,7 @@ shinyServer(function(input, output, session) {
                      panel.background = element_blank(),
                      legend.position = "none",
                      panel.border = element_blank(),
-                     strip.background = element_rect(fill = 'white', colour = 'white')) + scale_fill_manual( values = c("tomato", "skyblue"))
+                     strip.background = element_rect(fill = 'white', colour = 'white')) + scale_fill_manual( values = c("red2", "skyblue"))
             
     gg
   })
@@ -655,61 +687,119 @@ shinyServer(function(input, output, session) {
 ########################################################################################################################     
         
     # Loyalty
-    output$loyalty_bar <- renderPlot({
-      
-      # Filter based on input, ...
-      loyalty_per_brand_chosen_class <- loyalty_per_brand_tibble %>% filter(Classification %in% input$loyalty_checkboxes)
-      
-      # ... however, we want to make sure Tesla is always shown. So, we remove Tesla (even if it's not there) ...
-      loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% filter(!Brand %in% c("Tesla"))
-      
-      # ... and then add it in each case. (Yes, this are probably shorter ways to do this, but it works :-) )
-      loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% add_row(Ranking = loyalty_per_brand_Tesla$Ranking,
-                                                                                   Brand = loyalty_per_brand_Tesla$Brand,
-                                                                                   Percentage = loyalty_per_brand_Tesla$Percentage,
-                                                                                   Classification = loyalty_per_brand_Tesla$Classification,
-                                                                                   )
-
-      # Reverse order (so the barplot shows the values from high to low)
-      loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class[order(loyalty_per_brand_chosen_class$Percentage), ]
-      
-      # Make sure we retain the order in the plot
-      loyalty_per_brand_chosen_class$Brand <- factor(loyalty_per_brand_chosen_class$Brand,
-                                               levels = loyalty_per_brand_chosen_class$Brand)
-      
-      
-      
-      # Create the plot
-      loyalty_per_brand_plot <- ggplot(loyalty_per_brand_chosen_class,
-                                       aes(x = Percentage,
-                                           y = Brand,
-                                           fill = factor(ifelse(Brand == "Tesla", "Highlighted", "Normal")))) +
-        geom_col() + 
-        theme_minimal() +
-        scale_fill_manual(name = "Hidden_legend", 
-                          values = c("red2", "coral2")) +
-        scale_x_continuous(breaks = seq(0, 1, 0.1),
-                           limits = c(0, 1),
-                           labels = percent_format(accuracy = 1),
-                           expand = expansion(mult = c(0, 0.01))
-                           ) +
-        removeGridY() +
-        theme(axis.text = element_text(size = 12),
-              axis.title = element_text(size = 15),
-              legend.position = "none") 
+    
+      # KPI Loyalty in percent
+      output$loyalty_percentage_of_tesla <- renderValueBox({
         
-      # Display plot
-      loyalty_per_brand_plot
+        # Filter so only row with Tesla remains
+        loyalty_per_brand_ranked_Tesla <- loyalty_per_brand_ranked_tibble %>%
+                                          filter(Brand == "Tesla")
+        
+        # Select percentage
+        loyalty_perc_of_tesla <- loyalty_per_brand_ranked_Tesla$Percentage
+        
+        # Convert to percentage
+        loyalty_perc_of_tesla <- percent(loyalty_perc_of_tesla,
+                                         accuracy = 0.1)
+
+        # Display Valuebox
+        valueBox(
+          loyalty_perc_of_tesla,
+          subtitle = "Loyalty of Tesla's customers",
+          color = "red"
+        )
+        
+      })
+      
+      # KPI Rank
+      output$loyalty_rank_of_tesla <- renderValueBox({
+        
+        # Fetch Tesla's rank
+        
+          # Filter so only row with Tesla remains
+          loyalty_per_brand_ranked_Tesla <- loyalty_per_brand_ranked_tibble %>%
+                                            filter(Brand == "Tesla") 
+          
+          # Select Tesla's rank
+          loyalty_rank_tesla_number <- loyalty_per_brand_ranked_Tesla$Rank
+          
+          # Add correct ordinal suffix
+          loyalty_ordinal_rank_tesla <- toOrdinal(loyalty_rank_tesla_number)
+
+        # Display Valuebox
+        valueBox(
+          loyalty_ordinal_rank_tesla,
+          subtitle = "Place of Tesla in loyalty ranking",
+          color = "red"
+        )
+        
+      })
+      
+    
+      # Graph
+      output$loyalty_bar <- renderPlot({
+        
+        # Filter based on input
+        loyalty_per_brand_chosen_class <- loyalty_per_brand_ranked_tibble %>% filter(Classification %in% input$loyalty_checkboxes)
+        
+        # Regardless of the end users selection, we want to make sure Tesla is included in the comparison.  
+          
+          # That's why we first select Tesla from our ranked tibble and store it safely ...
+          loyalty_per_brand_ranked_Tesla <- loyalty_per_brand_ranked_tibble %>%
+          filter(Brand == "Tesla") 
+        
+          # ... and then, from the dataset that the end user selected, we remove Tesla (even if it's not there)...
+          loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% filter(!Brand %in% c("Tesla"))
+          
+          # ... followed by adding it back from our safely stored row. Now we know for sure that Tesla is included, and only once so.
+          loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% add_row(Brand = loyalty_per_brand_Tesla$Brand,
+                                                                                       Percentage = loyalty_per_brand_Tesla$Percentage,
+                                                                                       Classification = loyalty_per_brand_Tesla$Classification,
+                                                                                       Rank = loyalty_per_brand_ranked_Tesla$Rank
+                                                                                       )
+  
+        # Reverse order (so the barplot shows the values from high to low)
+        loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class[order(loyalty_per_brand_chosen_class$Percentage), ]
+        
+        # Make sure we retain the order in the plot
+        loyalty_per_brand_chosen_class$Brand <- factor(loyalty_per_brand_chosen_class$Brand,
+                                                 levels = loyalty_per_brand_chosen_class$Brand)
+
+        # Create the plot
+        loyalty_per_brand_plot <- ggplot(loyalty_per_brand_chosen_class,
+                                         aes(x = Percentage,
+                                             y = Brand,
+                                             fill = factor(ifelse(Brand == "Tesla", "Highlighted", "Normal"))
+                                             )
+                                         ) +
+                                         geom_col() + 
+                                         theme_minimal() +
+                                         scale_fill_manual(name = "Hidden_legend", 
+                                                           values = c("red2", "coral2")) +
+                                         scale_x_continuous(breaks = seq(0, 1, 0.1),
+                                                            limits = c(0, 1),
+                                                            labels = percent_format(accuracy = 1),
+                                                            expand = expansion(mult = c(0, 0.01))
+                                                            ) +
+                                         removeGridY() +
+                                         theme(axis.text = element_text(size = 12),
+                                               axis.title = element_text(size = 15),
+                                               legend.position = "none") # +
+                                         # geom_text(aes(x = 0, label = (Percentage*100)),
+                                                   # hjust = 0
+                                                   # )
+          
+        # Display plot
+        loyalty_per_brand_plot
       
       
       
       # Te doen:
-      # - KPI: Rank
-      # - KPI 2: Percentage (80%)
+      # - Eventueel: goal laten zetten? Bespreek met teamleden
       # - Ggplotly zodat je precieze percentage ook ziet. Dan kan mogelijk checkbox zelfs weg.(Want wil ...
       #   ... kunnen filteren op luxury/mass market of beiden). Mss voegt plotly ook toe dat merken kan ...
       #   ... kiezen
-      
+
 
     })
     
