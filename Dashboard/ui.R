@@ -21,6 +21,8 @@ library(shinydashboard)
 library(stringr)
 library(DT)
 library(tidyverse)
+library(tidyquant)
+library(quantmod)
 
 #Caro
 
