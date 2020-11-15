@@ -368,10 +368,11 @@ shinyServer(function(input, output, session) {
   #histogram: concurrentie snellaadpalen
   output$hist02 <- renderPlotly({
     laadpalenC <- laadpalen %>% filter(Country %in% input$Country2)
-    laadpalenC <- laadpalenC %>% group_by(Country) %>% mutate(Winner = ifelse(freq[Description == "Tesla"] == max(freq), "Tesla", ifelse(freq[Description == "Tesla"] == min(freq), "Ionity", "Tie")))
-    h2 <- laadpalenC %>% ggplot(aes(x = Description, y = freq, fill = Winner)) + geom_col() + gghighlight(Description == "Tesla", calculate_per_facet = T) + facet_wrap(Country~., nrow = 3, ncol = 9) + theme_minimal() +
+    laadpalenC <- laadpalenC %>% group_by(Country) %>% mutate(Level = ifelse(freq[Description == "Tesla"] == max(freq), "Highest", ifelse(freq[Description == "Tesla"] == min(freq), "Lowest", "Between")))
+    h2 <- laadpalenC %>% ggplot(aes(x = Description, y = freq, fill = Level)) + geom_col() + gghighlight(Description == "Tesla", calculate_per_facet = T) + facet_wrap(Country~., nrow = 3, ncol = 9) + theme_minimal() +
       theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-      scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + xlab("Brand") 
+      scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + xlab("Brand") + scale_fill_manual(values = c("green", "red")) + scale_x_discrete(labels = c("Ionity", "Tesla"))
+    #h2 <- laadpalenC %>% ggplot(aes(x = Country, y = freq, fill = Description)) + geom_col(position = "dodge") + theme_minimal() + scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + coord_flip() + scale_fill_manual(values = c("orange", "blue"))
     ggplotly(h2)})
   
   #taartdiagram: concurrentie snellaadpalen
@@ -383,7 +384,7 @@ shinyServer(function(input, output, session) {
   
   #infobox best verkocht segment: groei: verkoop alle merken per segment
   output$bestsoldsegment <- renderValueBox({
-    VPSC2 <- VPS %>% filter(Segment %in% input$Segment, Year == max(input$Year2))
+    VPSC2 <- VPS %>% filter(Year == max(input$Year2))
     valueBox(
       paste0(VPSC2$Segment[VPSC2$Sales == max(VPSC2$Sales)]),
       subtitle= paste("Best sold segment in ", max(input$Year2)), icon = icon('car-side'), color = "red"
@@ -393,19 +394,19 @@ shinyServer(function(input, output, session) {
   output$line01 <- renderPlotly({
     VPSC2 <- VPS %>% filter(Segment %in% input$Segment, Year >= min(input$Year2) & Year <= max(input$Year2))
     p <- VPSC2 %>% ggplot(aes(x=Year, y=Sales)) + geom_line(aes(color = Segment)) + labs(title = "New cars sold in the EU by segment in million units over the years.") + 
-      scale_x_continuous(breaks = c(2008:2019)) + scale_y_continuous(breaks= seq(0,6, by = 1)) + ylab("Cars sold") + theme_minimal()
+      scale_x_continuous(breaks = c(2008:2019)) + scale_y_continuous(breaks= seq(0,6, by = 1)) + ylab("Cars sold") + theme_minimal() + scale_color_manual(values = c("red", "orange", "green", "lightseagreen", "blue", "purple"))
     ggplotly(p)})
   
   #infobox best verkocht brandstof: groei: aandeel elektrische auto's op belgische en eu markt
   output$bestsoldfuel <- renderValueBox({
     if(checkregion() == 1){
-      NieuwC <- Nieuw %>% filter(Fuel %in% input$Fuel, Year == max(input$Year3))
+      NieuwC <- Nieuw %>% filter(Year == max(input$Year3))
       valueBox(
         paste0(NieuwC$Fuel[NieuwC$`Cars sold` == max(NieuwC$`Cars sold`)]),
         subtitle= paste("Best sold type of car in Belgium in ", max(input$Year3)), icon = icon('gas-pump'), color = "red"
       )}
     else{
-      TweedehandsC <- Tweedehands %>% filter(Fuel %in% input$Fuel, Year == max(input$Year3))
+      TweedehandsC <- Tweedehands %>% filter(Year == max(input$Year3))
       valueBox(
         paste0(TweedehandsC$Fuel[TweedehandsC$`Cars sold` == max(TweedehandsC$`Cars sold`)]),
         subtitle= paste("Best sold type of second hand car in Belgium in ", max(input$Year3)), color = "red"
@@ -417,13 +418,13 @@ shinyServer(function(input, output, session) {
   output$line02 <- renderPlotly({
     if(checkregion() == 1) {
       NieuwC <- Nieuw %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3), Fuel %in% input$Fuel)
-      p2 <- NieuwC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel), size = 1) + labs(title = "Number of new cars sold in Belgium over the years") + theme_minimal()
+      p2 <- NieuwC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel)) + labs(title = "Number of new cars sold in Belgium over the years") + theme_minimal() + scale_color_manual(values = c("purple", "orange", "red", "green", "blue"))
       ggplotly(p2)
     }
     else{
       #lijn tweedehands: groei: aandeel elektrische auto's op belgische en eu markt
       TweedehandsC <- Tweedehands %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3), Fuel %in% input$Fuel)
-      p3 <- TweedehandsC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel), size = 1) + labs(title = "Number of second hand cars sold in Belgium over the years") + theme_minimal()
+      p3 <- TweedehandsC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel)) + labs(title = "Number of second hand cars sold in Belgium over the years") + theme_minimal() + scale_color_manual(values = c("purple", "orange", "red", "green", "blue"))
       ggplotly(p3)
     }
   })
@@ -464,32 +465,26 @@ shinyServer(function(input, output, session) {
                             xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
                             yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))})
   
-  #Hist eu: groei: aandeel elektrische auto's op belgische en eu markt
+  #Line eu: groei: aandeel elektrische auto's op belgische en eu markt
   output$hist05 <- renderPlotly({
-    EuMSC2 <- EuMS %>% filter(Year >= min(input$Year8) & Year <= max(input$Year8), Fuel == input$Fuel3)
-    h5 <- EuMSC2 %>% ggplot(aes(x = Year, y = Market.Share)) + geom_col() + labs(title = "Market Share of new cars in the EU over the years", input$Fuel3,"cars in the EU over the years") +
-      scale_y_continuous(limits = c(0, 60), breaks = seq(0,60, by= 10)) + theme_minimal()
+    EuMSC2 <- EuMS %>% filter(Year >= min(input$Year8) & Year <= max(input$Year8), Fuel %in% input$Fuel3)
+    h5 <- EuMSC2 %>% ggplot(aes(x = Year, y = Market.Share)) + geom_line(aes(color = Fuel)) + labs(title = "Market Share of new cars in the EU over the years", input$Fuel3,"cars in the EU over the years") +
+      scale_y_continuous(limits = c(0, 60), breaks = seq(0,60, by= 10)) + theme_minimal() + scale_color_manual(values = c("purple", "orange", "red", "green", "blue"))
     ggplotly(h5)})
-  
-  #HistMS klanten: aankoopproces
-  output$hist06 <- renderPlotly({
-    aankoopprocesC <- aankoopproces %>% filter(Country %in% input$Country3)
-    h6 <- aankoopprocesC %>% ggplot(aes(x = Country, y = Percentage)) + geom_col(aes(fill = Interest)) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" ) + theme_minimal()
-    ggplotly(h6)})
   
   #Hist klanten: aankoopproces
   output$hist07 <- renderPlotly({
     aankoopprocesC2 <- aankoopproces %>% filter(Country %in% input$Country4, Interest %in% input$Interest)
-    aankoopprocesC2 <- aankoopprocesC2 %>% group_by(Interest) %>% mutate(highlight = ifelse(Percentage == max(Percentage), "max", ifelse(Percentage == min(Percentage), "min", "gem")))
-    h7 <- aankoopprocesC2 %>% ggplot(aes(x = Country, y = Percentage, fill = highlight)) + geom_col() + facet_wrap(Interest~.) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" ) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-      scale_y_continuous(limits = c(0, 70), breaks = seq(0,70, by= 10)) + theme_minimal()
+    aankoopprocesC2 <- aankoopprocesC2 %>% group_by(Interest) %>% mutate(Level = ifelse(Percentage == max(Percentage), "Highest", ifelse(Percentage == min(Percentage), "Lowest", "Between")))
+    h7 <- aankoopprocesC2 %>% ggplot(aes(x = Country, y = Percentage, fill = Level)) + geom_col() + facet_wrap(Interest~.) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" ) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+      scale_y_continuous(limits = c(0, 70), breaks = seq(0,70, by= 10)) + theme_minimal() + scale_fill_manual(values = c("red", "green", "blue")) 
     ggplotly(h7)})
   
   #line verkoop: periodieke tesla verkoop
   output$line04 <- renderPlotly({
     DataC <- Data %>% filter(Month >= min(input$Month) & Month <= max(input$Month), Year %in% input$Year9)
     MeanSales <- DataC %>% group_by(Month) %>% summarise(Sales = mean(Sales, na.rm = T) )
-    p4 <- DataC %>% ggplot(aes(x= Month, y = Sales, na.rm = T)) + geom_line(aes(color = Year)) + geom_line(data = MeanSales, color = 'black') + scale_x_continuous(breaks = seq(0,12, by = 1))
+    p4 <- DataC %>% ggplot(aes(x= Month, y = Sales, na.rm = T)) + geom_line(aes(color = Year)) + geom_line(data = MeanSales, color = 'black') + scale_x_continuous(breaks = seq(0,12, by = 1)) + scale_color_manual(values = c("red", "orange", "green", "lightseagreen", "blue"))
     ggplotly(p4)
   })
   

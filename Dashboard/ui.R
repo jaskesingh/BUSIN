@@ -125,7 +125,7 @@ shinyUI(
                       fluidRow(
                         box(
                           title = "Number of Teslas per supercharger station", width = 12,
-                          solidHeader = T, status = "danger", plotlyOutput("hist01"),
+                          solidHeader = T, status = "danger", plotlyOutput("hist01", height = "600px"),
                           sliderInput(inputId = "Year",
                                       label = "Choose year",
                                       min = 2013,
@@ -144,7 +144,7 @@ shinyUI(
                       tabName = "Competition",
                       fluidRow(
                         box(
-                          title = "Superchargers market share", width = 12, 
+                          title = "Superchargers market share", width = 12,
                           solidHeader = T, status = 'danger', plotlyOutput("pie01")
                         )
                       ),
@@ -152,7 +152,7 @@ shinyUI(
                         box(
                             title ="Number of supercharger stations per country", width = 12,
                             solidHeader = T, status = "danger",
-                            plotlyOutput("hist02"),
+                            plotlyOutput("hist02", height = "600px"),
                             selectInput(inputId = "Country2",
                                     label = "Choose country",
                                     choices = superchargers$Country,
@@ -230,7 +230,8 @@ shinyUI(
                           selectInput(inputId = "Fuel3",
                                       label = "Choose fuel type",
                                       choices = eu$Fuel,
-                                      selected = "Electrically-chargeable")
+                                      multiple = TRUE,
+                                      selected = c("Electrically-chargeable", "Petrol", "Diesel", "Alternative fuels", "Hybrid"))
                         ),
                         box(
                           title = "Market share of new cars by fuel type in the EU", plotlyOutput("pie04"), solidHeader = T, status = 'danger',
@@ -245,31 +246,25 @@ shinyUI(
                     ),
                     tabItem(
                       tabName = "Purchaseprocess",
-                      tabBox(
-                        title = "Share of Europeans interested in online vehicle purchasing in 2018", height = 12, width =12,
-                        tabPanel("Tab1", plotlyOutput("hist06"),
-                                 selectInput(inputId = "Country3",
-                                             label = "Choose country",
-                                             choices = aankoopproces$Country,
-                                             multiple = TRUE,
-                                             selected = c("Belgium", "Germany", "France", "UK", "Italy"))),
-                        tabPanel("Tab2", plotlyOutput("hist07"),
-                                 selectInput(inputId = "Country4",
-                                             label = "Choose country",
-                                             choices = aankoopproces$Country,
-                                             multiple = TRUE,
-                                             selected = c("Belgium", "Germany", "France", "UK", "Italy")),
-                                 selectInput(inputId = "Interest",
-                                             label = "Choose level of interest",
-                                             choices = aankoopproces$Interest,
-                                             multiple = TRUE,
-                                             selected = c("Not at all interested/not very interested", "Neutral", "Somewhat interested/very interested")))
+                      box(
+                        title = "Share of Europeans interested in online vehicle purchasing in 2018", height = 12, width =12, solidHeader = T, status = 'danger',
+                        plotlyOutput("hist07"),
+                        selectInput(inputId = "Country4",
+                                    label = "Choose country",
+                                    choices = aankoopproces$Country,
+                                    multiple = TRUE,
+                                    selected = c("Belgium", "Germany", "France", "UK", "Italy")),
+                        selectInput(inputId = "Interest",
+                                    label = "Choose level of interest",
+                                    choices = aankoopproces$Interest,
+                                    multiple = TRUE,
+                                    selected = c("Not at all interested/not very interested", "Neutral", "Somewhat interested/very interested"))
                       )
                     ),
                     tabItem(
                       tabName = "Periodic",
-                      box(
-                        title = "Periodic Tesla sales over the years.", "Black line is the mean sales of all the selected years", plotlyOutput("line04"),
+                      box(title = "Periodic Tesla sales over the years.", 
+                          "Black line is the mean sales of all the selected years", plotlyOutput("line04"),
                         height = 12, width = 12, solidHeader = T, status = 'danger',
                         sliderInput(inputId = "Month",
                                     label = "Choose month",
