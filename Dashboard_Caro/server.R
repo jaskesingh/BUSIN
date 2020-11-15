@@ -236,7 +236,7 @@ shinyServer(function(input, output, session) {
         VPSC2 <- VPS %>% filter(Segment %in% input$Segment, Year == max(input$Year2) | Year == min(input$Year2))
         VPSC2 <- VPSC2 %>% group_by(Segment) %>% mutate(Difference = (Sales[Year == max(Year)] - Sales[Year == min(Year)]))
         valueBox(
-            paste0(VPSC2$Segment[VPSC2$Difference == max(VPSC2$Difference)]),
+            paste0(VPSC2$Segment[VPSC2$Difference == max(VPSC2$Difference) & VPSC2$Year == max(input$Year2)]),
             subtitle= paste("Segment that has augmented the most between ", min(input$Year2), " and ", max(input$Year2)), color = "red"
        )})
     

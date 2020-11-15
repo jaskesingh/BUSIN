@@ -165,7 +165,8 @@ shinyUI(
                     tabItem(
                       tabName = "Salespersegment",
                       fluidRow(
-                        valueBoxOutput("bestsoldsegment")
+                        valueBoxOutput("bestsoldsegment"),
+                        valueBoxOutput("populairst")
                       ),
                       fluidRow(
                         box(
