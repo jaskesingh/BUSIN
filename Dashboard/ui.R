@@ -83,7 +83,7 @@ shinyUI(
                     menuItem("Customers", tabName = "Customers", newTab = T, 
                              menuSubItem("Purchase process", tabName = "Purchaseprocess"),
                              menuSubItem("Brand loyalty", tabName = "dashboard_loyalty"),
-                             menuSubItem("EU Survey 2018", tabName = "survey")
+                             menuSubItem("Survey", tabName = "survey")
                              ),
                     menuItem("Sales", tabName = "Sales", newTab =T, menuSubItem("Periodic analysis", tabName = "Periodic")),
                     menuItem("Finance", tabName = "Omzet"),
@@ -411,10 +411,11 @@ shinyUI(
 
                       tabItem(
                         tabName = "survey",
+                        h2("Survey taken in 2018 in EU-countries"),
                         fluidRow(
                           valueBoxOutput("surveytotal"),
                           valueBoxOutput("totalcountries")
-                        ),
+                          ),
                         fluidRow(
                           box(
                             title = "Per country",
