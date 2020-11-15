@@ -176,7 +176,6 @@ Financial_numberssom$'totalfreecashflow' <- as.numeric(Financial_numberssom$'tot
 
 Financial_numbers_gather_som <- Financial_numberssom %>% gather('totalrevenue', 'totalgrossprofit', 'totalgrossmargin', 'totalfreecashflow', key = 'typenumber', value = 'finvalue') %>% select(Year, typenumber, finvalue) %>% distinct()
 
-
 ##financiele cijfers, functies
 financefunction <- function(yearinput,df) {
   financefunction <- df %>% filter(df$Year == yearinput)
@@ -186,7 +185,8 @@ financefunction <- function(yearinput,df) {
 #uitbreiding europa
 countriesafpassengercars <- read_xlsx("Data/Countries overview of af passenger cars.xlsx", skip = 2 , col_types = c("numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))
 countriesafinfrastructure <- read_xlsx("Data/countries overview of af infrastructure.xlsx", skip = 2 , col_types = c("numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric"))
-
+countriesafinfrastructure <- countriesafinfrastructure %>% mutate("Electricity (BEV + PHEV)" = Electricity,  "Natural Gas (CNG + LNG)" = `Natural Gas`)
+countriesafinfrastructure <- countriesafinfrastructure %>% select("Year", "Country", "Electricity (BEV + PHEV)", "H2", "Natural Gas (CNG + LNG)", "LPG", "Total")
 
 #uitbreiding europa, data in juiste vorm krijgen
 countriesafpassengercars <- countriesafpassengercars %>% gather('BEV', 'H2', 'CNG', 'LNG', 'PHEV', 'LPG', 'Total', key = 'Fuel', value = 'waardes')
@@ -194,7 +194,7 @@ countriesafpassengercars$Country[1:2457] <- c('Ausria', 'Belgium', 'Bulgaria', '
                                               'Finland', 'France', 'Germany', 'Greece', 'Hungria', 'Ireland', 'Italy', 'Latvia', 'Lithuania',
                                               'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia',
                                               'Spain', 'Sweden')
-countriesafinfrastructure <- countriesafinfrastructure %>% gather('Electricity', 'H2', 'Natural Gas', 'LPG', 'Total', key = 'Fuel', value = 'waardes')
+countriesafinfrastructure <- countriesafinfrastructure %>% gather('Electricity (BEV + PHEV)', 'H2', 'Natural Gas (CNG + LNG)', 'LPG', 'Total', key = 'Fuel', value = 'waardes')
 countriesafinfrastructure$Country[1:1755] <- c('Ausria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia',
                                                'Finland', 'France', 'Germany', 'Greece', 'Hungria', 'Ireland', 'Italy', 'Latvia', 'Lithuania',
                                                'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia',
@@ -357,25 +357,21 @@ shinyServer(function(input, output, session) {
     superchargersC <- plyr::count(superchargersC, "Country")
     ratio <- full_join(superchargersC, verkooC, by = 'Country')
     ratio$freq <- as.integer(ratio$freq)
+    ratio[is.na(ratio)] = 0
     ratio$Country <- as.factor(ratio$Country)
-    ratio <- ratio %>% mutate(Teslas_per_Supercharger = Sales/freq)
-    ratio$Teslas_per_Supercharger <- as.double(ratio$Teslas_per_Supercharger)
-    h1 <- ratio %>% ggplot(aes(x= Country, y = Teslas_per_Supercharger)) + geom_col() + labs(title = paste0("Teslas/supercharger station in ", input$Year)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-      scale_y_continuous(limits = c(0, 1400), breaks = seq(0,1400, by= 200)) + ylab(label = "Teslas per supercharger station" ) + theme_minimal()
+    h1 <- ratio %>% ggplot(aes(x= freq, y = Sales)) + geom_point() + geom_text(aes(label = Country), check_overlap = TRUE, nudge_x = 2, size = 3) + labs(title = paste0("Teslas/supercharger station in ", input$Year)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+      scale_y_continuous(limits = c(0, 31000), breaks = seq(0,31000, by= 5000)) + scale_x_continuous(limits = c(0, 80), breaks = seq(0, 80, by = 10)) + ylab(label = "Number of Teslas sold" ) + xlab(label = "Number of supercharger stations")
     ggplotly(h1)
   })
   
   #histogram: concurrentie snellaadpalen
   output$hist02 <- renderPlotly({
     laadpalenC <- laadpalen %>% filter(Country %in% input$Country2)
-    h2 <- laadpalenC %>% ggplot(aes(x = Description, y = freq)) + geom_col() + facet_wrap(Country~.)+ theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-      scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + xlab("Brand") + theme_minimal()
+    laadpalenC <- laadpalenC %>% group_by(Country) %>% mutate(Winner = ifelse(freq[Description == "Tesla"] == max(freq), "Tesla", ifelse(freq[Description == "Tesla"] == min(freq), "Ionity", "Tie")))
+    h2 <- laadpalenC %>% ggplot(aes(x = Description, y = freq, fill = Winner)) + geom_col() + gghighlight(Description == "Tesla", calculate_per_facet = T) + facet_wrap(Country~., nrow = 3, ncol = 9) + theme_minimal() +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+      scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + xlab("Brand") 
     ggplotly(h2)})
-  output$hist03 <- renderPlotly({
-    laadpalenC <- laadpalen %>% filter(Country %in% input$Country2)
-    h3 <- laadpalenC %>% ggplot(aes(x = Country, y = freq)) + geom_col(aes(fill = Description)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-      scale_y_continuous(limits = c(0, 200), breaks = seq(0,200, by= 50)) + ylab("Number of supercharger stations") + theme_minimal()
-    ggplotly(h3)})
   
   #taartdiagram: concurrentie snellaadpalen
   output$pie01 <- renderPlotly({
@@ -496,13 +492,6 @@ shinyServer(function(input, output, session) {
     ggplotly(p4)
   })
   
-  #hist verkoop: periodieke tesla verkoop
-  output$hist08 <- renderPlotly({
-    DataC2 <- Data %>% filter(Month >= min(input$Month) & Month <= max(input$Month), Year %in% input$Year9)
-    h8 <- DataC2 %>% ggplot(aes(x = Month, y = Sales, na.rm = T)) + geom_col() + facet_wrap(Year~.) + labs(title = "Periodic Tesla sales over the years.") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_x_continuous(breaks = seq(0,12, by = 1)) +
-      scale_y_continuous(limits = c(0, 25000), breaks = seq(0,25000, by= 5000)) + ylab("Sales") + theme_minimal()
-    ggplotly(h8)})
-  
   
   #financieel tabblad
   output$revbox <- renderValueBox({
@@ -564,23 +553,39 @@ shinyServer(function(input, output, session) {
   })
   output$linefin <- renderPlotly({
     
+    
     y    <- Financial_numbers_gather_som$Year
     Yearrevline <- seq(min(y), max(y))
     financevar <- Financial_numbers_gather_som %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline), typenumber != "totalgrossmargin") %>% group_by(Year, typenumber) %>% 
       mutate("total" = sum(finvalue, na.rm = TRUE)) %>% select(Year, total, typenumber)%>% distinct()
     
+    financevar$col = cut(financevar$total, c(-Inf, 0, Inf))
+    
     financevarpline <- financevar %>% ggplot(aes(x = Year , y = total, color = typenumber))+ geom_line() +
       labs(y = 'Value') + 
       theme_minimal() + scale_color_manual(values = c("blue2", "royalblue1", "skyblue3")) + geom_hline(yintercept = 0, color = "black", size = 1.5) + 
-      gghighlight(total >= 0)
+      gghighlight(total >= 0) 
     ggplotly(financevarpline)
+  })
+  
+  output$grossmargin <- renderPlotly({
+    y <- Financial_numbers_gather_som$Year
+    Yeargrossmargin <- seq(min(y), max(y))
+    financevarmar <- Financial_numbers_gather_som %>% filter(Year >= min(input$Yeargrossmargin) & Year <= max(input$Yeargrossmargin), typenumber == "totalgrossmargin") %>% group_by(Year, typenumber) %>% 
+      mutate("total" = sum(finvalue, na.rm = TRUE)) %>% select(Year, total, typenumber) %>% distinct()
+    
+    financevarmarp <- financevarmar %>% ggplot(aes(x = Year, y = total, color = typenumber)) + geom_line() + 
+      labs(y = 'Value') + scale_y_continuous(limits = c(0,100), breaks = seq(0, 100, by= 5)) +
+      theme_minimal() + scale_color_manual(values = c("midnightblue")) + theme(legend.position = "none")
+    ggplotly(financevarmarp)
   })
   
   #Uitbreiding naar de EU
   checkeurope <- reactive({input$Europe})
   output$colpascar <- renderPlotly({
+    
     if (checkeurope() == 2) {
-      countriespasscarvar <- countriesafpassengercars %>% filter(Country == input$EUoptions, Fuel %in% input$EUcheck)
+      countriespasscarvar <- countriesafpassengercars %>% filter(Country == input$EUoptions)
       value <- countriespasscarvar$waardes
       
       
@@ -590,11 +595,12 @@ shinyServer(function(input, output, session) {
         labs(title = input$EUoptions, y = '')  + 
         scale_x_continuous(limits= c(min(countriesafpassengercars$Year), max(countriesafpassengercars$Year)) , 
                            breaks = seq(min(countriesafpassengercars$Year), max(countriesafpassengercars$Year), by = 1)) +
-        theme_minimal()
+        theme_minimal() + scale_fill_manual(values = c("red", "orange", "green", "lightseagreen", "blue", "purple", "maroon1"))
+        
       
     }
     else { 
-      countriespasscarvar <- countriesafpassengercars %>% filter(Fuel %in% input$EUcheck, Year == input$YearEU)
+      countriespasscarvar <- countriesafpassengercars %>% filter(Year == input$YearEU)
       value <- countriespasscarvar$waardes
       
       
@@ -603,14 +609,15 @@ shinyServer(function(input, output, session) {
         ggplot(aes(x = Country, y = value, fill = Fuel ))+ 
         geom_col(position = "dodge") + 
         labs(title = input$YearEU, y = '')  + scale_y_continuous(limits = c(0, 3600000), breaks = seq(0,4000000, by= 500000)) +
-        coord_flip() + theme_minimal() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        coord_flip() + theme_minimal() + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+        scale_fill_manual(values = c("red", "orange", "green", "lightseagreen", "blue", "purple", "maroon1"))
       
     }
     ggplotly(countriespasscarvarp)
   })
   output$colinfr <- renderPlotly({
     if (checkeurope() == 2) {
-      countriesinfrvar <- countriesafinfrastructure %>% filter(Country == input$EUoptions, Fuel %in% input$EUcheckinfr)
+      countriesinfrvar <- countriesafinfrastructure %>% filter(Country == input$EUoptions)
       value <- countriesinfrvar$waardes
       
       countriesinfrvarp <- countriesinfrvar %>% 
@@ -619,19 +626,21 @@ shinyServer(function(input, output, session) {
         labs(title = input$EUoptions, y = '')  + 
         scale_x_continuous(limits = c(min(countriesafinfrastructure$Year), max(countriesafinfrastructure$Year)), 
                            breaks = seq(min(countriesafinfrastructure$Year), max(countriesafinfrastructure$Year), by = 1)) + 
-        theme_minimal()
+        theme_minimal() + 
+      scale_fill_manual(values = c("purple", "green", "blue", "orange", "maroon1"))
       
     }
     else {
-      countriesinfrvar <- countriesafinfrastructure %>% filter(Fuel %in% input$EUcheckinfr, Year == input$YearEU)
+      countriesinfrvar <- countriesafinfrastructure %>% filter(Year == input$YearEU)
       value <- countriesinfrvar$waardes
       
       countriesinfrvarp <- countriesinfrvar %>% 
         ggplot(aes(x = Country, y = value, fill = Fuel))+ 
         geom_col(position = "dodge") + 
         labs(title = input$YearEU, y = '')  + scale_y_continuous(limits = c(0, 65000), breaks = seq(0,65000, by= 5000)) +
-        coord_flip() + theme_minimal() + 
-        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        coord_flip() + theme_minimal() +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))  + 
+        scale_fill_manual(values = c("purple", "green", "blue", "orange", "maroon1"))
       
     }
     ggplotly(countriesinfrvarp)
@@ -664,7 +673,7 @@ shinyServer(function(input, output, session) {
                      panel.background = element_blank(),
                      legend.position = "none",
                      panel.border = element_blank(),
-                     strip.background = element_rect(fill = 'white', colour = 'white')) + scale_fill_manual( values = c("tomato", "skyblue"))
+                     strip.background = element_rect(fill = 'white', colour = 'white')) + scale_fill_manual( values = c("red2", "skyblue"))
             
     gg
   })

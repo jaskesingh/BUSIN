@@ -144,6 +144,12 @@ shinyUI(
                       tabName = "Competition",
                       fluidRow(
                         box(
+                          title = "Superchargers market share", width = 12, 
+                          solidHeader = T, status = 'danger', plotlyOutput("pie01")
+                        )
+                      ),
+                      fluidRow(
+                        box(
                             title ="Number of supercharger stations per country", width = 12,
                             solidHeader = T, status = "danger",
                             plotlyOutput("hist02"),
@@ -151,14 +157,9 @@ shinyUI(
                                     label = "Choose country",
                                     choices = superchargers$Country,
                                     multiple = TRUE,
-                                    selected = "Belgium")
+                                    selected = c("Belgium", "Norway", "Italy", "Germany", "France", "Netherlands", "United Kingdom", "Switzerland", "Portugal", "Spain", "Iceland", "Denmark", "Poland", "Serbia", "Bulgaria", "Sweden", "Hungary", "Czech Republic", "Slovakia", "Finland", "Austria", "Croatia", "Ireland", "Russia", "Liechtenstein", "Slovenia", "Luxembourg"))
                       )),
-                      fluidRow(
-                        box(
-                          title = "Superchargers market share", width = 12, 
-                          solidHeader = T, status = 'danger', plotlyOutput("pie01")
-                        )
-                      )),
+                     ),
                     tabItem(
                       tabName = "Salespersegment",
                       fluidRow(
@@ -203,7 +204,7 @@ shinyUI(
                                       label = "Choose fuel type",
                                       choices = nieuw$Fuel,
                                       multiple = TRUE,
-                                      selected = "Electric")
+                                      selected = c("Electric", "Petrol", "Diesel", "Alternative fuels", "Hybrid"))
                           
                         ),
                         box(
@@ -267,10 +268,9 @@ shinyUI(
                     ),
                     tabItem(
                       tabName = "Periodic",
-                      tabBox(
-                        title = "Periodic Tesla sales over the years.", height = 12, width = 12, 
-                        tabPanel("Tab1", "Black line is the mean sales of all the selected years", plotlyOutput("line04")),
-                        tabPanel("Tab2", plotlyOutput("hist08")),
+                      box(
+                        title = "Periodic Tesla sales over the years.", "Black line is the mean sales of all the selected years", plotlyOutput("line04"),
+                        height = 12, width = 12, solidHeader = T, status = 'danger',
                         sliderInput(inputId = "Month",
                                     label = "Choose month",
                                     min = 1,
@@ -310,20 +310,27 @@ shinyUI(
                                                                                                                       max = max(Revenue$Year),
                                                                                                                       value = 2020, 
                                                                                                                       sep = ""))
+                            ),
+                            fluidRow(
+                              box(title = "Gross Margin",
+                                     "In percentage",
+                                     solidHeader = T, status = "danger", plotlyOutput("grossmargin"), sliderInput(inputId = "Yeargrossmargin", 
+                                                                                                                  label = "Choose the range of years to appear",
+                                                                                                                  min = min(Revenue$Year),
+                                                                                                                  max = max(Revenue$Year),
+                                                                                                                  value = c(min(Revenue$Year),max(Revenue$Year)),
+                                                                                                                  sep = ""))
                             )
-                            
                             
                     ),
                     tabItem(tabName = "EU",
                             fluidRow(
                               box(title = "AF passenger cars",
                                   "Total fleet of passenger cars per alternative fuel (AF)", solidHeader = T, status="danger", plotlyOutput("colpascar"),
-                                  checkboxGroupInput("EUcheck", "Choose the fuels for Europe or per country", c('BEV', 'CNG', 'H2', 'LNG', 'LPG', 'PHEV', 'Total'), 
-                                                     selected = c('BEV', 'CNG', 'H2', 'LNG', 'LPG', 'PHEV'))),
+                                  ),
                               box(title = "AF infrastructure",
-                                  "Total number of alternative fuel (AF) infrastructure per type of fuel",  solidHeader = T, status="danger",plotlyOutput("colinfr"),
-                                  checkboxGroupInput("EUcheckinfr", "Choose the fuels for Europe or per country", c('Electricity', 'H2', 'Natural Gas', 'LPG', 'Total'), 
-                                                     selected = c('Electricity', 'H2', 'Natural Gas', 'LPG')))
+                                  "Total number of alternative fuel (AF) infrastructure per type of fuel", solidHeader = T, status="danger", plotlyOutput("colinfr"),
+                                  )
                             ),
                             fluidRow(
                               box(title = "Choose your options", solidHeader = T, status="danger", 
