@@ -286,7 +286,7 @@ shinyUI(
                     ),
                     #finance
                     tabItem(tabName = "Omzet",
-                            h2("Financial numbers worldwide, based on automotive sector"),
+                            h2("Financial numbers worldwide, based on automotive sector from Tesla"),
                             fluidRow(
                               valueBoxOutput("revbox"),
                               valueBoxOutput("frcashbox"),
@@ -326,10 +326,10 @@ shinyUI(
                     tabItem(tabName = "EU",
                             fluidRow(
                               box(title = "AF passenger cars",
-                                  "Total fleet of passenger cars per alternative fuel (AF)", solidHeader = T, status="danger", plotlyOutput("colpascar"),
+                                  "Total fleet of passenger cars per alternative fuel (AF)", solidHeader = T, status="danger", plotlyOutput("colpascar", height = "650px"),
                                   ),
                               box(title = "AF infrastructure",
-                                  "Total number of alternative fuel (AF) infrastructure per type of fuel", solidHeader = T, status="danger", plotlyOutput("colinfr"),
+                                  "Total number of alternative fuel (AF) infrastructure per type of fuel", solidHeader = T, status="danger", plotlyOutput("colinfr", height = "650px"),
                                   )
                             ),
                             fluidRow(
@@ -346,7 +346,8 @@ shinyUI(
                                               c('Ausria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia',
                                                 'Finland', 'France', 'Germany', 'Greece', 'Hungria', 'Ireland', 'Italy', 'Latvia', 'Lithuania',
                                                 'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia',
-                                                'Spain', 'Sweden'), selected = "Belgium")
+                                                'Spain', 'Sweden'), selected = "Belgium"),
+                                  dataTableOutput("europemaptable")
                               ),
                               box(title = "Tesla sales in Europe per year", solidHeader = T, status="danger", 
                                   selectInput(inputId = "teslajaar",
