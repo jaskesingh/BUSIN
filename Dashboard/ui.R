@@ -100,7 +100,7 @@ shinyUI(
                              menuSubItem("Survey", tabName = "survey")
                              ),
                     menuItem("Sales", tabName = "Sales", newTab =T, menuSubItem("Periodic analysis", tabName = "Periodic")),
-                    menuItem("Finance", tabName = "Omzet"),
+                    menuItem("Finance", tabName = "Omzet", badgeLabel = "New", badgeColor = "green"),
                     menuItem("Superchargers", tabName = "Superchargers", newTab = T, menuSubItem("Map", tabName = "Map"), menuSubItem("Statistics", tabName = "Statistics"), 
                              menuSubItem("Competition", tabName = "Competition")),
                     menuItem("Expansion in Europe", tabName = "EU")
@@ -319,7 +319,14 @@ shinyUI(
                                                                                                                   min = min(Revenue$Year),
                                                                                                                   max = max(Revenue$Year),
                                                                                                                   value = c(min(Revenue$Year),max(Revenue$Year)),
-                                                                                                                  sep = ""))
+                                                                                                                  sep = "")),
+                              box(
+                                title = "Tesla performance on the Stock Market",
+                                soldidHeader = T, status = "danger",
+                                dateInput(inputId = "st", label = "start date",
+                                            value = "2020-01-01"),
+                                  dateInput(inputId = "en", label = "end date"),
+                                  plotlyOutput("tslastock"))
                             )
                             
                     ),

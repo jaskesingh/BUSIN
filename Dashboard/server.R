@@ -580,6 +580,18 @@ shinyServer(function(input, output, session) {
     
   })
   
+  #Stock TSLA
+  output$tslastock <- renderPlotly({
+    
+    TSLA <- tq_get("TSLA", get = "stock.prices", from = input$st, to = input$en)
+    
+    p <- TSLA %>% ggplot(aes(date , close)) + geom_line() +
+      labs(title = "TSLA stock evolution", y = "Closing Price", x = "") + 
+      theme_tq()
+    
+    ggplotly(p)
+  })
+  
   #Uitbreiding naar de EU
   checkeurope <- reactive({input$Europe})
   output$colpascar <- renderPlotly({
