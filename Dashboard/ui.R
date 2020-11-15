@@ -68,6 +68,20 @@ teslapercountrysales <- read_xlsx("Data/Verkoop landen tesla.xlsx", skip = 1, co
 #jaske
 eusurvey <- read.csv("data/hev1.csv")
 
+# Pieter
+
+  # Load growth comparison (groco) data
+  # groco_data <- read_xlsx("Data/growth_comparison_v7.xlsx")
+  # View(groco_data)
+  # str(groco_data)
+  
+  # Clean it
+    
+    # Convert to numerics
+    # groco_data$`Change In Sales From 2018 To 2019 (%)`  <- as.numeric(groco_data$`Change In Sales From 2018 To 2019 (%)`)
+    
+    # Round to correct for weird numbers
+      
 # Define UI for application that draws a map
 shinyUI(
   dashboardPage(skin = 'red',
@@ -355,10 +369,10 @@ shinyUI(
                                                           "Change In Sales From 2018 To 2019 (%)",
                                                           "Share In EV Market In 2019",
                                                           "Share In EV Market In 2018",
-                                                          "Percent Of This Model That Was EV In 2019",
-                                                          "Percent Of This Model That Was EV In 2018",
+                                                          "Proportion Of Sales Of This Model That Was EV In 2019 (%)",
+                                                          "Proportion Of Sales Of This Model That Was EV In 2018 (%)",
                                                           "Range",
-                                                          "Top speed (km/h)",
+                                                          "Top Speed (km/h)",
                                                           "Acceleration (0-100 km/h)",
                                                           "Horsepower",
                                                           "Top Charging Speed (km/h)",
@@ -372,7 +386,7 @@ shinyUI(
                                                           "NCAP Safety Assist Score (%)",
                                                           "NCAP Average Score (%)"
                                               ),
-                                              selected = "Sales in 2019 (absolute)"
+                                              selected = "Sales in 2019"
                                   )
                               )
                             )
@@ -388,7 +402,7 @@ shinyUI(
                               valueBoxOutput("loyalty_rank_of_tesla")
                             ),
                             fluidRow(
-                              box(title = "Loyalty per brand (Work-in-progress)",
+                              box(title = "Loyalty per brand",
                                   "Percentage of car buyers that chose the same brand when buying a new car",
                                   width = 12,
                                   status = "danger",

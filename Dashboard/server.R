@@ -808,6 +808,13 @@ shinyServer(function(input, output, session) {
     # Growth comparisons
     output$growth_comparison_bar <- renderPlot({
       
+      # Pseudo-code:
+      # Select only row with submodels and $input
+      # Filter na's
+      # Plot 
+        # Probably need to use if functions to adjust plot depending on input
+        # But first check how plotly reacts to this. 
+      
       
       # Create plot
       # growth_comp_plot <- ggplot(growth_comp_sales_2019_1,
