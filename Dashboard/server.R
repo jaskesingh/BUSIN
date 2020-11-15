@@ -22,6 +22,8 @@ library(rvest)
 library(stringr)
 library(tidyverse)
 library(gghighlight)
+library(tidyquant)
+library(quantmod)
 
 # Toegevoegd op 13/11
 library(scales)
