@@ -191,7 +191,9 @@ shinyUI(
                       tabName = "fueltype",
                       fluidRow(
                         valueBoxOutput("bestsoldfuel"),
-                        valueBoxOutput("bestsoldfueleu")
+                        valueBoxOutput("bestsoldfueleu"),
+                        valueBoxOutput("populairstfuel"),
+                        valueBoxOutput("populairstfueleu")
                       ),
                       fluidRow(
                         box(

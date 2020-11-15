@@ -392,13 +392,13 @@ shinyServer(function(input, output, session) {
       subtitle= paste("Best sold segment in ", max(input$Year2)), icon = icon('car-side'), color = "red"
     )})
   
-  #infobox sterkste stijger: groei: verkoop alle merken per segment WERKT NOG NIET
+  #infobox sterkste stijger: groei: verkoop alle merken per segment
   output$populairst <- renderValueBox({
-    VPSC2 <- VPS %>% filter(Segment %in% input$Segment, Year == max(input$Year2) | Year == min(input$Year2))
+    VPSC2 <- VPS %>% filter(Year == max(input$Year2) | Year == min(input$Year2))
     VPSC2 <- VPSC2 %>% group_by(Segment) %>% mutate(Difference = (Sales[Year == max(Year)] - Sales[Year == min(Year)]))
     valueBox(
       paste0(VPSC2$Segment[VPSC2$Difference == max(VPSC2$Difference) & VPSC2$Year == max(input$Year2)]),
-      subtitle= paste("Segment that has augmented the most between ", min(input$Year2), " and ", max(input$Year2)), color = "red"
+      subtitle= paste("Segment that has augmented the most between ", min(input$Year2), " and ", max(input$Year2)), icon = icon('car-side'), color = "red"
     )})
   
   #lijngrafiek: Groei: verkoop alle merken per segment
@@ -420,9 +420,28 @@ shinyServer(function(input, output, session) {
       TweedehandsC <- Tweedehands %>% filter(Year == max(input$Year3))
       valueBox(
         paste0(TweedehandsC$Fuel[TweedehandsC$`Cars sold` == max(TweedehandsC$`Cars sold`)]),
-        subtitle= paste("Best sold type of second hand car in Belgium in ", max(input$Year3)), color = "red"
+        subtitle= paste("Best sold type of second hand car in Belgium in ", max(input$Year3)), icon = icon('gas-pump'), color = "red"
       )
     }})
+  
+  #infobox sterkste stijger: groei: aandeel elektrische auto's op belgische en eu markt
+  output$populairstfuel <- renderValueBox({
+    if(checkregion() == 1){
+      NieuwC <- Nieuw %>% filter(Year == max(input$Year3) | Year == min(input$Year3))
+      NieuwC <- NieuwC %>% group_by(Fuel) %>% mutate(Difference = (`Cars sold`[Year == max(Year)] - `Cars sold`[Year == min(Year)]))
+      valueBox(
+        paste0(NieuwC$Fuel[NieuwC$Difference == max(NieuwC$Difference) & NieuwC$Year == max(input$Year3)]),
+        subtitle= paste("Type of car that has augmented the most in Belgium between ", min(input$Year3), " and ", max(input$Year3)), icon = icon('gas-pump'), color = "red"
+      )}
+    else{
+      TweedehandsC <- Tweedehands %>% filter(Year == max(input$Year3) | Year == min(input$Year3))
+      TweedehandsC <- TweedehandsC %>% group_by(Fuel) %>% mutate(Difference = (`Cars sold`[Year == max(Year)] - `Cars sold`[Year == min(Year)]))
+      valueBox(
+        paste0(TweedehandsC$Fuel[TweedehandsC$Difference == max(TweedehandsC$Difference) & TweedehandsC$Year == max(input$Year3)]),
+        subtitle= paste("Type of second hand car that has augmented the most in Belgium between ", min(input$Year3), " and ", max(input$Year3)), icon = icon('gas-pump'), color = "red"
+      )
+    }
+    })
   
   #lijn nieuw: groei: aandeel elektrische auto's op belgische en eu markt
   checkregion <- reactive({input$Region})
@@ -467,6 +486,16 @@ shinyServer(function(input, output, session) {
       paste0(EuMSC$Fuel[EuMSC$Market.Share == max(EuMSC$Market.Share)]),
       subtitle= paste("Best sold type of car in the EU in ", input$Year7), icon = icon('gas-pump'), color = "red"
     )})
+  
+  #infobox sterkste stijger: groei: aandeel elektrische auto's op belgische en eu markt
+  output$populairstfueleu <- renderValueBox({
+      EUMSC2 <- EuMS %>% filter(Year == max(input$Year8) | Year == min(input$Year8))
+      EUMSC2 <- EUMSC2 %>% group_by(Fuel) %>% mutate(Difference = (Market.Share[Year == max(Year)] - Market.Share[Year == min(Year)]))
+      valueBox(
+        paste0(EUMSC2$Fuel[EUMSC2$Difference == max(EUMSC2$Difference) & EUMSC2$Year == max(input$Year8)]),
+        subtitle= paste("Type of car that has augmented the most in the EU between ", min(input$Year8), " and ", max(input$Year3)), icon = icon('gas-pump'), color = "red"
+      )
+  })
   
   #taart eu: groei: aandeel elektrische auto's op belgische en eu markt
   output$pie04 <- renderPlotly({
