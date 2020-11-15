@@ -130,6 +130,12 @@ shinyUI(
                       tabName = "Competition",
                       fluidRow(
                         box(
+                          title = "Superchargers market share", width = 12, 
+                          solidHeader = T, status = 'danger', plotlyOutput("pie01")
+                        )
+                      ),
+                      fluidRow(
+                        box(
                             title ="Number of supercharger stations per country", width = 12,
                             solidHeader = T, status = "danger",
                             plotlyOutput("hist02"),
@@ -137,14 +143,9 @@ shinyUI(
                                     label = "Choose country",
                                     choices = superchargers$Country,
                                     multiple = TRUE,
-                                    selected = "Belgium")
+                                    selected = c("Belgium", "Norway", "Italy", "Germany", "France", "Netherlands", "United Kingdom", "Switzerland", "Portugal", "Spain", "Iceland", "Denmark", "Poland", "Serbia", "Bulgaria", "Sweden", "Hungary", "Czech Republic", "Slovakia", "Finland", "Austria", "Croatia", "Ireland", "Russia", "Liechtenstein", "Slovenia", "Luxembourg"))
                       )),
-                      fluidRow(
-                        box(
-                          title = "Superchargers market share", width = 12, 
-                          solidHeader = T, status = 'danger', plotlyOutput("pie01")
-                        )
-                      )),
+                     ),
                     tabItem(
                       tabName = "Salespersegment",
                       fluidRow(
@@ -189,7 +190,7 @@ shinyUI(
                                       label = "Choose fuel type",
                                       choices = nieuw$Fuel,
                                       multiple = TRUE,
-                                      selected = "Electric")
+                                      selected = c("Electric", "Petrol", "Diesel", "Alternative fuels", "Hybrid"))
                           
                         ),
                         box(
@@ -253,10 +254,9 @@ shinyUI(
                     ),
                     tabItem(
                       tabName = "Periodic",
-                      tabBox(
-                        title = "Periodic Tesla sales over the years.", height = 12, width = 12, 
-                        tabPanel("Tab1", "Black line is the mean sales of all the selected years", plotlyOutput("line04")),
-                        tabPanel("Tab2", plotlyOutput("hist08")),
+                      box(
+                        title = "Periodic Tesla sales over the years.", "Black line is the mean sales of all the selected years", plotlyOutput("line04"),
+                        height = 12, width = 12, solidHeader = T, status = 'danger',
                         sliderInput(inputId = "Month",
                                     label = "Choose month",
                                     min = 1,
