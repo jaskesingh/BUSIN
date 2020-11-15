@@ -8,6 +8,8 @@ library(lubridate)
 library(readr)
 library(plotly)
 library(DT)
+library(tidyquant)
+library(quantmod)
 
 eusurvey <- read.csv("data/hev1.csv")
 
@@ -94,5 +96,16 @@ shinyServer(function(input, output) {
             length(unique(eusurvey$Country)), subtitle = "Number of countries",
             icon = icon("globe-europe")
         )
+    })
+    
+    output$tslastock <- renderPlotly({
+        
+        TSLA <- tq_get("TSLA", get = "stock.prices", from = input$st, to = input$en)
+        
+        p <- TSLA %>% ggplot(aes(date , close)) + geom_line() +
+            labs(title = "TSLA stock evolution", y = "Closing Price", x = "") + 
+            theme_tq()
+        
+        ggplotly(p)
     })
 })

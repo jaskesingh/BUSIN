@@ -68,6 +68,20 @@ teslapercountrysales <- read_xlsx("Data/Verkoop landen tesla.xlsx", skip = 1, co
 #jaske
 eusurvey <- read.csv("data/hev1.csv")
 
+# Pieter
+
+  # Load growth comparison (groco) data
+  # groco_data <- read_xlsx("Data/growth_comparison_v7.xlsx")
+  # View(groco_data)
+  # str(groco_data)
+  
+  # Clean it
+    
+    # Convert to numerics
+    # groco_data$`Change In Sales From 2018 To 2019 (%)`  <- as.numeric(groco_data$`Change In Sales From 2018 To 2019 (%)`)
+    
+    # Round to correct for weird numbers
+      
 # Define UI for application that draws a map
 shinyUI(
   dashboardPage(skin = 'red',
@@ -83,10 +97,10 @@ shinyUI(
                     menuItem("Customers", tabName = "Customers", newTab = T, 
                              menuSubItem("Purchase process", tabName = "Purchaseprocess"),
                              menuSubItem("Brand loyalty", tabName = "dashboard_loyalty"),
-                             menuSubItem("EU Survey 2018", tabName = "survey")
+                             menuSubItem("Survey", tabName = "survey")
                              ),
                     menuItem("Sales", tabName = "Sales", newTab =T, menuSubItem("Periodic analysis", tabName = "Periodic")),
-                    menuItem("Finance", tabName = "Omzet"),
+                    menuItem("Finance", tabName = "Omzet", badgeLabel = "New", badgeColor = "green"),
                     menuItem("Superchargers", tabName = "Superchargers", newTab = T, menuSubItem("Map", tabName = "Map"), menuSubItem("Statistics", tabName = "Statistics"), 
                              menuSubItem("Competition", tabName = "Competition")),
                     menuItem("Expansion in Europe", tabName = "EU")
@@ -272,7 +286,7 @@ shinyUI(
                     ),
                     #finance
                     tabItem(tabName = "Omzet",
-                            h2("Financial numbers worldwide, based on automotive sector"),
+                            h2("Financial numbers worldwide, based on automotive sector from Tesla"),
                             fluidRow(
                               valueBoxOutput("revbox"),
                               valueBoxOutput("frcashbox"),
@@ -305,17 +319,24 @@ shinyUI(
                                                                                                                   min = min(Revenue$Year),
                                                                                                                   max = max(Revenue$Year),
                                                                                                                   value = c(min(Revenue$Year),max(Revenue$Year)),
-                                                                                                                  sep = ""))
+                                                                                                                  sep = "")),
+                              box(
+                                title = "Tesla performance on the Stock Market",
+                                soldidHeader = T, status = "danger",
+                                dateInput(inputId = "st", label = "start date",
+                                            value = "2020-01-01"),
+                                  dateInput(inputId = "en", label = "end date"),
+                                  plotlyOutput("tslastock"))
                             )
                             
                     ),
                     tabItem(tabName = "EU",
                             fluidRow(
                               box(title = "AF passenger cars",
-                                  "Total fleet of passenger cars per alternative fuel (AF)", solidHeader = T, status="danger", plotlyOutput("colpascar"),
+                                  "Total fleet of passenger cars per alternative fuel (AF)", solidHeader = T, status="danger", plotlyOutput("colpascar", height = "650px"),
                                   ),
                               box(title = "AF infrastructure",
-                                  "Total number of alternative fuel (AF) infrastructure per type of fuel", solidHeader = T, status="danger", plotlyOutput("colinfr"),
+                                  "Total number of alternative fuel (AF) infrastructure per type of fuel", solidHeader = T, status="danger", plotlyOutput("colinfr", height = "650px"),
                                   )
                             ),
                             fluidRow(
@@ -332,7 +353,8 @@ shinyUI(
                                               c('Ausria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia',
                                                 'Finland', 'France', 'Germany', 'Greece', 'Hungria', 'Ireland', 'Italy', 'Latvia', 'Lithuania',
                                                 'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia',
-                                                'Spain', 'Sweden'), selected = "Belgium")
+                                                'Spain', 'Sweden'), selected = "Belgium"),
+                                  dataTableOutput("europemaptable")
                               ),
                               box(title = "Tesla sales in Europe per year", solidHeader = T, status="danger", 
                                   selectInput(inputId = "teslajaar",
@@ -355,10 +377,10 @@ shinyUI(
                                                           "Change In Sales From 2018 To 2019 (%)",
                                                           "Share In EV Market In 2019",
                                                           "Share In EV Market In 2018",
-                                                          "Percent Of This Model That Was EV In 2019",
-                                                          "Percent Of This Model That Was EV In 2018",
+                                                          "Proportion Of Sales Of This Model That Was EV In 2019 (%)",
+                                                          "Proportion Of Sales Of This Model That Was EV In 2018 (%)",
                                                           "Range",
-                                                          "Top speed (km/h)",
+                                                          "Top Speed (km/h)",
                                                           "Acceleration (0-100 km/h)",
                                                           "Horsepower",
                                                           "Top Charging Speed (km/h)",
@@ -372,7 +394,7 @@ shinyUI(
                                                           "NCAP Safety Assist Score (%)",
                                                           "NCAP Average Score (%)"
                                               ),
-                                              selected = "Sales in 2019 (absolute)"
+                                              selected = "Sales in 2019"
                                   )
                               )
                             )
@@ -388,7 +410,7 @@ shinyUI(
                               valueBoxOutput("loyalty_rank_of_tesla")
                             ),
                             fluidRow(
-                              box(title = "Loyalty per brand (Work-in-progress)",
+                              box(title = "Loyalty per brand",
                                   "Percentage of car buyers that chose the same brand when buying a new car",
                                   width = 12,
                                   status = "danger",
@@ -411,10 +433,11 @@ shinyUI(
 
                       tabItem(
                         tabName = "survey",
+                        h2("Survey taken in 2018 in EU-countries"),
                         fluidRow(
                           valueBoxOutput("surveytotal"),
                           valueBoxOutput("totalcountries")
-                        ),
+                          ),
                         fluidRow(
                           box(
                             title = "Per country",

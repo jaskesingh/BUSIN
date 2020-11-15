@@ -1,0 +1,49 @@
+---
+title: "StockTSLA"
+author: "Jaske"
+date: "11/15/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(readr)
+library(forcats)
+library(lubridate)
+library(quantmod)
+library(plotly)
+library(tidyverse)
+library(tidyquant)
+```
+
+```{r}
+startd <- as.Date("2016-01-01")
+endd <- as.Date("2020-11-14")
+```
+
+```{r}
+#getSymbols("TSLA", src = "yahoo", from = start, to = end)
+
+TSLA <- tq_get("TSLA", get = "stock.prices", from = startd, to = endd)
+```
+
+```{r}
+tail(TSLA)
+```
+
+```{r}
+p <- TSLA %>% ggplot(aes(date , close)) + geom_line() +
+    labs(title = "TSLA stock evolution", y = "Closing Price", x = "") + 
+    theme_tq()
+```
+
+```{r}
+ggplotly(p)
+```
+
