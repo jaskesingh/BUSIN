@@ -35,7 +35,7 @@ VPS %>% ggplot(aes(x = Segment, y = Sales)) + geom_col() + facet_wrap(Year~.) + 
 ```
 ```{r}
 VPSC2 <- VPS %>% filter(Year == 2019 | Year == 2018)
-VPSC2 <- VPSC2 %>% group_by(Segment) %>% mutate(Difference = (Sales[max(Year)] - Sales[min(Year)]))
+VPSC2 <- VPSC2 %>% group_by(Segment) %>% mutate(Difference = (Sales[Year == max(Year)] - Sales[Year == min(Year)]))
 VPSC2
 ```
 
