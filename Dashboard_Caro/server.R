@@ -365,5 +365,6 @@ shinyServer(function(input, output, session) {
        # hist(x, breaks = bins, col = 'darkgray', border = 'white')
 
    # })
+#scale_fill_manual(values = c("red", "orange", "green", "lightseagreen", "blue", "purple", "maroon1"))
 
 #})
