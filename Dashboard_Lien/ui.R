@@ -45,7 +45,7 @@ shinyUI(
       tabItems(
         #finance
         tabItem(tabName = "Omzet",
-                h2("Financial numbers worldwide, based on automotive sector"),
+                h2("Financial numbers worldwide, based on automotive sector from Tesla"),
                 fluidRow(
                   valueBoxOutput("revbox"),
                   valueBoxOutput("frcashbox"),
@@ -59,16 +59,28 @@ shinyUI(
                                                                                             label = "Choose the range of years to appear",
                                                                                             min = min(Revenue$Year),
                                                                                             max = max(Revenue$Year),
-                                                                                            value = c(min(Revenue$Year),max(Revenue$Year)))
+                                                                                            value = c(min(Revenue$Year),max(Revenue$Year)),
+                                                                                            sep = "")
                   ),
                   box(title = "Quarterly", 
                       "In million", solidHeader = T, status="danger", plotlyOutput("colfin"), sliderInput(inputId = "Yearrev", 
                                                                                                           label = "Choose year to give the quarters of",
                                                                                                           min = min(Revenue$Year),
                                                                                                           max = max(Revenue$Year),
-                                                                                                          value = 2020))
+                                                                                                          value = 2020, 
+                                                                                                          sep = ""))
+                ),
+                fluidRow(
+                  box(title = "Gross Margin",
+                      "In percentage",
+                      solidHeader = T, status = "danger", plotlyOutput("grossmargin"), sliderInput(inputId = "Yeargrossmargin", 
+                                                                                                   label = "Choose the range of years to appear",
+                                                                                                   min = min(Revenue$Year),
+                                                                                                   max = max(Revenue$Year),
+                                                                                                   value = c(min(Revenue$Year),max(Revenue$Year)),
+                                                                                                   sep = ""))
                 )
-                )
+        )
                 
       #   ),
       # tabItem(tabName = "EU",
