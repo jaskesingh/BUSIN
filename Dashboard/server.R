@@ -323,32 +323,32 @@ shinyServer(function(input, output, session) {
   output$totbox <- renderValueBox({
     valueBox(
       paste0(sum(aantal$freq)),
-      subtitle= "Total number of supercharger stations", color = "red"
+      subtitle= "Total number of supercharger stations", icon = icon('charging-station'), color = "red"
     )})
   output$openbox <- renderValueBox({
     valueBox(
       paste0(aantal$freq[aantal$Status == "OPEN"]),
-      subtitle= "Number of open supercharger stations", color = "red"
+      subtitle= "Number of open supercharger stations", icon = icon('charging-station'), color = "red"
     )})
   output$buildbox <- renderValueBox({
     valueBox(
       paste0(aantal$freq[aantal$Status == "CONSTRUCTION"]),
-      subtitle= "Number of building supercharger stations", color = "red"
+      subtitle= "Number of building supercharger stations", icon = icon('tools'),color = "red"
     )})
   output$permitbox <- renderValueBox({
     valueBox(
       paste0(aantal$freq[aantal$Status == "PERMIT"]),
-      subtitle= "Number of permit supercharger stations", color = "red"
+      subtitle= "Number of permit supercharger stations", icon = icon('scroll'), color = "red"
     )})
   output$pclosedbox <- renderValueBox({
     valueBox(
       paste0(aantal$freq[aantal$Status == "CLOSED_PERM"]),
-      subtitle= "Number of permantly closed supercharger stations", color = "red"
+      subtitle= "Number of permantly closed supercharger stations", icon = icon('lock'), color = "red"
     )})
   output$tclosedbox <- renderValueBox({
     valueBox(
       paste0(aantal$freq[aantal$Status == "CLOSED_TEMP"]),
-      subtitle= "Number of temporarly closed supercharger stations", color = "red"
+      subtitle= "Number of temporarly closed supercharger stations", icon = icon('unlock'), color = "red"
     )})
   
   #histogram: vergelijken met teslaverkoop 
@@ -386,7 +386,7 @@ shinyServer(function(input, output, session) {
     VPSC2 <- VPS %>% filter(Segment %in% input$Segment, Year == max(input$Year2))
     valueBox(
       paste0(VPSC2$Segment[VPSC2$Sales == max(VPSC2$Sales)]),
-      subtitle= paste("Best sold segment in ", max(input$Year2)), color = "red"
+      subtitle= paste("Best sold segment in ", max(input$Year2)), icon = icon('car-side'), color = "red"
     )})
   
   #lijngrafiek: Groei: verkoop alle merken per segment
@@ -402,7 +402,7 @@ shinyServer(function(input, output, session) {
       NieuwC <- Nieuw %>% filter(Fuel %in% input$Fuel, Year == max(input$Year3))
       valueBox(
         paste0(NieuwC$Fuel[NieuwC$`Cars sold` == max(NieuwC$`Cars sold`)]),
-        subtitle= paste("Best sold type of car in Belgium in ", max(input$Year3)), color = "red"
+        subtitle= paste("Best sold type of car in Belgium in ", max(input$Year3)), icon = icon('gas-pump'), color = "red"
       )}
     else{
       TweedehandsC <- Tweedehands %>% filter(Fuel %in% input$Fuel, Year == max(input$Year3))
@@ -453,7 +453,7 @@ shinyServer(function(input, output, session) {
     EuMSC <- EuMS %>% filter(Year == input$Year7)
     valueBox(
       paste0(EuMSC$Fuel[EuMSC$Market.Share == max(EuMSC$Market.Share)]),
-      subtitle= paste("Best sold type of car in the EU in ", input$Year7), color = "red"
+      subtitle= paste("Best sold type of car in the EU in ", input$Year7), icon = icon('gas-pump'), color = "red"
     )})
   
   #taart eu: groei: aandeel elektrische auto's op belgische en eu markt
@@ -723,6 +723,7 @@ shinyServer(function(input, output, session) {
         valueBox(
           loyalty_perc_of_tesla,
           subtitle = "Loyalty of Tesla's customers",
+          icon = icon('hand-holding-heart'),
           color = "red"
         )
         
@@ -747,6 +748,7 @@ shinyServer(function(input, output, session) {
         valueBox(
           loyalty_ordinal_rank_tesla,
           subtitle = "Place of Tesla in loyalty ranking",
+          icon = icon('award'), #keuze uit award, crown of trophy
           color = "red"
         )
         
