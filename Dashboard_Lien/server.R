@@ -19,6 +19,7 @@ library(readr)
 library(plotly)
 library(maps)
 library(gghighlight)
+library(basicTrendline)
 
 
 #finance
@@ -30,28 +31,29 @@ Free_cashflow <- read_xlsx("Data/Tesla's free cash flow by quarter 2020 world wi
 
 ##cleaning
 Revenuetabel <- Revenue %>% group_by(Year) %>% 
-  mutate("totalrevenue" = sum(Revenue, na.rm = TRUE)/1000000)
+  mutate("Revenue " = sum(Revenue, na.rm = TRUE)/1000000)
 Free_cashflow <- Free_cashflow %>% group_by(Year) %>% 
-  mutate("totalfreecashflow" = sum(`free cash flow`, na.rm = TRUE)/1000000)
+  mutate("Free cash flow " = sum(`Free cash flow`, na.rm = TRUE)/1000000)
 Gross_profit <- Gross_profit %>% group_by(Year) %>% 
-  mutate("totalgrossprofit" = sum(`Gross Profit`, na.rm = TRUE)/1000000)
+  mutate("Gross Profit " = sum(`Gross Profit`, na.rm = TRUE)/1000000)
 Gross_Margin <- Gross_Margin %>% group_by(Year) %>% 
-  mutate("totalgrossmargin" = sum(`Gross Margin`, na.rm = TRUE))
+  mutate("Gross Margin " = sum(`Gross Margin`, na.rm = TRUE))
 
 Revenuetabel <- Revenuetabel %>% unite(Year, Quarter, col = "Date", sep = " ") 
 Gross_profit <- Gross_profit %>% unite(Year, Quarter, col = "Date", sep = " ") 
 Free_cashflow <- Free_cashflow %>% unite(Year, Quarter, col = "Date", sep = " ") 
 Gross_Margin <- Gross_Margin %>% unite(Year, Quarter, col = "Date", sep = " ") 
 
+
 Revenuetabelnorm <- Revenuetabel %>% select(Date, Revenue)
 Gross_profitnorm <- Gross_profit %>% select(Date, `Gross Profit`)
 Gross_Marginnorm <- Gross_Margin %>% select(Date, `Gross Margin`) 
-Free_cashflownorm <- Free_cashflow %>% select(Date, `free cash flow`)
+Free_cashflownorm <- Free_cashflow %>% select(Date, `Free cash flow`)
 
-Revenuetabelsom <- Revenuetabel %>% select(Date, totalrevenue)
-Gross_profitsom <- Gross_profit %>% select(Date, totalgrossprofit)
-Gross_Marginsom <- Gross_Margin %>% select(Date, totalgrossmargin)
-Free_cashflowsom <- Free_cashflow %>% select(Date, totalfreecashflow)
+Revenuetabelsom <- Revenuetabel %>% select(Date, `Revenue `)
+Gross_profitsom <- Gross_profit %>% select(Date, `Gross Profit `)
+Gross_Marginsom <- Gross_Margin %>% select(Date, `Gross Margin `)
+Free_cashflowsom <- Free_cashflow %>% select(Date, `Free cash flow `)
 
 Financial_numbersnorm <- left_join(Revenuetabelnorm, Gross_profitnorm, by = "Date")
 Financial_numbersnorm <- left_join(Financial_numbersnorm, Gross_Marginnorm, by = "Date")
@@ -62,9 +64,9 @@ Financial_numbersnorm$'Year' <- as.numeric(Financial_numbersnorm$'Year')
 Financial_numbersnorm$'Revenue' <- as.numeric(Financial_numbersnorm$'Revenue')
 Financial_numbersnorm$'Gross Profit' <- as.numeric(Financial_numbersnorm$'Gross Profit')
 Financial_numbersnorm$'Gross Margin' <- as.numeric(Financial_numbersnorm$'Gross Margin')
-Financial_numbersnorm$'free cash flow' <- as.numeric(Financial_numbersnorm$'free cash flow')
+Financial_numbersnorm$'Free cash flow' <- as.numeric(Financial_numbersnorm$'Free cash flow')
 
-Financial_numbers_gather_norm <- Financial_numbersnorm %>% gather('Revenue', 'Gross Profit', 'Gross Margin', 'free cash flow', key = 'typenumber', value = 'finvalue')
+Financial_numbers_gather_norm <- Financial_numbersnorm %>% gather('Revenue', 'Gross Profit', 'Gross Margin', 'Free cash flow', key = 'Type', value = 'finvalue')
 
 Financial_numberssom <- left_join(Revenuetabelsom, Gross_profitsom, by = "Date")
 Financial_numberssom <- left_join(Financial_numberssom, Gross_Marginsom, by = "Date")
@@ -72,13 +74,12 @@ Financial_numberssom <- left_join(Financial_numberssom, Free_cashflowsom, by = "
 
 Financial_numberssom <- Financial_numberssom %>% separate(Date, sep = " ", into = c("Year", "Quarter"))
 Financial_numberssom$'Year' <- as.numeric(Financial_numberssom$'Year')
-Financial_numberssom$'totalrevenue' <- as.numeric(Financial_numberssom$'totalrevenue')
-Financial_numberssom$'totalgrossprofit' <- as.numeric(Financial_numberssom$'totalgrossprofit')
-Financial_numberssom$'totalgrossmargin' <- as.numeric(Financial_numberssom$'totalgrossmargin')
-Financial_numberssom$'totalfreecashflow' <- as.numeric(Financial_numberssom$'totalfreecashflow')
+Financial_numberssom$'Revenue ' <- as.numeric(Financial_numberssom$'Revenue ')
+Financial_numberssom$'Gross Profit ' <- as.numeric(Financial_numberssom$'Gross Profit ')
+Financial_numberssom$'Gross Margin ' <- as.numeric(Financial_numberssom$'Gross Margin ')
+Financial_numberssom$'Free cash flow ' <- as.numeric(Financial_numberssom$'Free cash flow ')
 
-Financial_numbers_gather_som <- Financial_numberssom %>% gather('totalrevenue', 'totalgrossprofit', 'totalgrossmargin', 'totalfreecashflow', key = 'typenumber', value = 'finvalue') %>% select(Year, typenumber, finvalue) %>% distinct()
-
+Financial_numbers_gather_som <- Financial_numberssom %>% gather('Revenue ', 'Gross Profit ', 'Gross Margin ', 'Free cash flow ', key = 'Type', value = 'finvalue') %>% select(Year, Type, finvalue) %>% distinct()
 
 ##financiele cijfers, functies
 financefunction <- function(yearinput,df) {
@@ -112,21 +113,22 @@ financefunction <- function(yearinput,df) {
 shinyServer(function(input, output) {
   #financieel tabblad
   
+  #financieel tabblad
   output$revbox <- renderValueBox({
-      somjaar <- Financial_numbers_gather_som %>% filter(Year == input$Yearrev, typenumber == 'totalrevenue') %>% group_by(Year) 
-      
-      valueBox(
-        paste0(format(round(somjaar$finvalue[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
-        subtitle= paste0("Revenue ", input$Yearrev, " in million"), 
-        icon = icon("dollar-sign"), color = 'red'
-      )
+    somjaar <- Financial_numbers_gather_som %>% filter(Year == input$Yearrev, Type == 'Revenue ') %>% group_by(Year) 
+    
+    valueBox(
+      paste0(format(round(somjaar$finvalue[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
+      subtitle= paste0("Revenue ", input$Yearrev, " in million"), 
+      icon = icon("dollar-sign"), color = 'red'
+    )
     
   })
   
   output$frcashbox <- renderValueBox({
-    somjaar <- Financial_numbers_gather_som %>% filter(Year == input$Yearrev, typenumber == 'totalfreecashflow') %>% group_by(Year)
+    somjaar <- Financial_numbers_gather_som %>% filter(Year == input$Yearrev, Type == 'Free cash flow ') %>% group_by(Year)
     if(somjaar$finvalue[]>=0) {  
-    valueBox(
+      valueBox(
         paste0(format(round(somjaar$finvalue[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
         subtitle = paste0("Free cashflow ", input$Yearrev, " in million"), 
         icon = icon("dollar-sign"), color = 'red'
@@ -135,19 +137,19 @@ shinyServer(function(input, output) {
     else {
       valueBox(
         paste0(format(round(somjaar$finvalue[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
-        subtitle = paste0("Free cashflow ", input$Yearrev, " in million"), 
+        subtitle = paste0("Free Cashflow ", input$Yearrev, " in million"), 
         icon = icon("dollar-sign"), color = 'purple'
       )
     }
   })
   
   output$grprbox <- renderValueBox({
-      somjaar <- Financial_numbers_gather_som %>% filter(Year == input$Yearrev, typenumber == 'totalgrossprofit') %>% group_by(Year)
-      valueBox(
-        paste0(format(round(somjaar$finvalue[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)), 
-        subtitle = paste0("Gross profit ", input$Yearrev, " in million"),  
-        icon = icon("piggy-bank"), color = 'red'
-      )
+    somjaar <- Financial_numbers_gather_som %>% filter(Year == input$Yearrev, Type == 'Gross Profit ') %>% group_by(Year)
+    valueBox(
+      paste0(format(round(somjaar$finvalue[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)), 
+      subtitle = paste0("Gross profit ", input$Yearrev, " in million"),  
+      icon = icon("piggy-bank"), color = 'red'
+    )
   })
   
   
@@ -157,14 +159,12 @@ shinyServer(function(input, output) {
     x    <- Financial_numbers_gather_norm$Year
     Yearrev <- seq(min(x), max(x), length.out = input$Yearrev)
     
-    financevar <- financefunction(input$Yearrev, Financial_numbers_gather_norm) %>% filter(typenumber != "Gross Margin")
-    value <- financevar$finvalue/1000000
+    financevar <- financefunction(input$Yearrev, Financial_numbers_gather_norm) %>% filter(Type != "Gross Margin")
+    Value <- financevar$finvalue/1000000
     
-    financevarpcol <- financevar %>% ggplot(aes(x = Quarter, y = value, fill = typenumber))+ geom_col(position = "dodge") + 
-      labs(title = input$Yearrev, y = 'Value') + scale_fill_manual(values = c("blue2", "royalblue1", "skyblue3")) +  
-      scale_y_continuous(limits = c(-1500, 8000), breaks = seq(-1500,8000, by= 500)) +  
+    financevarpcol <- financevar %>% ggplot(aes(x = Quarter, y = Value, fill = Type))+ geom_col(position = "dodge") + 
+      labs(title = input$Yearrev, y = 'Value') + scale_fill_manual(values = c("green", "lightseagreen", "blue")) +  
       theme_minimal() + geom_hline(yintercept = 0, color = "black", size = 1.5)
-      
     
     ggplotly(financevarpcol)
     
@@ -172,16 +172,33 @@ shinyServer(function(input, output) {
   })
   output$linefin <- renderPlotly({
     
+    
     y    <- Financial_numbers_gather_som$Year
     Yearrevline <- seq(min(y), max(y))
-    financevar <- Financial_numbers_gather_som %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline), typenumber != "totalgrossmargin") %>% group_by(Year, typenumber) %>% 
-      mutate("total" = sum(finvalue, na.rm = TRUE)) %>% select(Year, total, typenumber)%>% distinct()
+    financevar <- Financial_numbers_gather_som %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline), Type != "Gross Margin ") %>% group_by(Year, Type) %>% 
+      mutate("Total" = sum(finvalue, na.rm = TRUE)) %>% select(Year, Total, Type)%>% distinct()
     
-    financevarpline <- financevar %>% ggplot(aes(x = Year , y = total, color = typenumber))+ geom_line() + 
-      labs(y = 'Value') + 
-      theme_minimal() + scale_color_manual(values = c("blue2", "royalblue1", "skyblue3")) + geom_hline(yintercept = 0, color = "black", size = 1.5) + 
-      gghighlight(total >= 0)
+    financevarpline <- financevar %>% ggplot(aes(x = Year , y = Total, color = Type))+ geom_line() +
+      labs(y = 'Value') + scale_x_continuous(breaks = seq(min(Yearrevline), max(Yearrevline), by = 1)) +
+      theme_minimal() + scale_color_manual(values = c("green","lightseagreen", "blue")) + geom_hline(yintercept = 0, color = "black", size = 1.5)
     ggplotly(financevarpline)
+  })
+  
+  output$grossmargin <- renderPlotly({
+    y <- Financial_numbers_gather_som$Year
+    Yeargrossmargin <- seq(min(y), max(y))
+    financevarmar <- Financial_numbers_gather_som %>% filter(Year >= min(input$Yeargrossmargin) & Year <= max(input$Yeargrossmargin), Type == "Gross Margin ") %>% group_by(Year, Type) %>% 
+      mutate("Total" = sum(finvalue, na.rm = TRUE)) %>% select(Year, Total, Type) %>% distinct()
+    
+    financevarmarp <- financevarmar %>% ggplot(aes(x = Year, y = Total, color = Type)) + geom_line() + 
+      labs(y = 'Value') + scale_y_continuous(limits = c(0,100), breaks = seq(0, 100, by= 5)) + scale_x_continuous(breaks = seq(min(Yeargrossmargin), max(Yeargrossmargin), by = 1)) +
+      theme_minimal() + scale_color_manual(values = c("purple", "red")) + stat_smooth(method = 'lm', se = FALSE, aes(color = 'Trend'))
+    
+    ggplotly(financevarmarp)
+     
+    
+    
+    
   })
   
     #   #Uitbreiding naar de EU

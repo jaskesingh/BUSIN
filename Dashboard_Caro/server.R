@@ -232,12 +232,13 @@ shinyServer(function(input, output, session) {
         )})
     
     #infobox sterkste stijger: groei: verkoop alle merken per segment WERKT NOG NIET
-    #output$populairst <- renderValueBox({
-       # VPSC2 <- VPS %>% filter(Segment %in% input$Segment, Year == max(input$Year2) & Year == max(input$Year2)-1)
-        #valueBox(
-            #paste0(VPSC2$Segment[max(for(i in input$Segment){VPSC2$Sales[VPSC2$Year == max(input$Year2) & VPSC2$Segment == i] - VPSC2$Sales[VPSC2$Year == max(input$Year2)-1 & VPSC2$Segment == i]})]),
-            #subtitle= "Best sold segment", color = "red"
-       # )})
+    output$populairst <- renderValueBox({
+        VPSC2 <- VPS %>% filter(Segment %in% input$Segment, Year == max(input$Year2) | Year == min(input$Year2))
+        VPSC2 <- VPSC2 %>% group_by(Segment) %>% mutate(Difference = (Sales[Year == max(Year)] - Sales[Year == min(Year)]))
+        valueBox(
+            paste0(VPSC2$Segment[VPSC2$Difference == max(VPSC2$Difference) & VPSC2$Year == max(input$Year2)]),
+            subtitle= paste("Segment that has augmented the most between ", min(input$Year2), " and ", max(input$Year2)), color = "red"
+       )})
     
     #lijngrafiek: Groei: verkoop alle merken per segment
     output$line01 <- renderPlotly({
@@ -365,5 +366,6 @@ shinyServer(function(input, output, session) {
        # hist(x, breaks = bins, col = 'darkgray', border = 'white')
 
    # })
+#scale_fill_manual(values = c("red", "orange", "green", "lightseagreen", "blue", "purple", "maroon1"))
 
 #})

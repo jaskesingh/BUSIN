@@ -21,6 +21,8 @@ library(shinydashboard)
 library(stringr)
 library(DT)
 library(tidyverse)
+library(tidyquant)
+library(quantmod)
 
 #Caro
 
@@ -97,10 +99,10 @@ shinyUI(
                     menuItem("Customers", tabName = "Customers", newTab = T, 
                              menuSubItem("Purchase process", tabName = "Purchaseprocess"),
                              menuSubItem("Brand loyalty", tabName = "dashboard_loyalty"),
-                             menuSubItem("EU Survey 2018", tabName = "survey")
+                             menuSubItem("Survey", tabName = "survey")
                              ),
                     menuItem("Sales", tabName = "Sales", newTab =T, menuSubItem("Periodic analysis", tabName = "Periodic")),
-                    menuItem("Finance", tabName = "Omzet"),
+                    menuItem("Finance", tabName = "Omzet", badgeLabel = "New", badgeColor = "green"),
                     menuItem("Superchargers", tabName = "Superchargers", newTab = T, menuSubItem("Map", tabName = "Map"), menuSubItem("Statistics", tabName = "Statistics"), 
                              menuSubItem("Competition", tabName = "Competition")),
                     menuItem("Expansion in Europe", tabName = "EU")
@@ -125,7 +127,7 @@ shinyUI(
                       fluidRow(
                         box(
                           title = "Number of Teslas per supercharger station", width = 12,
-                          solidHeader = T, status = "danger", plotlyOutput("hist01"),
+                          solidHeader = T, status = "danger", plotlyOutput("hist01", height = "600px"),
                           sliderInput(inputId = "Year",
                                       label = "Choose year",
                                       min = 2013,
@@ -144,7 +146,7 @@ shinyUI(
                       tabName = "Competition",
                       fluidRow(
                         box(
-                          title = "Superchargers market share", width = 12, 
+                          title = "Superchargers market share", width = 12,
                           solidHeader = T, status = 'danger', plotlyOutput("pie01")
                         )
                       ),
@@ -152,7 +154,7 @@ shinyUI(
                         box(
                             title ="Number of supercharger stations per country", width = 12,
                             solidHeader = T, status = "danger",
-                            plotlyOutput("hist02"),
+                            plotlyOutput("hist02", height = "600px"),
                             selectInput(inputId = "Country2",
                                     label = "Choose country",
                                     choices = superchargers$Country,
@@ -163,7 +165,8 @@ shinyUI(
                     tabItem(
                       tabName = "Salespersegment",
                       fluidRow(
-                        valueBoxOutput("bestsoldsegment")
+                        valueBoxOutput("bestsoldsegment"),
+                        valueBoxOutput("populairst")
                       ),
                       fluidRow(
                         box(
@@ -188,7 +191,9 @@ shinyUI(
                       tabName = "fueltype",
                       fluidRow(
                         valueBoxOutput("bestsoldfuel"),
-                        valueBoxOutput("bestsoldfueleu")
+                        valueBoxOutput("bestsoldfueleu"),
+                        valueBoxOutput("populairstfuel"),
+                        valueBoxOutput("populairstfueleu")
                       ),
                       fluidRow(
                         box(
@@ -230,7 +235,8 @@ shinyUI(
                           selectInput(inputId = "Fuel3",
                                       label = "Choose fuel type",
                                       choices = eu$Fuel,
-                                      selected = "Electrically-chargeable")
+                                      multiple = TRUE,
+                                      selected = c("Electrically-chargeable", "Petrol", "Diesel", "Alternative fuels", "Hybrid"))
                         ),
                         box(
                           title = "Market share of new cars by fuel type in the EU", plotlyOutput("pie04"), solidHeader = T, status = 'danger',
@@ -245,31 +251,25 @@ shinyUI(
                     ),
                     tabItem(
                       tabName = "Purchaseprocess",
-                      tabBox(
-                        title = "Share of Europeans interested in online vehicle purchasing in 2018", height = 12, width =12,
-                        tabPanel("Tab1", plotlyOutput("hist06"),
-                                 selectInput(inputId = "Country3",
-                                             label = "Choose country",
-                                             choices = aankoopproces$Country,
-                                             multiple = TRUE,
-                                             selected = c("Belgium", "Germany", "France", "UK", "Italy"))),
-                        tabPanel("Tab2", plotlyOutput("hist07"),
-                                 selectInput(inputId = "Country4",
-                                             label = "Choose country",
-                                             choices = aankoopproces$Country,
-                                             multiple = TRUE,
-                                             selected = c("Belgium", "Germany", "France", "UK", "Italy")),
-                                 selectInput(inputId = "Interest",
-                                             label = "Choose level of interest",
-                                             choices = aankoopproces$Interest,
-                                             multiple = TRUE,
-                                             selected = c("Not at all interested/not very interested", "Neutral", "Somewhat interested/very interested")))
+                      box(
+                        title = "Share of Europeans interested in online vehicle purchasing in 2018", height = 12, width =12, solidHeader = T, status = 'danger',
+                        plotlyOutput("hist07"),
+                        selectInput(inputId = "Country4",
+                                    label = "Choose country",
+                                    choices = aankoopproces$Country,
+                                    multiple = TRUE,
+                                    selected = c("Belgium", "Germany", "France", "UK", "Italy")),
+                        selectInput(inputId = "Interest",
+                                    label = "Choose level of interest",
+                                    choices = aankoopproces$Interest,
+                                    multiple = TRUE,
+                                    selected = c("Not at all interested/not very interested", "Neutral", "Somewhat interested/very interested"))
                       )
                     ),
                     tabItem(
                       tabName = "Periodic",
-                      box(
-                        title = "Periodic Tesla sales over the years.", "Black line is the mean sales of all the selected years", plotlyOutput("line04"),
+                      box(title = "Periodic Tesla sales over the years.", 
+                          "Black line is the mean sales of all the selected years", plotlyOutput("line04"),
                         height = 12, width = 12, solidHeader = T, status = 'danger',
                         sliderInput(inputId = "Month",
                                     label = "Choose month",
@@ -286,7 +286,7 @@ shinyUI(
                     ),
                     #finance
                     tabItem(tabName = "Omzet",
-                            h2("Financial numbers worldwide, based on automotive sector"),
+                            h2("Financial numbers worldwide, based on automotive sector from Tesla"),
                             fluidRow(
                               valueBoxOutput("revbox"),
                               valueBoxOutput("frcashbox"),
@@ -319,17 +319,24 @@ shinyUI(
                                                                                                                   min = min(Revenue$Year),
                                                                                                                   max = max(Revenue$Year),
                                                                                                                   value = c(min(Revenue$Year),max(Revenue$Year)),
-                                                                                                                  sep = ""))
+                                                                                                                  sep = "")),
+                              box(
+                                title = "Tesla performance on the Stock Market",
+                                soldidHeader = T, status = "danger",
+                                dateInput(inputId = "st", label = "start date",
+                                            value = "2020-01-01"),
+                                  dateInput(inputId = "en", label = "end date"),
+                                  plotlyOutput("tslastock"))
                             )
                             
                     ),
                     tabItem(tabName = "EU",
                             fluidRow(
                               box(title = "AF passenger cars",
-                                  "Total fleet of passenger cars per alternative fuel (AF)", solidHeader = T, status="danger", plotlyOutput("colpascar"),
+                                  "Total fleet of passenger cars per alternative fuel (AF)", solidHeader = T, status="danger", plotlyOutput("colpascar", height = "650px"),
                                   ),
                               box(title = "AF infrastructure",
-                                  "Total number of alternative fuel (AF) infrastructure per type of fuel", solidHeader = T, status="danger", plotlyOutput("colinfr"),
+                                  "Total number of alternative fuel (AF) infrastructure per type of fuel", solidHeader = T, status="danger", plotlyOutput("colinfr", height = "650px"),
                                   )
                             ),
                             fluidRow(
@@ -346,7 +353,8 @@ shinyUI(
                                               c('Ausria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia',
                                                 'Finland', 'France', 'Germany', 'Greece', 'Hungria', 'Ireland', 'Italy', 'Latvia', 'Lithuania',
                                                 'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia',
-                                                'Spain', 'Sweden'), selected = "Belgium")
+                                                'Spain', 'Sweden'), selected = "Belgium"),
+                                  dataTableOutput("europemaptable")
                               ),
                               box(title = "Tesla sales in Europe per year", solidHeader = T, status="danger", 
                                   selectInput(inputId = "teslajaar",
@@ -425,10 +433,11 @@ shinyUI(
 
                       tabItem(
                         tabName = "survey",
+                        h2("Survey taken in 2018 in EU-countries"),
                         fluidRow(
                           valueBoxOutput("surveytotal"),
                           valueBoxOutput("totalcountries")
-                        ),
+                          ),
                         fluidRow(
                           box(
                             title = "Per country",

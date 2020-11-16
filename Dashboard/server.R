@@ -22,6 +22,8 @@ library(rvest)
 library(stringr)
 library(tidyverse)
 library(gghighlight)
+library(tidyquant)
+library(quantmod)
 
 # Toegevoegd op 13/11
 library(scales)
@@ -29,6 +31,7 @@ library(ggExtra)
 
 # Toegevoegd op 14/11
 library(toOrdinal)
+
 
 #Caro
 
@@ -126,13 +129,13 @@ Free_cashflow <- read_xlsx("Data/Tesla's free cash flow by quarter 2020 world wi
 
 ##cleaning
 Revenuetabel <- Revenue %>% group_by(Year) %>% 
-  mutate("totalrevenue" = sum(Revenue, na.rm = TRUE)/1000000)
+  mutate("Revenue " = sum(Revenue, na.rm = TRUE)/1000000)
 Free_cashflow <- Free_cashflow %>% group_by(Year) %>% 
-  mutate("totalfreecashflow" = sum(`free cash flow`, na.rm = TRUE)/1000000)
+  mutate("Free cash flow " = sum(`Free cash flow`, na.rm = TRUE)/1000000)
 Gross_profit <- Gross_profit %>% group_by(Year) %>% 
-  mutate("totalgrossprofit" = sum(`Gross Profit`, na.rm = TRUE)/1000000)
+  mutate("Gross Profit " = sum(`Gross Profit`, na.rm = TRUE)/1000000)
 Gross_Margin <- Gross_Margin %>% group_by(Year) %>% 
-  mutate("totalgrossmargin" = sum(`Gross Margin`, na.rm = TRUE))
+  mutate("Gross Margin " = sum(`Gross Margin`, na.rm = TRUE))
 
 Revenuetabel <- Revenuetabel %>% unite(Year, Quarter, col = "Date", sep = " ") 
 Gross_profit <- Gross_profit %>% unite(Year, Quarter, col = "Date", sep = " ") 
@@ -143,12 +146,12 @@ Gross_Margin <- Gross_Margin %>% unite(Year, Quarter, col = "Date", sep = " ")
 Revenuetabelnorm <- Revenuetabel %>% select(Date, Revenue)
 Gross_profitnorm <- Gross_profit %>% select(Date, `Gross Profit`)
 Gross_Marginnorm <- Gross_Margin %>% select(Date, `Gross Margin`) 
-Free_cashflownorm <- Free_cashflow %>% select(Date, `free cash flow`)
+Free_cashflownorm <- Free_cashflow %>% select(Date, `Free cash flow`)
 
-Revenuetabelsom <- Revenuetabel %>% select(Date, totalrevenue)
-Gross_profitsom <- Gross_profit %>% select(Date, totalgrossprofit)
-Gross_Marginsom <- Gross_Margin %>% select(Date, totalgrossmargin)
-Free_cashflowsom <- Free_cashflow %>% select(Date, totalfreecashflow)
+Revenuetabelsom <- Revenuetabel %>% select(Date, `Revenue `)
+Gross_profitsom <- Gross_profit %>% select(Date, `Gross Profit `)
+Gross_Marginsom <- Gross_Margin %>% select(Date, `Gross Margin `)
+Free_cashflowsom <- Free_cashflow %>% select(Date, `Free cash flow `)
 
 Financial_numbersnorm <- left_join(Revenuetabelnorm, Gross_profitnorm, by = "Date")
 Financial_numbersnorm <- left_join(Financial_numbersnorm, Gross_Marginnorm, by = "Date")
@@ -159,9 +162,9 @@ Financial_numbersnorm$'Year' <- as.numeric(Financial_numbersnorm$'Year')
 Financial_numbersnorm$'Revenue' <- as.numeric(Financial_numbersnorm$'Revenue')
 Financial_numbersnorm$'Gross Profit' <- as.numeric(Financial_numbersnorm$'Gross Profit')
 Financial_numbersnorm$'Gross Margin' <- as.numeric(Financial_numbersnorm$'Gross Margin')
-Financial_numbersnorm$'free cash flow' <- as.numeric(Financial_numbersnorm$'free cash flow')
+Financial_numbersnorm$'Free cash flow' <- as.numeric(Financial_numbersnorm$'Free cash flow')
 
-Financial_numbers_gather_norm <- Financial_numbersnorm %>% gather('Revenue', 'Gross Profit', 'Gross Margin', 'free cash flow', key = 'typenumber', value = 'finvalue')
+Financial_numbers_gather_norm <- Financial_numbersnorm %>% gather('Revenue', 'Gross Profit', 'Gross Margin', 'Free cash flow', key = 'Type', value = 'finvalue')
 
 Financial_numberssom <- left_join(Revenuetabelsom, Gross_profitsom, by = "Date")
 Financial_numberssom <- left_join(Financial_numberssom, Gross_Marginsom, by = "Date")
@@ -169,12 +172,12 @@ Financial_numberssom <- left_join(Financial_numberssom, Free_cashflowsom, by = "
 
 Financial_numberssom <- Financial_numberssom %>% separate(Date, sep = " ", into = c("Year", "Quarter"))
 Financial_numberssom$'Year' <- as.numeric(Financial_numberssom$'Year')
-Financial_numberssom$'totalrevenue' <- as.numeric(Financial_numberssom$'totalrevenue')
-Financial_numberssom$'totalgrossprofit' <- as.numeric(Financial_numberssom$'totalgrossprofit')
-Financial_numberssom$'totalgrossmargin' <- as.numeric(Financial_numberssom$'totalgrossmargin')
-Financial_numberssom$'totalfreecashflow' <- as.numeric(Financial_numberssom$'totalfreecashflow')
+Financial_numberssom$'Revenue ' <- as.numeric(Financial_numberssom$'Revenue ')
+Financial_numberssom$'Gross Profit ' <- as.numeric(Financial_numberssom$'Gross Profit ')
+Financial_numberssom$'Gross Margin ' <- as.numeric(Financial_numberssom$'Gross Margin ')
+Financial_numberssom$'Free cash flow ' <- as.numeric(Financial_numberssom$'Free cash flow ')
 
-Financial_numbers_gather_som <- Financial_numberssom %>% gather('totalrevenue', 'totalgrossprofit', 'totalgrossmargin', 'totalfreecashflow', key = 'typenumber', value = 'finvalue') %>% select(Year, typenumber, finvalue) %>% distinct()
+Financial_numbers_gather_som <- Financial_numberssom %>% gather('Revenue ', 'Gross Profit ', 'Gross Margin ', 'Free cash flow ', key = 'Type', value = 'finvalue') %>% select(Year, Type, finvalue) %>% distinct()
 
 ##financiele cijfers, functies
 financefunction <- function(yearinput,df) {
@@ -185,8 +188,8 @@ financefunction <- function(yearinput,df) {
 #uitbreiding europa
 countriesafpassengercars <- read_xlsx("Data/Countries overview of af passenger cars.xlsx", skip = 2 , col_types = c("numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))
 countriesafinfrastructure <- read_xlsx("Data/countries overview of af infrastructure.xlsx", skip = 2 , col_types = c("numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric"))
-countriesafinfrastructure <- countriesafinfrastructure %>% mutate("Electricity (BEV + PHEV)" = Electricity,  "Natural Gas (CNG + LNG)" = `Natural Gas`)
-countriesafinfrastructure <- countriesafinfrastructure %>% select("Year", "Country", "Electricity (BEV + PHEV)", "H2", "Natural Gas (CNG + LNG)", "LPG", "Total")
+countriesafinfrastructure <- countriesafinfrastructure %>% mutate("Electricity\n(BEV + PHEV)" = Electricity,  "Natural Gas\n(CNG + LNG)" = `Natural Gas`)
+countriesafinfrastructure <- countriesafinfrastructure %>% select("Year", "Country", "Electricity\n(BEV + PHEV)", "H2", "Natural Gas\n(CNG + LNG)", "LPG", "Total")
 
 #uitbreiding europa, data in juiste vorm krijgen
 countriesafpassengercars <- countriesafpassengercars %>% gather('BEV', 'H2', 'CNG', 'LNG', 'PHEV', 'LPG', 'Total', key = 'Fuel', value = 'waardes')
@@ -194,7 +197,7 @@ countriesafpassengercars$Country[1:2457] <- c('Ausria', 'Belgium', 'Bulgaria', '
                                               'Finland', 'France', 'Germany', 'Greece', 'Hungria', 'Ireland', 'Italy', 'Latvia', 'Lithuania',
                                               'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia',
                                               'Spain', 'Sweden')
-countriesafinfrastructure <- countriesafinfrastructure %>% gather('Electricity (BEV + PHEV)', 'H2', 'Natural Gas (CNG + LNG)', 'LPG', 'Total', key = 'Fuel', value = 'waardes')
+countriesafinfrastructure <- countriesafinfrastructure %>% gather('Electricity\n(BEV + PHEV)', 'H2', 'Natural Gas\n(CNG + LNG)', 'LPG', 'Total', key = 'Fuel', value = 'waardes')
 countriesafinfrastructure$Country[1:1755] <- c('Ausria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia',
                                                'Finland', 'France', 'Germany', 'Greece', 'Hungria', 'Ireland', 'Italy', 'Latvia', 'Lithuania',
                                                'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia',
@@ -322,32 +325,32 @@ shinyServer(function(input, output, session) {
   output$totbox <- renderValueBox({
     valueBox(
       paste0(sum(aantal$freq)),
-      subtitle= "Total number of supercharger stations", color = "red"
+      subtitle= "Total number of supercharger stations", icon = icon('charging-station'), color = "red"
     )})
   output$openbox <- renderValueBox({
     valueBox(
       paste0(aantal$freq[aantal$Status == "OPEN"]),
-      subtitle= "Number of open supercharger stations", color = "red"
+      subtitle= "Number of open supercharger stations", icon = icon('charging-station'), color = "red"
     )})
   output$buildbox <- renderValueBox({
     valueBox(
       paste0(aantal$freq[aantal$Status == "CONSTRUCTION"]),
-      subtitle= "Number of building supercharger stations", color = "red"
+      subtitle= "Number of building supercharger stations", icon = icon('tools'),color = "red"
     )})
   output$permitbox <- renderValueBox({
     valueBox(
       paste0(aantal$freq[aantal$Status == "PERMIT"]),
-      subtitle= "Number of permit supercharger stations", color = "red"
+      subtitle= "Number of permit supercharger stations", icon = icon('scroll'), color = "red"
     )})
   output$pclosedbox <- renderValueBox({
     valueBox(
       paste0(aantal$freq[aantal$Status == "CLOSED_PERM"]),
-      subtitle= "Number of permantly closed supercharger stations", color = "red"
+      subtitle= "Number of permantly closed supercharger stations", icon = icon('lock'), color = "red"
     )})
   output$tclosedbox <- renderValueBox({
     valueBox(
       paste0(aantal$freq[aantal$Status == "CLOSED_TEMP"]),
-      subtitle= "Number of temporarly closed supercharger stations", color = "red"
+      subtitle= "Number of temporarly closed supercharger stations", icon = icon('unlock'), color = "red"
     )})
   
   #histogram: vergelijken met teslaverkoop 
@@ -359,7 +362,7 @@ shinyServer(function(input, output, session) {
     ratio$freq <- as.integer(ratio$freq)
     ratio[is.na(ratio)] = 0
     ratio$Country <- as.factor(ratio$Country)
-    h1 <- ratio %>% ggplot(aes(x= freq, y = Sales)) + geom_point() + geom_text(aes(label = Country), check_overlap = TRUE, nudge_x = 2, size = 3) + labs(title = paste0("Teslas/supercharger station in ", input$Year)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+    h1 <- ratio %>% ggplot(aes(x= freq, y = Sales, label = Country)) + geom_point() + geom_text(aes(label = Country), check_overlap = TRUE, vjust = "outward", hjust = "inward") + labs(title = paste0("Teslas/supercharger station in ", input$Year)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
       scale_y_continuous(limits = c(0, 31000), breaks = seq(0,31000, by= 5000)) + scale_x_continuous(limits = c(0, 80), breaks = seq(0, 80, by = 10)) + ylab(label = "Number of Teslas sold" ) + xlab(label = "Number of supercharger stations")
     ggplotly(h1)
   })
@@ -367,11 +370,12 @@ shinyServer(function(input, output, session) {
   #histogram: concurrentie snellaadpalen
   output$hist02 <- renderPlotly({
     laadpalenC <- laadpalen %>% filter(Country %in% input$Country2)
-    laadpalenC <- laadpalenC %>% group_by(Country) %>% mutate(Winner = ifelse(freq[Description == "Tesla"] == max(freq), "Tesla", ifelse(freq[Description == "Tesla"] == min(freq), "Ionity", "Tie")))
-    h2 <- laadpalenC %>% ggplot(aes(x = Description, y = freq, fill = Winner)) + geom_col() + gghighlight(Description == "Tesla", calculate_per_facet = T) + facet_wrap(Country~., nrow = 3, ncol = 9) + theme_minimal() +
+    laadpalenC <- laadpalenC %>% group_by(Country) %>% mutate(Level = ifelse(freq[Description == "Tesla"] == max(freq), "Highest", ifelse(freq[Description == "Tesla"] == min(freq), "Lowest", "Between")))
+    h2 <- laadpalenC %>% ggplot(aes(x = Description, y = freq, fill = Level)) + geom_col() + gghighlight(Description == "Tesla", calculate_per_facet = T, use_direct_label = F) + facet_wrap(Country~., nrow = 3, ncol = 9) + theme_minimal() +
       theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-      scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + xlab("Brand") 
-    ggplotly(h2)})
+      scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + xlab("Brand") + scale_fill_manual(values = c("green", "red")) + scale_x_discrete(labels = c("Ionity", "Tesla"))
+    #h2 <- laadpalenC %>% ggplot(aes(x = Country, y = freq, fill = Description)) + geom_col(position = "dodge") + theme_minimal() + scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + coord_flip() + scale_fill_manual(values = c("orange", "blue"))
+    ggplotly(h2, tooltip = c("Description", "freq"))})
   
   #taartdiagram: concurrentie snellaadpalen
   output$pie01 <- renderPlotly({
@@ -382,47 +386,75 @@ shinyServer(function(input, output, session) {
   
   #infobox best verkocht segment: groei: verkoop alle merken per segment
   output$bestsoldsegment <- renderValueBox({
-    VPSC2 <- VPS %>% filter(Segment %in% input$Segment, Year == max(input$Year2))
+    VPSC2 <- VPS %>% filter(Year == max(input$Year2))
     valueBox(
       paste0(VPSC2$Segment[VPSC2$Sales == max(VPSC2$Sales)]),
-      subtitle= paste("Best sold segment in ", max(input$Year2)), color = "red"
+      subtitle= paste("Best sold segment in ", max(input$Year2)), icon = icon('car-side'), color = "red"
+    )})
+  
+  #infobox sterkste stijger: groei: verkoop alle merken per segment
+  output$populairst <- renderValueBox({
+    VPSC2 <- VPS %>% filter(Year == max(input$Year2) | Year == min(input$Year2))
+    VPSC2 <- VPSC2 %>% group_by(Segment) %>% mutate(Difference = (Sales[Year == max(Year)] - Sales[Year == min(Year)]))
+    valueBox(
+      paste0(VPSC2$Segment[VPSC2$Difference == max(VPSC2$Difference) & VPSC2$Year == max(input$Year2)]),
+      subtitle= paste("Segment that has augmented the most between ", min(input$Year2), " and ", max(input$Year2)), icon = icon('car-side'), color = "red"
     )})
   
   #lijngrafiek: Groei: verkoop alle merken per segment
   output$line01 <- renderPlotly({
     VPSC2 <- VPS %>% filter(Segment %in% input$Segment, Year >= min(input$Year2) & Year <= max(input$Year2))
     p <- VPSC2 %>% ggplot(aes(x=Year, y=Sales)) + geom_line(aes(color = Segment)) + labs(title = "New cars sold in the EU by segment in million units over the years.") + 
-      scale_x_continuous(breaks = c(2008:2019)) + scale_y_continuous(breaks= seq(0,6, by = 1)) + ylab("Cars sold") + theme_minimal()
+      scale_x_continuous(breaks = c(2008:2019)) + scale_y_continuous(breaks= seq(0,6, by = 1)) + ylab("Cars sold") + theme_minimal() + scale_color_manual(values = c("red", "orange", "green", "lightseagreen", "blue", "purple"))
     ggplotly(p)})
   
   #infobox best verkocht brandstof: groei: aandeel elektrische auto's op belgische en eu markt
   output$bestsoldfuel <- renderValueBox({
     if(checkregion() == 1){
-      NieuwC <- Nieuw %>% filter(Fuel %in% input$Fuel, Year == max(input$Year3))
+      NieuwC <- Nieuw %>% filter(Year == max(input$Year3))
       valueBox(
         paste0(NieuwC$Fuel[NieuwC$`Cars sold` == max(NieuwC$`Cars sold`)]),
-        subtitle= paste("Best sold type of car in Belgium in ", max(input$Year3)), color = "red"
+        subtitle= paste("Best sold type of car in Belgium in ", max(input$Year3)), icon = icon('gas-pump'), color = "red"
       )}
     else{
-      TweedehandsC <- Tweedehands %>% filter(Fuel %in% input$Fuel, Year == max(input$Year3))
+      TweedehandsC <- Tweedehands %>% filter(Year == max(input$Year3))
       valueBox(
         paste0(TweedehandsC$Fuel[TweedehandsC$`Cars sold` == max(TweedehandsC$`Cars sold`)]),
-        subtitle= paste("Best sold type of second hand car in Belgium in ", max(input$Year3)), color = "red"
+        subtitle= paste("Best sold type of second hand car in Belgium in ", max(input$Year3)), icon = icon('gas-pump'), color = "red"
       )
     }})
+  
+  #infobox sterkste stijger: groei: aandeel elektrische auto's op belgische en eu markt
+  output$populairstfuel <- renderValueBox({
+    if(checkregion() == 1){
+      NieuwC <- Nieuw %>% filter(Year == max(input$Year3) | Year == min(input$Year3))
+      NieuwC <- NieuwC %>% group_by(Fuel) %>% mutate(Difference = (`Cars sold`[Year == max(Year)] - `Cars sold`[Year == min(Year)]))
+      valueBox(
+        paste0(NieuwC$Fuel[NieuwC$Difference == max(NieuwC$Difference) & NieuwC$Year == max(input$Year3)]),
+        subtitle= paste("Type of car that has augmented the most in Belgium between ", min(input$Year3), " and ", max(input$Year3)), icon = icon('gas-pump'), color = "red"
+      )}
+    else{
+      TweedehandsC <- Tweedehands %>% filter(Year == max(input$Year3) | Year == min(input$Year3))
+      TweedehandsC <- TweedehandsC %>% group_by(Fuel) %>% mutate(Difference = (`Cars sold`[Year == max(Year)] - `Cars sold`[Year == min(Year)]))
+      valueBox(
+        paste0(TweedehandsC$Fuel[TweedehandsC$Difference == max(TweedehandsC$Difference) & TweedehandsC$Year == max(input$Year3)]),
+        subtitle= paste("Type of second hand car that has augmented the most in Belgium between ", min(input$Year3), " and ", max(input$Year3)), icon = icon('gas-pump'), color = "red"
+      )
+    }
+    })
   
   #lijn nieuw: groei: aandeel elektrische auto's op belgische en eu markt
   checkregion <- reactive({input$Region})
   output$line02 <- renderPlotly({
     if(checkregion() == 1) {
       NieuwC <- Nieuw %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3), Fuel %in% input$Fuel)
-      p2 <- NieuwC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel), size = 1) + labs(title = "Number of new cars sold in Belgium over the years") + theme_minimal()
+      p2 <- NieuwC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel)) + labs(title = "Number of new cars sold in Belgium over the years") + theme_minimal() + scale_color_manual(values = c("purple", "orange", "red", "green", "blue"))
       ggplotly(p2)
     }
     else{
       #lijn tweedehands: groei: aandeel elektrische auto's op belgische en eu markt
       TweedehandsC <- Tweedehands %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3), Fuel %in% input$Fuel)
-      p3 <- TweedehandsC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel), size = 1) + labs(title = "Number of second hand cars sold in Belgium over the years") + theme_minimal()
+      p3 <- TweedehandsC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel)) + labs(title = "Number of second hand cars sold in Belgium over the years") + theme_minimal() + scale_color_manual(values = c("purple", "orange", "red", "green", "blue"))
       ggplotly(p3)
     }
   })
@@ -452,8 +484,18 @@ shinyServer(function(input, output, session) {
     EuMSC <- EuMS %>% filter(Year == input$Year7)
     valueBox(
       paste0(EuMSC$Fuel[EuMSC$Market.Share == max(EuMSC$Market.Share)]),
-      subtitle= paste("Best sold type of car in the EU in ", input$Year7), color = "red"
+      subtitle= paste("Best sold type of car in the EU in ", input$Year7), icon = icon('gas-pump'), color = "red"
     )})
+  
+  #infobox sterkste stijger: groei: aandeel elektrische auto's op belgische en eu markt
+  output$populairstfueleu <- renderValueBox({
+      EUMSC2 <- EuMS %>% filter(Year == max(input$Year8) | Year == min(input$Year8))
+      EUMSC2 <- EUMSC2 %>% group_by(Fuel) %>% mutate(Difference = (Market.Share[Year == max(Year)] - Market.Share[Year == min(Year)]))
+      valueBox(
+        paste0(EUMSC2$Fuel[EUMSC2$Difference == max(EUMSC2$Difference) & EUMSC2$Year == max(input$Year8)]),
+        subtitle= paste("Type of car that has augmented the most in the EU between ", min(input$Year8), " and ", max(input$Year3)), icon = icon('gas-pump'), color = "red"
+      )
+  })
   
   #taart eu: groei: aandeel elektrische auto's op belgische en eu markt
   output$pie04 <- renderPlotly({
@@ -463,39 +505,33 @@ shinyServer(function(input, output, session) {
                             xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
                             yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))})
   
-  #Hist eu: groei: aandeel elektrische auto's op belgische en eu markt
+  #Line eu: groei: aandeel elektrische auto's op belgische en eu markt
   output$hist05 <- renderPlotly({
-    EuMSC2 <- EuMS %>% filter(Year >= min(input$Year8) & Year <= max(input$Year8), Fuel == input$Fuel3)
-    h5 <- EuMSC2 %>% ggplot(aes(x = Year, y = Market.Share)) + geom_col() + labs(title = "Market Share of new cars in the EU over the years", input$Fuel3,"cars in the EU over the years") +
-      scale_y_continuous(limits = c(0, 60), breaks = seq(0,60, by= 10)) + theme_minimal()
+    EuMSC2 <- EuMS %>% filter(Year >= min(input$Year8) & Year <= max(input$Year8), Fuel %in% input$Fuel3)
+    h5 <- EuMSC2 %>% ggplot(aes(x = Year, y = Market.Share)) + geom_line(aes(color = Fuel)) + labs(title = "Market Share of new cars in the EU over the years", input$Fuel3,"cars in the EU over the years") +
+      scale_y_continuous(limits = c(0, 60), breaks = seq(0,60, by= 10)) + theme_minimal() + scale_color_manual(values = c("purple", "orange", "red", "green", "blue"))
     ggplotly(h5)})
-  
-  #HistMS klanten: aankoopproces
-  output$hist06 <- renderPlotly({
-    aankoopprocesC <- aankoopproces %>% filter(Country %in% input$Country3)
-    h6 <- aankoopprocesC %>% ggplot(aes(x = Country, y = Percentage)) + geom_col(aes(fill = Interest)) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" ) + theme_minimal()
-    ggplotly(h6)})
   
   #Hist klanten: aankoopproces
   output$hist07 <- renderPlotly({
     aankoopprocesC2 <- aankoopproces %>% filter(Country %in% input$Country4, Interest %in% input$Interest)
-    aankoopprocesC2 <- aankoopprocesC2 %>% group_by(Interest) %>% mutate(highlight = ifelse(Percentage == max(Percentage), "max", ifelse(Percentage == min(Percentage), "min", "gem")))
-    h7 <- aankoopprocesC2 %>% ggplot(aes(x = Country, y = Percentage, fill = highlight)) + geom_col() + facet_wrap(Interest~.) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" ) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-      scale_y_continuous(limits = c(0, 70), breaks = seq(0,70, by= 10)) + theme_minimal()
+    aankoopprocesC2 <- aankoopprocesC2 %>% group_by(Interest) %>% mutate(Level = ifelse(Percentage == max(Percentage), "Highest", ifelse(Percentage == min(Percentage), "Lowest", "Between")))
+    h7 <- aankoopprocesC2 %>% ggplot(aes(x = Country, y = Percentage, fill = Level)) + geom_col() + facet_wrap(Interest~.) + labs(title = "Share of Europeans interested in online vehicle purchasing in 2018" ) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+      scale_y_continuous(limits = c(0, 70), breaks = seq(0,70, by= 10)) + theme_minimal() + scale_fill_manual(values = c("red", "green", "blue")) 
     ggplotly(h7)})
   
   #line verkoop: periodieke tesla verkoop
   output$line04 <- renderPlotly({
     DataC <- Data %>% filter(Month >= min(input$Month) & Month <= max(input$Month), Year %in% input$Year9)
     MeanSales <- DataC %>% group_by(Month) %>% summarise(Sales = mean(Sales, na.rm = T) )
-    p4 <- DataC %>% ggplot(aes(x= Month, y = Sales, na.rm = T)) + geom_line(aes(color = Year)) + geom_line(data = MeanSales, color = 'black') + scale_x_continuous(breaks = seq(0,12, by = 1))
+    p4 <- DataC %>% ggplot(aes(x= Month, y = Sales, na.rm = T)) + geom_line(aes(color = Year)) + geom_line(data = MeanSales, color = 'black') + scale_x_continuous(breaks = seq(0,12, by = 1)) + scale_color_manual(values = c("red", "orange", "green", "lightseagreen", "blue"))
     ggplotly(p4)
   })
   
   
   #financieel tabblad
   output$revbox <- renderValueBox({
-    somjaar <- Financial_numbers_gather_som %>% filter(Year == input$Yearrev, typenumber == 'totalrevenue') %>% group_by(Year) 
+    somjaar <- Financial_numbers_gather_som %>% filter(Year == input$Yearrev, Type == 'Revenue ') %>% group_by(Year) 
     
     valueBox(
       paste0(format(round(somjaar$finvalue[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
@@ -506,7 +542,7 @@ shinyServer(function(input, output, session) {
   })
   
   output$frcashbox <- renderValueBox({
-    somjaar <- Financial_numbers_gather_som %>% filter(Year == input$Yearrev, typenumber == 'totalfreecashflow') %>% group_by(Year)
+    somjaar <- Financial_numbers_gather_som %>% filter(Year == input$Yearrev, Type == 'Free cash flow ') %>% group_by(Year)
     if(somjaar$finvalue[]>=0) {  
       valueBox(
         paste0(format(round(somjaar$finvalue[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
@@ -517,14 +553,14 @@ shinyServer(function(input, output, session) {
     else {
       valueBox(
         paste0(format(round(somjaar$finvalue[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
-        subtitle = paste0("Free cashflow ", input$Yearrev, " in million"), 
+        subtitle = paste0("Free Cashflow ", input$Yearrev, " in million"), 
         icon = icon("dollar-sign"), color = 'purple'
       )
     }
   })
   
   output$grprbox <- renderValueBox({
-    somjaar <- Financial_numbers_gather_som %>% filter(Year == input$Yearrev, typenumber == 'totalgrossprofit') %>% group_by(Year)
+    somjaar <- Financial_numbers_gather_som %>% filter(Year == input$Yearrev, Type == 'Gross Profit ') %>% group_by(Year)
     valueBox(
       paste0(format(round(somjaar$finvalue[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)), 
       subtitle = paste0("Gross profit ", input$Yearrev, " in million"),  
@@ -539,12 +575,11 @@ shinyServer(function(input, output, session) {
     x    <- Financial_numbers_gather_norm$Year
     Yearrev <- seq(min(x), max(x), length.out = input$Yearrev)
     
-    financevar <- financefunction(input$Yearrev, Financial_numbers_gather_norm) %>% filter(typenumber != "Gross Margin")
-    value <- financevar$finvalue/1000000
+    financevar <- financefunction(input$Yearrev, Financial_numbers_gather_norm) %>% filter(Type != "Gross Margin")
+    Value <- financevar$finvalue/1000000
     
-    financevarpcol <- financevar %>% ggplot(aes(x = Quarter, y = value, fill = typenumber))+ geom_col(position = "dodge") + 
-      labs(title = input$Yearrev, y = 'Value') + scale_fill_manual(values = c("blue2", "royalblue1", "skyblue3")) +  
-      scale_y_continuous(limits = c(-1500, 8000), breaks = seq(-1500,8000, by= 500)) +  
+    financevarpcol <- financevar %>% ggplot(aes(x = Quarter, y = Value, fill = Type))+ geom_col(position = "dodge") + 
+      labs(title = input$Yearrev, y = 'Value') + scale_fill_manual(values = c("green", "lightseagreen", "blue")) +  
       theme_minimal() + geom_hline(yintercept = 0, color = "black", size = 1.5)
     
     ggplotly(financevarpcol)
@@ -556,28 +591,40 @@ shinyServer(function(input, output, session) {
     
     y    <- Financial_numbers_gather_som$Year
     Yearrevline <- seq(min(y), max(y))
-    financevar <- Financial_numbers_gather_som %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline), typenumber != "totalgrossmargin") %>% group_by(Year, typenumber) %>% 
-      mutate("total" = sum(finvalue, na.rm = TRUE)) %>% select(Year, total, typenumber)%>% distinct()
+    financevar <- Financial_numbers_gather_som %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline), Type != "Gross Margin ") %>% group_by(Year, Type) %>% 
+      mutate("Total" = sum(finvalue, na.rm = TRUE)) %>% select(Year, Total, Type)%>% distinct()
     
-    financevar$col = cut(financevar$total, c(-Inf, 0, Inf))
-    
-    financevarpline <- financevar %>% ggplot(aes(x = Year , y = total, color = typenumber))+ geom_line() +
-      labs(y = 'Value') + 
-      theme_minimal() + scale_color_manual(values = c("blue2", "royalblue1", "skyblue3")) + geom_hline(yintercept = 0, color = "black", size = 1.5) + 
-      gghighlight(total >= 0) 
+    financevarpline <- financevar %>% ggplot(aes(x = Year , y = Total, color = Type))+ geom_line() +
+      labs(y = 'Value') + scale_x_continuous(breaks = seq(min(Yearrevline), max(Yearrevline), by = 1)) +
+      theme_minimal() + scale_color_manual(values = c("green","lightseagreen", "blue")) + geom_hline(yintercept = 0, color = "black", size = 1.5)
     ggplotly(financevarpline)
   })
   
   output$grossmargin <- renderPlotly({
     y <- Financial_numbers_gather_som$Year
     Yeargrossmargin <- seq(min(y), max(y))
-    financevarmar <- Financial_numbers_gather_som %>% filter(Year >= min(input$Yeargrossmargin) & Year <= max(input$Yeargrossmargin), typenumber == "totalgrossmargin") %>% group_by(Year, typenumber) %>% 
-      mutate("total" = sum(finvalue, na.rm = TRUE)) %>% select(Year, total, typenumber) %>% distinct()
+    financevarmar <- Financial_numbers_gather_som %>% filter(Year >= min(input$Yeargrossmargin) & Year <= max(input$Yeargrossmargin), Type == "Gross Margin ") %>% group_by(Year, Type) %>% 
+      mutate("Total" = sum(finvalue, na.rm = TRUE)) %>% select(Year, Total, Type) %>% distinct()
     
-    financevarmarp <- financevarmar %>% ggplot(aes(x = Year, y = total, color = typenumber)) + geom_line() + 
-      labs(y = 'Value') + scale_y_continuous(limits = c(0,100), breaks = seq(0, 100, by= 5)) +
-      theme_minimal() + scale_color_manual(values = c("midnightblue")) + theme(legend.position = "none")
+    financevarmarp <- financevarmar %>% ggplot(aes(x = Year, y = Total, color = Type)) + geom_line() + 
+      labs(y = 'Value') + scale_y_continuous(limits = c(0,100), breaks = seq(0, 100, by= 5)) + scale_x_continuous(breaks = seq(min(Yeargrossmargin), max(Yeargrossmargin), by = 1)) +
+      theme_minimal() + scale_color_manual(values = c("purple", "red")) + stat_smooth(method = 'lm', se = FALSE, aes(color = 'Trend'))
+    
     ggplotly(financevarmarp)
+    
+    
+  })
+  
+  #Stock TSLA
+  output$tslastock <- renderPlotly({
+    
+    TSLA <- tq_get("TSLA", get = "stock.prices", from = input$st, to = input$en)
+    
+    p <- TSLA %>% ggplot(aes(date , close)) + geom_line() +
+      labs(title = "TSLA stock evolution", y = "Closing Price", x = "") + 
+      theme_tq()
+    
+    ggplotly(p)
   })
   
   #Uitbreiding naar de EU
@@ -593,7 +640,7 @@ shinyServer(function(input, output, session) {
         ggplot(aes(x = Year, y = value, fill = Fuel)) + 
         geom_col(position = "dodge") + 
         labs(title = input$EUoptions, y = '')  + 
-        scale_x_continuous(limits= c(min(countriesafpassengercars$Year), max(countriesafpassengercars$Year)) , 
+        scale_x_continuous(limits = c(min(countriesafpassengercars$Year), max(countriesafpassengercars$Year+1)),
                            breaks = seq(min(countriesafpassengercars$Year), max(countriesafpassengercars$Year), by = 1)) +
         theme_minimal() + scale_fill_manual(values = c("red", "orange", "green", "lightseagreen", "blue", "purple", "maroon1"))
         
@@ -624,7 +671,7 @@ shinyServer(function(input, output, session) {
         ggplot(aes(x = Year, y = value, fill = Fuel))+ 
         geom_col(position = "dodge") + 
         labs(title = input$EUoptions, y = '')  + 
-        scale_x_continuous(limits = c(min(countriesafinfrastructure$Year), max(countriesafinfrastructure$Year)), 
+        scale_x_continuous(limits = c(min(countriesafinfrastructure$Year), max(countriesafinfrastructure$Year+1)), 
                            breaks = seq(min(countriesafinfrastructure$Year), max(countriesafinfrastructure$Year), by = 1)) + 
         theme_minimal() + 
       scale_fill_manual(values = c("purple", "green", "blue", "orange", "maroon1"))
@@ -645,6 +692,23 @@ shinyServer(function(input, output, session) {
     }
     ggplotly(countriesinfrvarp)
   })
+  
+  output$europemaptable <- renderDataTable({
+    teslamaptable <- function(inputjaar, df) {
+      if (inputjaar == "2013") {
+        teslamap <- df %>% filter(df$jaar == inputjaar, df$waarde > 0)
+      }
+      else {
+        teslamap <- df %>% filter(df$jaar == c(inputjaar, (as.numeric(inputjaar) - 1)), df$waarde > 0)  
+      }
+      return(teslamap)
+    }
+    teslamaptablevar <- teslamaptable(input$teslajaar, tesla.eu.map)
+    teslamaptablevarshow <- teslamaptablevar %>% group_by(jaar, region) %>% select(jaar, region) %>% distinct()
+    datatable(teslamaptablevarshow)
+    
+  })
+  
   output$distPlot <- renderPlot({
     teslamap <- function(inputjaar, df) {
       if (inputjaar == "2013") {
@@ -706,6 +770,7 @@ shinyServer(function(input, output, session) {
         valueBox(
           loyalty_perc_of_tesla,
           subtitle = "Loyalty of Tesla's customers",
+          icon = icon('hand-holding-heart'),
           color = "red"
         )
         
@@ -730,6 +795,7 @@ shinyServer(function(input, output, session) {
         valueBox(
           loyalty_ordinal_rank_tesla,
           subtitle = "Place of Tesla in loyalty ranking",
+          icon = icon('award'), #keuze uit award, crown of trophy
           color = "red"
         )
         
