@@ -362,7 +362,7 @@ shinyServer(function(input, output, session) {
     ratio$freq <- as.integer(ratio$freq)
     ratio[is.na(ratio)] = 0
     ratio$Country <- as.factor(ratio$Country)
-    h1 <- ratio %>% ggplot(aes(x= freq, y = Sales)) + geom_point() + geom_text(aes(label = Country), check_overlap = TRUE, nudge_x = 2, size = 3) + labs(title = paste0("Teslas/supercharger station in ", input$Year)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+    h1 <- ratio %>% ggplot(aes(x= freq, y = Sales, label = Country)) + geom_point() + geom_text(aes(label = Country), check_overlap = TRUE, vjust = "outward", hjust = "inward") + labs(title = paste0("Teslas/supercharger station in ", input$Year)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
       scale_y_continuous(limits = c(0, 31000), breaks = seq(0,31000, by= 5000)) + scale_x_continuous(limits = c(0, 80), breaks = seq(0, 80, by = 10)) + ylab(label = "Number of Teslas sold" ) + xlab(label = "Number of supercharger stations")
     ggplotly(h1)
   })
@@ -371,11 +371,11 @@ shinyServer(function(input, output, session) {
   output$hist02 <- renderPlotly({
     laadpalenC <- laadpalen %>% filter(Country %in% input$Country2)
     laadpalenC <- laadpalenC %>% group_by(Country) %>% mutate(Level = ifelse(freq[Description == "Tesla"] == max(freq), "Highest", ifelse(freq[Description == "Tesla"] == min(freq), "Lowest", "Between")))
-    h2 <- laadpalenC %>% ggplot(aes(x = Description, y = freq, fill = Level)) + geom_col() + gghighlight(Description == "Tesla", calculate_per_facet = T) + facet_wrap(Country~., nrow = 3, ncol = 9) + theme_minimal() +
+    h2 <- laadpalenC %>% ggplot(aes(x = Description, y = freq, fill = Level)) + geom_col() + gghighlight(Description == "Tesla", calculate_per_facet = T, use_direct_label = F) + facet_wrap(Country~., nrow = 3, ncol = 9) + theme_minimal() +
       theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
       scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + xlab("Brand") + scale_fill_manual(values = c("green", "red")) + scale_x_discrete(labels = c("Ionity", "Tesla"))
     #h2 <- laadpalenC %>% ggplot(aes(x = Country, y = freq, fill = Description)) + geom_col(position = "dodge") + theme_minimal() + scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + coord_flip() + scale_fill_manual(values = c("orange", "blue"))
-    ggplotly(h2)})
+    ggplotly(h2, tooltip = c("Description", "freq"))})
   
   #taartdiagram: concurrentie snellaadpalen
   output$pie01 <- renderPlotly({
@@ -390,6 +390,15 @@ shinyServer(function(input, output, session) {
     valueBox(
       paste0(VPSC2$Segment[VPSC2$Sales == max(VPSC2$Sales)]),
       subtitle= paste("Best sold segment in ", max(input$Year2)), icon = icon('car-side'), color = "red"
+    )})
+  
+  #infobox sterkste stijger: groei: verkoop alle merken per segment
+  output$populairst <- renderValueBox({
+    VPSC2 <- VPS %>% filter(Year == max(input$Year2) | Year == min(input$Year2))
+    VPSC2 <- VPSC2 %>% group_by(Segment) %>% mutate(Difference = (Sales[Year == max(Year)] - Sales[Year == min(Year)]))
+    valueBox(
+      paste0(VPSC2$Segment[VPSC2$Difference == max(VPSC2$Difference) & VPSC2$Year == max(input$Year2)]),
+      subtitle= paste("Segment that has augmented the most between ", min(input$Year2), " and ", max(input$Year2)), icon = icon('car-side'), color = "red"
     )})
   
   #lijngrafiek: Groei: verkoop alle merken per segment
@@ -411,9 +420,28 @@ shinyServer(function(input, output, session) {
       TweedehandsC <- Tweedehands %>% filter(Year == max(input$Year3))
       valueBox(
         paste0(TweedehandsC$Fuel[TweedehandsC$`Cars sold` == max(TweedehandsC$`Cars sold`)]),
-        subtitle= paste("Best sold type of second hand car in Belgium in ", max(input$Year3)), color = "red"
+        subtitle= paste("Best sold type of second hand car in Belgium in ", max(input$Year3)), icon = icon('gas-pump'), color = "red"
       )
     }})
+  
+  #infobox sterkste stijger: groei: aandeel elektrische auto's op belgische en eu markt
+  output$populairstfuel <- renderValueBox({
+    if(checkregion() == 1){
+      NieuwC <- Nieuw %>% filter(Year == max(input$Year3) | Year == min(input$Year3))
+      NieuwC <- NieuwC %>% group_by(Fuel) %>% mutate(Difference = (`Cars sold`[Year == max(Year)] - `Cars sold`[Year == min(Year)]))
+      valueBox(
+        paste0(NieuwC$Fuel[NieuwC$Difference == max(NieuwC$Difference) & NieuwC$Year == max(input$Year3)]),
+        subtitle= paste("Type of car that has augmented the most in Belgium between ", min(input$Year3), " and ", max(input$Year3)), icon = icon('gas-pump'), color = "red"
+      )}
+    else{
+      TweedehandsC <- Tweedehands %>% filter(Year == max(input$Year3) | Year == min(input$Year3))
+      TweedehandsC <- TweedehandsC %>% group_by(Fuel) %>% mutate(Difference = (`Cars sold`[Year == max(Year)] - `Cars sold`[Year == min(Year)]))
+      valueBox(
+        paste0(TweedehandsC$Fuel[TweedehandsC$Difference == max(TweedehandsC$Difference) & TweedehandsC$Year == max(input$Year3)]),
+        subtitle= paste("Type of second hand car that has augmented the most in Belgium between ", min(input$Year3), " and ", max(input$Year3)), icon = icon('gas-pump'), color = "red"
+      )
+    }
+    })
   
   #lijn nieuw: groei: aandeel elektrische auto's op belgische en eu markt
   checkregion <- reactive({input$Region})
@@ -458,6 +486,16 @@ shinyServer(function(input, output, session) {
       paste0(EuMSC$Fuel[EuMSC$Market.Share == max(EuMSC$Market.Share)]),
       subtitle= paste("Best sold type of car in the EU in ", input$Year7), icon = icon('gas-pump'), color = "red"
     )})
+  
+  #infobox sterkste stijger: groei: aandeel elektrische auto's op belgische en eu markt
+  output$populairstfueleu <- renderValueBox({
+      EUMSC2 <- EuMS %>% filter(Year == max(input$Year8) | Year == min(input$Year8))
+      EUMSC2 <- EUMSC2 %>% group_by(Fuel) %>% mutate(Difference = (Market.Share[Year == max(Year)] - Market.Share[Year == min(Year)]))
+      valueBox(
+        paste0(EUMSC2$Fuel[EUMSC2$Difference == max(EUMSC2$Difference) & EUMSC2$Year == max(input$Year8)]),
+        subtitle= paste("Type of car that has augmented the most in the EU between ", min(input$Year8), " and ", max(input$Year3)), icon = icon('gas-pump'), color = "red"
+      )
+  })
   
   #taart eu: groei: aandeel elektrische auto's op belgische en eu markt
   output$pie04 <- renderPlotly({
@@ -840,6 +878,21 @@ shinyServer(function(input, output, session) {
       # Plot 
         # Probably need to use if functions to adjust plot depending on input
         # But first check how plotly reacts to this. 
+      
+      # Todo:
+      # Oplossing voor leleijke getallen: round functie gebruiken
+        # Pas dit aan (maar lees verder)
+        # round(sum(Revenue$`Automotive Revenues Tesla`[Revenue$Year == input$Yearrev], na.rm = TRUE)/1000000, 2)
+        # Eigenlijk in mijn geval gewoon: round(value,2)
+      #Voor plotly te customizen:
+        # plotly.com/r/hover-text-and-formatting
+        # scrol naar onder custumizeing .. with plotly express
+        # plotly werkt wel anders dan ggplot
+      
+      
+      
+      # KPI: marktaandeel 3 modellen
+      # Tesla in andere kleur
       
       
       # Create plot

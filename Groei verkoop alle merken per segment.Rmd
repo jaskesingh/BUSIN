@@ -33,4 +33,9 @@ VPS %>% ggplot(aes(x=Year, y=Sales)) + geom_line(aes(color = Segment)) + labs(ti
 ```{r}
 VPS %>% ggplot(aes(x = Segment, y = Sales)) + geom_col() + facet_wrap(Year~.) + labs(title = "New cars sold in the EU by segment in million units for each year.") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 ```
+```{r}
+VPSC2 <- VPS %>% filter(Year == 2019 | Year == 2018)
+VPSC2 <- VPSC2 %>% group_by(Segment) %>% mutate(Difference = (Sales[Year == max(Year)] - Sales[Year == min(Year)]))
+VPSC2
+```
 
