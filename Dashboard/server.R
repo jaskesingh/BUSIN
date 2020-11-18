@@ -22,15 +22,11 @@ library(rvest)
 library(stringr)
 library(tidyverse)
 library(gghighlight)
-library(tidyquant)
-library(quantmod)
-
-# Toegevoegd op 13/11
 library(scales)
 library(ggExtra)
-
-# Toegevoegd op 14/11
 library(toOrdinal)
+library(tidyquant)
+library(quantmod)
 
 
 #Caro
@@ -622,6 +618,7 @@ shinyServer(function(input, output, session) {
     
     p <- TSLA %>% ggplot(aes(date , close)) + geom_line() +
       labs(title = "TSLA stock evolution", y = "Closing Price", x = "") + 
+      stat_smooth(method = 'lm', se = FALSE, aes(color = 'Trend')) +
       theme_tq()
     
     ggplotly(p)
@@ -818,9 +815,9 @@ shinyServer(function(input, output, session) {
           loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% filter(!Brand %in% c("Tesla"))
           
           # ... followed by adding it back from our safely stored row. Now we know for sure that Tesla is included, and only once so.
-          loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% add_row(Brand = loyalty_per_brand_Tesla$Brand,
-                                                                                       Percentage = loyalty_per_brand_Tesla$Percentage,
-                                                                                       Classification = loyalty_per_brand_Tesla$Classification,
+          loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% add_row(Brand = loyalty_per_brand_ranked_Tesla$Brand,
+                                                                                       Percentage = loyalty_per_brand_ranked_Tesla$Percentage,
+                                                                                       Classification = loyalty_per_brand_ranked_Tesla$Classification,
                                                                                        Rank = loyalty_per_brand_ranked_Tesla$Rank
                                                                                        )
   
@@ -878,6 +875,21 @@ shinyServer(function(input, output, session) {
       # Plot 
         # Probably need to use if functions to adjust plot depending on input
         # But first check how plotly reacts to this. 
+      
+      # Todo:
+      # Oplossing voor leleijke getallen: round functie gebruiken
+        # Pas dit aan (maar lees verder)
+        # round(sum(Revenue$`Automotive Revenues Tesla`[Revenue$Year == input$Yearrev], na.rm = TRUE)/1000000, 2)
+        # Eigenlijk in mijn geval gewoon: round(value,2)
+      #Voor plotly te customizen:
+        # plotly.com/r/hover-text-and-formatting
+        # scrol naar onder custumizeing .. with plotly express
+        # plotly werkt wel anders dan ggplot
+      
+      
+      
+      # KPI: marktaandeel 3 modellen
+      # Tesla in andere kleur
       
       
       # Create plot
