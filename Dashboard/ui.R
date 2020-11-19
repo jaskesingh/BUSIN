@@ -415,9 +415,9 @@ shinyUI(
                               box(
                                 title = "Tesla performance on the Stock Market",
                                 soldidHeader = T, status = "danger", plotlyOutput("tslastock"),
-                                dateInput(inputId = "st", label = "start date",
+                                dateInput(inputId = "st", label = "From",
                                             value = "2020-01-01"),
-                                  dateInput(inputId = "en", label = "end date")
+                                  dateInput(inputId = "en", label = "To")
                                   )
                             )
                             
