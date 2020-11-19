@@ -79,7 +79,7 @@ Financial_numberssom$'Gross Profit ' <- as.numeric(Financial_numberssom$'Gross P
 Financial_numberssom$'Gross Margin ' <- as.numeric(Financial_numberssom$'Gross Margin ')
 Financial_numberssom$'Free cash flow ' <- as.numeric(Financial_numberssom$'Free cash flow ')
 
-Financial_numbers_gather_som <- Financial_numberssom %>% gather('Revenue ', 'Gross Profit ', 'Gross Margin ', 'Free cash flow ', key = 'Type', value = 'finvalue') %>% select(Year, Type, finvalue) %>% distinct()
+Financial_numbers_gather_som <- Financial_numberssom %>% gather('Revenue ', 'Gross Profit ', 'Gross Margin ', 'Free cash flow ', key = 'Type', value = 'Total') %>% select(Year, Type, Total) %>% distinct()
 
 ##financiele cijfers, functies
 financefunction <- function(yearinput,df) {
@@ -118,7 +118,7 @@ shinyServer(function(input, output) {
     somjaar <- Financial_numbers_gather_som %>% filter(Year == input$Yearrev, Type == 'Revenue ') %>% group_by(Year) 
     
     valueBox(
-      paste0(format(round(somjaar$finvalue[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
+      paste0(format(round(somjaar$Total[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
       subtitle= paste0("Revenue ", input$Yearrev, " in million"), 
       icon = icon("dollar-sign"), color = 'red'
     )
@@ -127,16 +127,16 @@ shinyServer(function(input, output) {
   
   output$frcashbox <- renderValueBox({
     somjaar <- Financial_numbers_gather_som %>% filter(Year == input$Yearrev, Type == 'Free cash flow ') %>% group_by(Year)
-    if(somjaar$finvalue[]>=0) {  
+    if(somjaar$Total[]>=0) {  
       valueBox(
-        paste0(format(round(somjaar$finvalue[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
+        paste0(format(round(somjaar$Total[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
         subtitle = paste0("Free cashflow ", input$Yearrev, " in million"), 
         icon = icon("dollar-sign"), color = 'red'
       )
     }
     else {
       valueBox(
-        paste0(format(round(somjaar$finvalue[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
+        paste0(format(round(somjaar$Total[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
         subtitle = paste0("Free Cashflow ", input$Yearrev, " in million"), 
         icon = icon("dollar-sign"), color = 'purple'
       )
@@ -146,7 +146,7 @@ shinyServer(function(input, output) {
   output$grprbox <- renderValueBox({
     somjaar <- Financial_numbers_gather_som %>% filter(Year == input$Yearrev, Type == 'Gross Profit ') %>% group_by(Year)
     valueBox(
-      paste0(format(round(somjaar$finvalue[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)), 
+      paste0(format(round(somjaar$Total[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)), 
       subtitle = paste0("Gross profit ", input$Yearrev, " in million"),  
       icon = icon("piggy-bank"), color = 'red'
     )
@@ -176,7 +176,7 @@ shinyServer(function(input, output) {
     y    <- Financial_numbers_gather_som$Year
     Yearrevline <- seq(min(y), max(y))
     financevar <- Financial_numbers_gather_som %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline), Type != "Gross Margin ") %>% group_by(Year, Type) %>% 
-      mutate("Total" = sum(finvalue, na.rm = TRUE)) %>% select(Year, Total, Type)%>% distinct()
+      select(Year, Total, Type)%>% distinct()
     
     financevarpline <- financevar %>% ggplot(aes(x = Year , y = Total, color = Type))+ geom_line() +
       labs(y = 'Value') + scale_x_continuous(breaks = seq(min(Yearrevline), max(Yearrevline), by = 1)) +
@@ -188,7 +188,7 @@ shinyServer(function(input, output) {
     y <- Financial_numbers_gather_som$Year
     Yeargrossmargin <- seq(min(y), max(y))
     financevarmar <- Financial_numbers_gather_som %>% filter(Year >= min(input$Yeargrossmargin) & Year <= max(input$Yeargrossmargin), Type == "Gross Margin ") %>% group_by(Year, Type) %>% 
-      mutate("Total" = sum(finvalue, na.rm = TRUE)) %>% select(Year, Total, Type) %>% distinct()
+       select(Year, Total, Type) %>% distinct()
     
     financevarmarp <- financevarmar %>% ggplot(aes(x = Year, y = Total, color = Type)) + geom_line() + 
       labs(y = 'Value') + scale_y_continuous(limits = c(0,100), breaks = seq(0, 100, by= 5)) + scale_x_continuous(breaks = seq(min(Yeargrossmargin), max(Yeargrossmargin), by = 1)) +
