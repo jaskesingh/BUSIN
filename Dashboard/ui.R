@@ -21,6 +21,8 @@ library(shinydashboard)
 library(stringr)
 library(DT)
 library(tidyverse)
+library(tidyquant)
+library(quantmod)
 
 #Caro
 
@@ -92,78 +94,31 @@ shinyUI(
                     menuItem("Growth", tabName = "Growth", newTab = T, 
                              menuSubItem("Sales per segment", tabName = "Salespersegment"), 
                              menuSubItem("Sales per fuel type", tabName = "fueltype"),
-                             menuSubItem("Best selling EV's compared", tabName = "dashboard_growth")
+                             menuSubItem("Best selling EV's compared", tabName = "best_selling_evs_compared")
                              ),
                     menuItem("Customers", tabName = "Customers", newTab = T, 
                              menuSubItem("Purchase process", tabName = "Purchaseprocess"),
                              menuSubItem("Brand loyalty", tabName = "dashboard_loyalty"),
                              menuSubItem("Survey", tabName = "survey")
                              ),
-                    menuItem("Sales", tabName = "Sales", newTab =T, menuSubItem("Periodic analysis", tabName = "Periodic")),
-                    menuItem("Finance", tabName = "Omzet"),
-                    menuItem("Superchargers", tabName = "Superchargers", newTab = T, menuSubItem("Map", tabName = "Map"), menuSubItem("Statistics", tabName = "Statistics"), 
+                    menuItem("Sales", tabName = "Sales", newTab =T, 
+                             menuSubItem("Periodic analysis", tabName = "Periodic")),
+                    menuItem("Finance", tabName = "Finance", badgeLabel = "New", badgeColor = "green"),
+                    menuItem("Superchargers", tabName = "Superchargers", newTab = T, 
+                             menuSubItem("Map", tabName = "Map"), 
+                             menuSubItem("Statistics", tabName = "Statistics"), 
                              menuSubItem("Competition", tabName = "Competition")),
-                    menuItem("Expansion in Europe", tabName = "EU")
+                    menuItem("Expansion in Europe", tabName = "Expansion_in_Europe")
                   )),
                 dashboardBody(
                   tabItems(
-                    #Caro
-                    tabItem(
-                      tabName = "Map",  
-                      leafletOutput("mymap"), dataTableOutput("table01")),
-                    tabItem(
-                      tabName = "Statistics",
-                      h2("Info on Tesla supercharger stations in Europe"),
-                      fluidRow(
-                          valueBoxOutput("totbox"),
-                          valueBoxOutput("openbox"),
-                          valueBoxOutput("buildbox"),
-                          valueBoxOutput("permitbox"),
-                          valueBoxOutput("pclosedbox"),
-                          valueBoxOutput("tclosedbox")
-                      ),
-                      fluidRow(
-                        box(
-                          title = "Number of Teslas per supercharger station", width = 12,
-                          solidHeader = T, status = "danger", plotlyOutput("hist01"),
-                          sliderInput(inputId = "Year",
-                                      label = "Choose year",
-                                      min = 2013,
-                                      max = 2019,
-                                      value = 2019,
-                                      sep = ""),
-                          selectInput(inputId = "Country",
-                                      label = "Choose country",
-                                      choices = verkoo$Country,
-                                      multiple = TRUE,
-                                      selected = c("Belgium", "Austria", "Czech Republic", "Denmark", "Finland", "France", "Germany", "Greece", "Ireland", "Italy", "Luxembourg", "Netherlands", "Norway", "Portugal", "Romania", "Slovenia", "Spain", "Sweden", "Switzerland"))
-                        )
-                      )
-                    ),
-                    tabItem(
-                      tabName = "Competition",
-                      fluidRow(
-                        box(
-                          title = "Superchargers market share", width = 12, 
-                          solidHeader = T, status = 'danger', plotlyOutput("pie01")
-                        )
-                      ),
-                      fluidRow(
-                        box(
-                            title ="Number of supercharger stations per country", width = 12,
-                            solidHeader = T, status = "danger",
-                            plotlyOutput("hist02"),
-                            selectInput(inputId = "Country2",
-                                    label = "Choose country",
-                                    choices = superchargers$Country,
-                                    multiple = TRUE,
-                                    selected = c("Belgium", "Norway", "Italy", "Germany", "France", "Netherlands", "United Kingdom", "Switzerland", "Portugal", "Spain", "Iceland", "Denmark", "Poland", "Serbia", "Bulgaria", "Sweden", "Hungary", "Czech Republic", "Slovakia", "Finland", "Austria", "Croatia", "Ireland", "Russia", "Liechtenstein", "Slovenia", "Luxembourg"))
-                      )),
-                     ),
+                    
+                #¯Growth
                     tabItem(
                       tabName = "Salespersegment",
                       fluidRow(
-                        valueBoxOutput("bestsoldsegment")
+                        valueBoxOutput("bestsoldsegment"),
+                        valueBoxOutput("populairst")
                       ),
                       fluidRow(
                         box(
@@ -187,8 +142,12 @@ shinyUI(
                     tabItem(
                       tabName = "fueltype",
                       fluidRow(
-                        valueBoxOutput("bestsoldfuel"),
-                        valueBoxOutput("bestsoldfueleu")
+                        column( width = 12,
+                                valueBoxOutput("bestsoldfuel"),
+                                valueBoxOutput("populairstfuel")),
+                        column( width = 12,
+                                valueBoxOutput("bestsoldfueleu"),
+                                valueBoxOutput("populairstfueleu"))
                       ),
                       fluidRow(
                         box(
@@ -230,7 +189,8 @@ shinyUI(
                           selectInput(inputId = "Fuel3",
                                       label = "Choose fuel type",
                                       choices = eu$Fuel,
-                                      selected = "Electrically-chargeable")
+                                      multiple = TRUE,
+                                      selected = c("Electrically-chargeable", "Petrol", "Diesel", "Alternative fuels", "Hybrid"))
                         ),
                         box(
                           title = "Market share of new cars by fuel type in the EU", plotlyOutput("pie04"), solidHeader = T, status = 'danger',
@@ -243,121 +203,7 @@ shinyUI(
                         )
                       )
                     ),
-                    tabItem(
-                      tabName = "Purchaseprocess",
-                      tabBox(
-                        title = "Share of Europeans interested in online vehicle purchasing in 2018", height = 12, width =12,
-                        tabPanel("Tab1", plotlyOutput("hist06"),
-                                 selectInput(inputId = "Country3",
-                                             label = "Choose country",
-                                             choices = aankoopproces$Country,
-                                             multiple = TRUE,
-                                             selected = c("Belgium", "Germany", "France", "UK", "Italy"))),
-                        tabPanel("Tab2", plotlyOutput("hist07"),
-                                 selectInput(inputId = "Country4",
-                                             label = "Choose country",
-                                             choices = aankoopproces$Country,
-                                             multiple = TRUE,
-                                             selected = c("Belgium", "Germany", "France", "UK", "Italy")),
-                                 selectInput(inputId = "Interest",
-                                             label = "Choose level of interest",
-                                             choices = aankoopproces$Interest,
-                                             multiple = TRUE,
-                                             selected = c("Not at all interested/not very interested", "Neutral", "Somewhat interested/very interested")))
-                      )
-                    ),
-                    tabItem(
-                      tabName = "Periodic",
-                      box(
-                        title = "Periodic Tesla sales over the years.", "Black line is the mean sales of all the selected years", plotlyOutput("line04"),
-                        height = 12, width = 12, solidHeader = T, status = 'danger',
-                        sliderInput(inputId = "Month",
-                                    label = "Choose month",
-                                    min = 1,
-                                    max = 12,
-                                    value = c(1, 12),
-                                    sep = ""),
-                        selectInput(inputId = "Year9",
-                                    label = "Choose year",
-                                    choices = Data$Year,
-                                    multiple = TRUE,
-                                    selected = c("2016", "2017", "2018", "2019","2020"))
-                      )
-                    ),
-                    #finance
-                    tabItem(tabName = "Omzet",
-                            h2("Financial numbers worldwide, based on automotive sector from Tesla"),
-                            fluidRow(
-                              valueBoxOutput("revbox"),
-                              valueBoxOutput("frcashbox"),
-                              valueBoxOutput("grprbox")
-                            ),    
-                            #Grafieken voor financiele cijfers
-                            fluidRow(
-                              box(title = "Yearly",
-                                  "In million",
-                                  solidHeader = T, status="danger", plotlyOutput("linefin"),sliderInput(inputId = "Yearrevline", 
-                                                                                                        label = "Choose the range of years to appear",
-                                                                                                        min = min(Revenue$Year),
-                                                                                                        max = max(Revenue$Year),
-                                                                                                        value = c(min(Revenue$Year),max(Revenue$Year)),
-                                                                                                        sep = "")
-                              ),
-                              box(title = "Quarterly", 
-                                  "In million", solidHeader = T, status="danger", plotlyOutput("colfin"), sliderInput(inputId = "Yearrev", 
-                                                                                                                      label = "Choose year to give the quarters of",
-                                                                                                                      min = min(Revenue$Year),
-                                                                                                                      max = max(Revenue$Year),
-                                                                                                                      value = 2020, 
-                                                                                                                      sep = ""))
-                            ),
-                            fluidRow(
-                              box(title = "Gross Margin",
-                                     "In percentage",
-                                     solidHeader = T, status = "danger", plotlyOutput("grossmargin"), sliderInput(inputId = "Yeargrossmargin", 
-                                                                                                                  label = "Choose the range of years to appear",
-                                                                                                                  min = min(Revenue$Year),
-                                                                                                                  max = max(Revenue$Year),
-                                                                                                                  value = c(min(Revenue$Year),max(Revenue$Year)),
-                                                                                                                  sep = ""))
-                            )
-                            
-                    ),
-                    tabItem(tabName = "EU",
-                            fluidRow(
-                              box(title = "AF passenger cars",
-                                  "Total fleet of passenger cars per alternative fuel (AF)", solidHeader = T, status="danger", plotlyOutput("colpascar", height = "650px"),
-                                  ),
-                              box(title = "AF infrastructure",
-                                  "Total number of alternative fuel (AF) infrastructure per type of fuel", solidHeader = T, status="danger", plotlyOutput("colinfr", height = "650px"),
-                                  )
-                            ),
-                            fluidRow(
-                              box(title = "Choose your options", solidHeader = T, status="danger", 
-                                  radioButtons("Europe", label= "Choose what you want to see on the graph", choices = list("Europe" = 1, "Per chosen country" = 2)),
-                                  sliderInput(inputId = "YearEU", 
-                                              label = "Choose year for the values in Europe",
-                                              min = min(countriesafpassengercars$Year),
-                                              max = max(countriesafpassengercars$Year),
-                                              value = 2020,
-                                              sep = ""),
-                                  
-                                  selectInput("EUoptions", "Choose a country of Europe", 
-                                              c('Ausria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia',
-                                                'Finland', 'France', 'Germany', 'Greece', 'Hungria', 'Ireland', 'Italy', 'Latvia', 'Lithuania',
-                                                'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia',
-                                                'Spain', 'Sweden'), selected = "Belgium"),
-                                  dataTableOutput("europemaptable")
-                              ),
-                              box(title = "Tesla sales in Europe per year", solidHeader = T, status="danger", 
-                                  selectInput(inputId = "teslajaar",
-                                              label = "choose the year you want to see (blue is new that year)",
-                                              choices = unique(teslapercountrysales$jaar),
-                                              selected = 2013),
-                                  plotOutput("distPlot")))
-                          ),
-                    
-                    tabItem(tabName = "dashboard_growth",
+                    tabItem(tabName = "best_selling_evs_compared",
                             fluidRow(
                               box(title = "Top 15 EV's of 2019 compared (Work-in-progress)",
                                   status = "danger",
@@ -393,116 +239,283 @@ shinyUI(
                             )
                     ),
                     
-########################################################################################################################
-####################################### Temporary mark to quickly find code back ####################################### 
-######################################################################################################################## 
-
-                    tabItem(tabName = "dashboard_loyalty", 
-                            fluidRow(
-                              valueBoxOutput("loyalty_percentage_of_tesla"),
-                              valueBoxOutput("loyalty_rank_of_tesla")
-                            ),
-                            fluidRow(
-                              box(title = "Loyalty per brand",
-                                  "Percentage of car buyers that chose the same brand when buying a new car",
-                                  width = 12,
-                                  status = "danger",
-                                  solidHeader = T,
-                                  plotOutput("loyalty_bar",
-                                             height = "500px"),
-                                  checkboxGroupInput(inputId = "loyalty_checkboxes",
-                                                     label = "Choose class(es) to compare Tesla with",
-                                                     choices = c("Luxury", "Mass market"),
-                                                     selected = c("Luxury", "Mass market")
-                                  )
-                                  
-                              )
-                            )
+                #Customers
+                    tabItem(
+                      tabName = "Purchaseprocess",
+                      fluidRow(
+                        box(
+                          title = "Share of Europeans interested in online vehicle purchasing in 2018", width =12, solidHeader = T, status = 'danger',
+                          plotlyOutput("hist07"),
+                          selectInput(inputId = "Country4",
+                                      label = "Choose country",
+                                      choices = aankoopproces$Country,
+                                      multiple = TRUE,
+                                      selected = c("Belgium", "Germany", "France", "UK", "Italy")),
+                          selectInput(inputId = "Interest",
+                                      label = "Choose level of interest",
+                                      choices = aankoopproces$Interest,
+                                      multiple = TRUE,
+                                      selected = c("Not at all interested/not very interested", "Neutral", "Somewhat interested/very interested"))
+                        ))
                     ),
-                    
-########################################################################################################################
-####################################### Temporary mark to quickly find code back ####################################### 
-######################################################################################################################## 
-
-                      tabItem(
-                        tabName = "survey",
-                        h2("Survey taken in 2018 in EU-countries"),
+                    tabItem(
+                      tabName = "dashboard_loyalty", 
+                        fluidRow(
+                          valueBoxOutput("loyalty_percentage_of_tesla"),
+                          valueBoxOutput("loyalty_rank_of_tesla")
+                        ),
+                        fluidRow(
+                          box(title = "Loyalty per brand",
+                              "Percentage of car buyers that chose the same brand when buying a new car",
+                              width = 12,
+                              status = "danger",
+                              solidHeader = T,
+                              plotOutput("loyalty_bar",
+                                         height = "500px"),
+                              checkboxGroupInput(inputId = "loyalty_checkboxes",
+                                                 label = "Choose class(es) to compare Tesla with",
+                                                 choices = c("Luxury", "Mass market"),
+                                                 selected = c("Luxury", "Mass market")
+                              )
+                              
+                          )
+                        )
+                    ),
+                   tabItem(
+                    tabName = "survey",
+                      h2("Survey taken in 2018 in EU-countries"),
                         fluidRow(
                           valueBoxOutput("surveytotal"),
                           valueBoxOutput("totalcountries")
-                          ),
+                        ),
                         fluidRow(
                           box(
                             title = "Per country",
-                            tabPanel(" ", 
-                                     selectInput(inputId = "country",
-                                                 label = "Choose country",
-                                                 choices = unique(eusurvey$Country),
-                                                 selected = "Belgium",
-                                                 multiple = T
-                                     ),
-                                     dataTableOutput("country")
-                            ), 
-                            width = 14
+                              tabPanel(" ", 
+                               selectInput(inputId = "country",
+                                           label = "Choose country",
+                                           choices = unique(eusurvey$Country),
+                                           selected = "Belgium",
+                                           multiple = T
+                               ),
+                               dataTableOutput("country")
+                              ), 
+                              width = 14
                           ),
-                          tabBox(
-                            title = "Based on",
+                        tabBox(
+                          title = "Based on",
                             tabPanel("Income", 
-                                     selectInput(inputId = "incountry",
-                                                 label = "choose Country",
-                                                 choices = unique(eusurvey$Country),
-                                                 selected = "Belgium"
-                                     ),
-                                     selectInput(inputId = "incomegr",
-                                                 label = "choose income group",
-                                                 choices = unique(eusurvey$Income_group),
-                                                 multiple = T,
-                                                 selected = "middle"
-                                     ),
-                                     plotlyOutput("view")
-                            ),
-                            tabPanel("Employment status", 
-                                     selectInput(inputId = "estatus",
-                                                 label = "Choose employment status",
-                                                 choices = unique(eusurvey$Employment_status),
-                                                 selected = "Studying",
-                                                 multiple = T
-                                     ),
-                                     plotlyOutput("employ")
-                            ),
-                            tabPanel("Gender",
-                                     selectInput(inputId = "gcountry",
-                                                 label = "Choose country",
-                                                 choices = unique(eusurvey$Country),
-                                                 multiple = T,
-                                                 selected = "Belgium"
-                                     ),
-                                     plotlyOutput("ggcountry")
-                            ),
-                            tabPanel("Plan to buy car",
-                                     selectInput(inputId = "carplancountry",
-                                                 label = "Choose country",
-                                                 choices = unique(eusurvey$Country),
-                                                 selected = "Belgium"),
-                                     plotlyOutput("plan")),
-                            width = 14
+                               selectInput(inputId = "incountry",
+                                           label = "choose Country",
+                                           choices = unique(eusurvey$Country),
+                                           selected = "Belgium"
+                               ),
+                               selectInput(inputId = "incomegr",
+                                           label = "choose income group",
+                                           choices = unique(eusurvey$Income_group),
+                                           multiple = T,
+                                           selected = "middle"
+                               ),
+                               plotlyOutput("view")
+                          ),
+                          tabPanel("Employment status", 
+                               selectInput(inputId = "estatus",
+                                           label = "Choose employment status",
+                                           choices = unique(eusurvey$Employment_status),
+                                           selected = "Studying",
+                                           multiple = T
+                               ),
+                               plotlyOutput("employ")
+                          ),
+                          tabPanel("Gender",
+                               selectInput(inputId = "gcountry",
+                                           label = "Choose country",
+                                           choices = unique(eusurvey$Country),
+                                           multiple = T,
+                                           selected = "Belgium"
+                               ),
+                               plotlyOutput("ggcountry")
+                          ),
+                          tabPanel("Plan to buy car",
+                               selectInput(inputId = "carplancountry",
+                                           label = "Choose country",
+                                           choices = unique(eusurvey$Country),
+                                           selected = "Belgium"),
+                               plotlyOutput("plan")),
+                              width = 14
                           ),
                           box(
                             title = "Proportion of people willing to buy ev",
-                            plotlyOutput("propev"),
-                            width = 14
+                              plotlyOutput("propev"),
+                                width = 14
                           )
                         )
+                    ),
+                    
+                    
+                    
+                    #Sales
+                    tabItem(
+                      tabName = "Periodic",
+                      fluidPage(
+                      box(title = "Periodic Tesla sales over the years", 
+                          "Black line is the mean sales of all the selected years", plotlyOutput("line04"),
+                          width = 12, solidHeader = T, status = 'danger',
+                        sliderInput(inputId = "Month",
+                                    label = "Choose month",
+                                    min = 1,
+                                    max = 12,
+                                    value = c(1, 12),
+                                    sep = ""),
+                        selectInput(inputId = "Year9",
+                                    label = "Choose year",
+                                    choices = Data$Year,
+                                    multiple = TRUE,
+                                    selected = c("2016", "2017", "2018", "2019","2020"))
+                      ))
+                    ),
+                
+                
+                #finance
+                    tabItem(tabName = "Finance",
+                            h2("Financial numbers worldwide, based on automotive sector from Tesla"),
+                            fluidRow(
+                              valueBoxOutput("revbox"),
+                              valueBoxOutput("frcashbox"),
+                              valueBoxOutput("grprbox")
+                            ),    
+                            #Grafieken voor financiele cijfers
+                            fluidRow(
+                              box(title = "Yearly",
+                                  "In million",
+                                  solidHeader = T, status="danger", plotlyOutput("linefin"),sliderInput(inputId = "Yearrevline", 
+                                                                                                        label = "Choose the range of years to appear",
+                                                                                                        min = min(Revenue$Year),
+                                                                                                        max = max(Revenue$Year),
+                                                                                                        value = c(min(Revenue$Year),max(Revenue$Year)),
+                                                                                                        sep = "")
+                              ),
+                              box(title = "Quarterly", 
+                                  "In million", solidHeader = T, status="danger", plotlyOutput("colfin"), sliderInput(inputId = "Yearrev", 
+                                                                                                                      label = "Choose year to give the quarters of",
+                                                                                                                      min = min(Revenue$Year),
+                                                                                                                      max = max(Revenue$Year),
+                                                                                                                      value = 2020, 
+                                                                                                                      sep = ""))
+                            ),
+                            fluidRow(
+                              box(title = "Gross Margin",
+                                     "In percentage",
+                                     solidHeader = T, status = "danger", plotlyOutput("grossmargin"), sliderInput(inputId = "Yeargrossmargin", 
+                                                                                                                  label = "Choose the range of years to appear",
+                                                                                                                  min = min(Revenue$Year),
+                                                                                                                  max = max(Revenue$Year),
+                                                                                                                  value = c(min(Revenue$Year),max(Revenue$Year)),
+                                                                                                                  sep = "")),
+                              box(
+                                title = "Tesla performance on the Stock Market",
+                                soldidHeader = T, status = "danger", plotlyOutput("tslastock"),
+                                dateInput(inputId = "st", label = "start date",
+                                            value = "2020-01-01"),
+                                  dateInput(inputId = "en", label = "end date")
+                                  )
+                            )
+                            
+                    ),
+                    
+                #Superchargers
+                    tabItem(
+                      tabName = "Map",  
+                      leafletOutput("mymap"), dataTableOutput("table01")),
+                    tabItem(
+                      tabName = "Statistics",
+                      h2("Info on Tesla supercharger stations in Europe"),
+                      fluidRow(
+                        valueBoxOutput("totbox"),
+                        valueBoxOutput("openbox"),
+                        valueBoxOutput("buildbox"),
+                        valueBoxOutput("permitbox"),
+                        valueBoxOutput("pclosedbox"),
+                        valueBoxOutput("tclosedbox")
                       ),
-                      tabItem(
-                        tabName = "competition",
-                        fluidRow(
-                          
+                      fluidRow(
+                        box(
+                          title = "Number of Teslas per supercharger station", width = 12,
+                          solidHeader = T, status = "danger", plotlyOutput("hist01", height = "600px"),
+                          sliderInput(inputId = "Year",
+                                      label = "Choose year",
+                                      min = 2013,
+                                      max = 2019,
+                                      value = 2019,
+                                      sep = ""),
+                          selectInput(inputId = "Country",
+                                      label = "Choose country",
+                                      choices = verkoo$Country,
+                                      multiple = TRUE,
+                                      selected = c("Belgium", "Austria", "Czech Republic", "Denmark", "Finland", "France", "Germany", "Greece", "Ireland", "Italy", "Luxembourg", "Netherlands", "Norway", "Portugal", "Romania", "Slovenia", "Spain", "Sweden", "Switzerland"))
                         )
+                      )
+                    ),
+                    tabItem(
+                      tabName = "Competition",
+                      fluidRow(
+                        box(
+                          title = "Superchargers market share", width = 12,
+                          solidHeader = T, status = 'danger', plotlyOutput("pie01")
+                        )
+                      ),
+                      fluidRow(
+                        box(
+                          title ="Number of supercharger stations per country", width = 12,
+                          solidHeader = T, status = "danger",
+                          plotlyOutput("hist02", height = "600px"),
+                          selectInput(inputId = "Country2",
+                                      label = "Choose country",
+                                      choices = superchargers$Country,
+                                      multiple = TRUE,
+                                      selected = c("Belgium", "Norway", "Italy", "Germany", "France", "Netherlands", "United Kingdom", "Switzerland", "Portugal", "Spain", "Iceland", "Denmark", "Poland", "Serbia", "Bulgaria", "Sweden", "Hungary", "Czech Republic", "Slovakia", "Finland", "Austria", "Croatia", "Ireland", "Russia", "Liechtenstein", "Slovenia", "Luxembourg"))
+                        ))
+                    ),
+                    
+                #Expansion in Europe
+                    tabItem(tabName = "Expansion_in_Europe",
+                            fluidRow(
+                              box(title = "AF passenger cars",
+                                  "Total fleet of passenger cars per alternative fuel (AF)", solidHeader = T, status="danger", plotlyOutput("colpascar", height = "650px"),
+                                  ),
+                              box(title = "AF infrastructure",
+                                  "Total number of alternative fuel (AF) infrastructure per type of fuel", solidHeader = T, status="danger", plotlyOutput("colinfr", height = "650px"),
+                                  )
+                            ),
+                            fluidRow(
+                              box(title = "Choose your options", solidHeader = T, status="danger", 
+                                  radioButtons("Europe", label= "Choose what you want to see on the graph", choices = list("Europe" = 1, "Per chosen country" = 2)),
+                                  sliderInput(inputId = "YearEU", 
+                                              label = "Choose year for the values in Europe",
+                                              min = min(countriesafpassengercars$Year),
+                                              max = max(countriesafpassengercars$Year),
+                                              value = 2020,
+                                              sep = ""),
+                                  
+                                  selectInput("EUoptions", "Choose a country of Europe", 
+                                              c('Ausria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia',
+                                                'Finland', 'France', 'Germany', 'Greece', 'Hungria', 'Ireland', 'Italy', 'Latvia', 'Lithuania',
+                                                'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia',
+                                                'Spain', 'Sweden'), selected = "Belgium"),
+                                  dataTableOutput("europemaptable")
+                              ),
+                              box(title = "Tesla sales in Europe per year", solidHeader = T, status="danger", 
+                                  selectInput(inputId = "teslajaar",
+                                              label = "choose the year you want to see (green is new that year)",
+                                              choices = unique(teslapercountrysales$jaar),
+                                              selected = 2013),
+                                  plotOutput("distPlot", height = "650px")))
+                          )
+                
                       )
                             
                             
                     )  
                   )
                 )
-  )
+

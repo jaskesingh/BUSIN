@@ -8,6 +8,8 @@ library(lubridate)
 library(readr)
 library(plotly)
 library(DT)
+library(tidyquant)
+library(quantmod)
 
 eusurvey <- read.csv("data/hev1.csv")
 
@@ -33,12 +35,9 @@ shinyUI(
           tabName = "survey"
           ),
         menuItem(
-          "Sales",
-          tabName = "sales",
-          menuSubItem(
-            "Competition",
-            tabName = "competition"
-          )
+          "TSLA stock",
+          tabName = "stock",
+          badgeLabel = "New", badgeColor = "green"
         )
         )
       ),
@@ -114,9 +113,16 @@ shinyUI(
                             )
             )
             ),
+          
           tabItem(
-            tabName = "competition",
+            tabName = "stock",
             fluidRow(
+              box(
+                dateInput(inputId = "st", label = "start date",
+                          value = "2020-01-01"),
+                dateInput(inputId = "en", label = "end date"),
+                plotlyOutput("tslastock")
+              )
               
             )
           )
