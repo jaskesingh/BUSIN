@@ -27,7 +27,7 @@ library(ggExtra)
 library(toOrdinal)
 library(tidyquant)
 library(quantmod)
-
+library(ggflags) #geef dit in om te installeren: devtools::install_github("rensa/ggflags")
 
 #Caro
 
@@ -50,6 +50,7 @@ verkoo$'2016' <- as.numeric(verkoo$'2016')
 verkoo$'2017' <- as.numeric(verkoo$'2017')
 verkoo$'2018' <- as.numeric(verkoo$'2018')
 verkoo$'2019' <- as.numeric(verkoo$'2019')
+verkoo$Countries <- c("at", "be", "cz", "dk", "fi", "fr", "de", "gr", "ie", "it", "lu", "nl", "no", "pt", "ro", "si", "es", "se", "ch")
 verkoo <- verkoo %>% gather('2013':'2019',key = "Year", value = "Sales")
 verkoo$Year <- as.integer(verkoo$Year)       
 verkoo$Sales <- as.integer(verkoo$Sales)
@@ -291,7 +292,7 @@ shinyServer(function(input, output, session) {
   
   ### Graph
   output$line01 <- renderPlotly({
-    VPSC2 <- VPS %>% filter(Segment %in% input$Segment, Year >= min(input$Year2) & Year <= max(input$Year2))
+    VPSC2 <- VPS %>% filter(Year >= min(input$Year2) & Year <= max(input$Year2))
     p <- VPSC2 %>% ggplot(aes(x=Year, y=Sales)) + geom_line(aes(color = Segment)) + labs(title = "New cars sold in the EU by segment in million units over the years.") + 
       scale_x_continuous(breaks = c(2008:2019)) + scale_y_continuous(breaks= seq(0,6, by = 1)) + ylab("Cars sold") + theme_minimal() + scale_color_manual(values = c("red", "orange", "green", "lightseagreen", "blue", "purple"))
     ggplotly(p)})
@@ -354,12 +355,12 @@ shinyServer(function(input, output, session) {
     checkregion <- reactive({input$Region})
     output$line02 <- renderPlotly({
       if(checkregion() == 1) {
-        NieuwC <- Nieuw %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3), Fuel %in% input$Fuel)
+        NieuwC <- Nieuw %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3))
         p2 <- NieuwC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel)) + labs(title = "Number of new cars sold in Belgium over the years") + theme_minimal() + scale_color_manual(values = c("purple", "orange", "red", "green", "blue"))
         ggplotly(p2)
       }
       else{
-        TweedehandsC <- Tweedehands %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3), Fuel %in% input$Fuel)
+        TweedehandsC <- Tweedehands %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3))
         p3 <- TweedehandsC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel)) + labs(title = "Number of second hand cars sold in Belgium over the years") + theme_minimal() + scale_color_manual(values = c("purple", "orange", "red", "green", "blue"))
         ggplotly(p3)
       }
@@ -393,7 +394,7 @@ shinyServer(function(input, output, session) {
     })
     
     output$hist05 <- renderPlotly({
-      EuMSC2 <- EuMS %>% filter(Year >= min(input$Year8) & Year <= max(input$Year8), Fuel %in% input$Fuel3)
+      EuMSC2 <- EuMS %>% filter(Year >= min(input$Year8) & Year <= max(input$Year8))
       h5 <- EuMSC2 %>% ggplot(aes(x = Year, y = Market.Share)) + geom_line(aes(color = Fuel)) + labs(title = "Market Share of new cars in the EU over the years", input$Fuel3,"cars in the EU over the years") +
         scale_y_continuous(limits = c(0, 60), breaks = seq(0,60, by= 10)) + theme_minimal() + scale_color_manual(values = c("purple", "orange", "red", "green", "blue"))
       ggplotly(h5)
@@ -860,7 +861,7 @@ shinyServer(function(input, output, session) {
     })
     
   ### Graph 
-    output$hist01 <- renderPlotly({
+    output$hist01 <- renderPlot({
       verkooC <- verkoo %>% dplyr::filter(Country %in% input$Country, Year == input$Year)
       superchargersC <- superchargers %>% dplyr::filter(Year < input$Year+1, Status == 'OPEN', Country %in% input$Country)
       superchargersC <- plyr::count(superchargersC, "Country")
@@ -868,9 +869,11 @@ shinyServer(function(input, output, session) {
       ratio$freq <- as.integer(ratio$freq)
       ratio[is.na(ratio)] = 0
       ratio$Country <- as.factor(ratio$Country)
-      h1 <- ratio %>% ggplot(aes(x= freq, y = Sales, label = Country)) + geom_point() + geom_text(aes(label = Country), check_overlap = TRUE, vjust = "outward", hjust = "inward") + labs(title = paste0("Teslas/supercharger station in ", input$Year)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-        scale_y_continuous(limits = c(0, 31000), breaks = seq(0,31000, by= 5000)) + scale_x_continuous(limits = c(0, 80), breaks = seq(0, 80, by = 10)) + ylab(label = "Number of Teslas sold" ) + xlab(label = "Number of supercharger stations") + theme_minimal()
-      ggplotly(h1)
+      #h1 <- ratio %>% ggplot(aes(x= freq, y = Sales, label = Country)) + geom_point() + geom_text(aes(label = Country), check_overlap = TRUE, vjust = "outward", hjust = "inward") + labs(title = paste0("Teslas/supercharger station in ", input$Year)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+        #scale_y_continuous(limits = c(0, 31000), breaks = seq(0,31000, by= 5000)) + scale_x_continuous(limits = c(0, 80), breaks = seq(0, 80, by = 10)) + ylab(label = "Number of Teslas sold" ) + xlab(label = "Number of supercharger stations") + theme_minimal()
+      ratio %>% ggplot(aes(x= freq, y= Sales, country = Countries, size= freq)) + geom_flag() + scale_country() + scale_size(range = c(0, 15)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+        ylab(label = "Number of Teslas sold" ) + xlab(label = "Number of supercharger stations") + theme_minimal()
+      #ggplotly(h1)
     })
   
   ## Competition
