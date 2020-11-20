@@ -28,245 +28,42 @@ library(toOrdinal)
 library(tidyquant)
 library(quantmod)
 library(ggflags) #geef dit in om te installeren: devtools::install_github("rensa/ggflags")
+library(RSQLite)
 
-#Caro
+# Establish connection with the database
+con <- dbConnect(drv = SQLite(), "Tesla_database.sqlite")
 
-#Map + table01 + infoboxen
-superchargers <- read_xlsx("data/Superchargers.xlsx")
-superchargers <- superchargers %>% separate(GPS, sep = ",", into = c("Latitude", "Longitude"))
-superchargers$Longitude <- as.double(superchargers$Longitude)
-superchargers$Latitude <- as.double(superchargers$Latitude)
-superchargers$id <- seq.int(nrow(superchargers))
-superchargers$Year <- format(superchargers$'Open Date', format="%Y")
-superchargers <- data.frame(superchargers)
-aantal <- plyr::count(superchargers, "Status")
+#Read tables
+VPS <- dbReadTable(con, "VPS")
+Nieuw <- dbReadTable(con, "Nieuw")
+NieuwMS <- dbReadTable(con, "NieuwMS")
+Tweedehands <- dbReadTable(con, "Tweedehands")
+TweedehandsMS <- dbReadTable(con, "TweedehandsMS")
+EuMS <- dbReadTable(con, "EuMS")
+# <- dbReadTable(con, "") (hier moet nog een gelezen worden)
+aankoopproces <- dbReadTable(con, "aankoopproces")
+loyalty_per_brand_ranked_tibble <- dbReadTable(con, "loyalty_per_brand_ranked_tibble")
+eusurvey <- dbReadTable(con, "eusurvey")
+Data <- dbReadTable(con, "Data")
+Financial_numbers_gather_norm <- dbReadTable(con, "Financial_numbers_gather_norm")
+Financial_numbers_gather_som <- dbReadTable(con, "Financial_numbers_gather_som")
+aantal <- dbReadTable(con, "aantal")
+superchargers <- dbReadTable(con, "superchargers")
+verkoo <- dbReadTable(con, "verkoo")
+taart <- dbReadTable(con, "taart")
+laadpalen <- dbReadTable(con, "laadpalen")
+countriesafpassengercars <- dbReadTable(con, "countriesafpassengercars")
+countriesafinfrastructure <- dbReadTable(con, "countriesafinfrastructure")
+tesla.eu.map <- dbReadTable(con, "tesla.eu.map")
 
-#Histogram01
-verkoo <- read_xlsx("Data/Yearly Tesla Sales Country Split (Europe).xlsx")
-verkoo$'2013' <- as.numeric(verkoo$'2013')
-verkoo$'2014' <- as.numeric(verkoo$'2014')
-verkoo$'2015' <- as.numeric(verkoo$'2015')
-verkoo$'2016' <- as.numeric(verkoo$'2016')
-verkoo$'2017' <- as.numeric(verkoo$'2017')
-verkoo$'2018' <- as.numeric(verkoo$'2018')
-verkoo$'2019' <- as.numeric(verkoo$'2019')
-verkoo$Countries <- c("at", "be", "cz", "dk", "fi", "fr", "de", "gr", "ie", "it", "lu", "nl", "no", "pt", "ro", "si", "es", "se", "ch")
-verkoo <- verkoo %>% gather('2013':'2019',key = "Year", value = "Sales")
-verkoo$Year <- as.integer(verkoo$Year)       
-verkoo$Sales <- as.integer(verkoo$Sales)
-verkoo <- data.frame(verkoo)
+dbDisconnect(con)
 
-#Concurrentie
-ionity <- read_xlsx("Data/ionity_locations.xlsx")
-ionity$Supercharger <- ionity$name
-ionity$Stalls <- ionity$charger_count
-ionity$Open.Date <- ionity$golive
-ionity$Latitude <- ionity$coords.lat
-ionity$Longitude <- ionity$coords.lng
-ionity$Status <- ionity$description
-ionity$Description <- ionity$title
-ionity$Country <- ionity$geo_state.country
-ionity$City <- ionity$city
-ionity$State <- ionity$geo_state.name_en
-ionity <- ionity %>% filter(Status != 'now building' | Status != 'Now building')
-ionity <- ionity %>% select(Supercharger, Stalls, Latitude, Longitude, Description, City, State, Country, Open.Date)
-teslapalen <- superchargers %>% mutate(Description = 'Tesla') %>% filter(Status == 'OPEN') %>% select(Supercharger, Stalls, Latitude, Longitude, Description, City, State, Country, Open.Date)
-ionity$Open.Date <- as.POSIXct(ionity$Open.Date, format = "%Y-%m-%d %H:%M")
-laadpalen <- bind_rows(ionity, teslapalen)
-laadpalen$Country <- as.factor(laadpalen$Country)
-taart <- plyr::count(laadpalen, "Description")
-laadpalen <- plyr::count(laadpalen, c("Description", "Country"))
-taart <- taart %>% dplyr::mutate(ratio = round(freq/sum(freq)*100))
-
-#Groei: verkoop alle merken per segment
-VPS <- read_xlsx("Data/New cars sold in the EU by segment in million units.xlsx")
-VPS <- VPS %>% gather('2008':'2019', key=  "Year", value="Sales")
-VPS$Year <- as.numeric(VPS$Year)
-VPS$Sales <- as.double(VPS$Sales)
-
-#Groei: aandeel elektrische auto's op belgische en eu markt
-nieuw <- read_xlsx("Data/Verkoop per brandstof (België) met market share.xlsx", sheet = "Nieuw")
-tweedehands <- read_xlsx("Data/Verkoop per brandstof (België) met market share.xlsx", sheet = "Tweedehands")
-eu <- read_xlsx("Data/% share of new passenger cars by fuel type in the EU.xlsx")
-NieuwMS <- nieuw %>% gather(MS12, MS13, MS14, MS15, MS16, MS17, MS18, MS19,key = "Year", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
-NieuwMS$Year <- recode(NieuwMS$Year, MS12 = "2012", MS13 = "2013", MS14 = "2014", MS15 = "2015", MS16 = "2016", MS17 = "2017", MS18 = "2018", MS19 = "2019" )
-Nieuw <- nieuw %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
-Nieuw$Year <- as.integer(Nieuw$Year)
-NieuwMS$Year <- as.integer(NieuwMS$Year)
-NieuwMS$Market.Share <- as.double(NieuwMS$Market.Share)
-TweedehandsMS <- tweedehands %>% gather(MS12, MS13, MS14, MS15, MS16, MS17, MS18, MS19,key = "Year", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
-TweedehandsMS$Year <- recode(TweedehandsMS$Year, MS12 = "2012", MS13 = "2013", MS14 = "2014", MS15 = "2015", MS16 = "2016", MS17 = "2017", MS18 = "2018", MS19 = "2019" )
-Tweedehands <- tweedehands %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
-Tweedehands$Year <- as.integer(Tweedehands$Year)
-TweedehandsMS$Year <- as.integer(TweedehandsMS$Year)
-TweedehandsMS$Market.Share <- as.double(TweedehandsMS$Market.Share)
-EuMS <- eu %>% gather('2016', '2017', '2018', '2019',key = "Year", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
-EuMS$Year <- as.integer(EuMS$Year)
-EuMS$Market.Share <- as.double(EuMS$Market.Share)
-
-#Klanten: aankoopproces
-aankoopproces <- read_xlsx("Data/Online.xlsx")
-aankoopproces <- aankoopproces %>% gather(`Not at all interested/not very interested`:`Somewhat interested/very interested`, key = "Interest", value="Percentage")
-aankoopproces$Interest <- ordered(aankoopproces$Interest, levels = c("Not at all interested/not very interested", "Neutral", "Somewhat interested/very interested"))
-
-#Verkoop: periodieke tesla verkoop
-data <- read_xlsx("Data/Monthly Tesla Vehicle Sales.xlsx")
-Data <- data %>% gather(January:December, key=  "Month", value="Sales") %>% mutate(Month = str_replace(Month, "January", "1"), Month = str_replace(Month, "February", "2"), Month = str_replace(Month, "March", "3"), Month = str_replace(Month, "April", "4"), Month = str_replace(Month, "May", "5"), Month = str_replace(Month, "June", "6"), Month = str_replace(Month, "July", "7"), Month = str_replace(Month, "August", "8"), Month = str_replace(Month, "September", "9"), Month = str_replace(Month, "October", "10"), Month = str_replace(Month, "November", "11"), Month = str_replace(Month, "December", "12"))
-Data$Month <- as.integer(Data$Month)
-Data$Year <- as.factor(Data$Year) 
-
-#Lien
-
-#finance
-
-Revenue <- read_xlsx("data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Revenues (automotive)", col_types = c("numeric", "text", "numeric", "numeric"))
-Gross_Margin <- read_xlsx("Data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Gross margin", col_types = c("numeric", "text", "numeric", "numeric"))
-Gross_profit <- read_xlsx("Data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Gross profit", col_types = c("numeric", "text", "numeric", "numeric", "numeric"))
-Free_cashflow <- read_xlsx("Data/Tesla's free cash flow by quarter 2020 world wide.xlsx", skip = 3 , sheet = "Data", col_types = c("numeric", "text", "numeric"))
-
-##cleaning
-Revenuetabel <- Revenue %>% group_by(Year) %>% 
-  mutate("Revenue " = sum(Revenue, na.rm = TRUE)/1000000)
-Free_cashflow <- Free_cashflow %>% group_by(Year) %>% 
-  mutate("Free cash flow " = sum(`Free cash flow`, na.rm = TRUE)/1000000)
-Gross_profit <- Gross_profit %>% group_by(Year) %>% 
-  mutate("Gross Profit " = sum(`Gross Profit`, na.rm = TRUE)/1000000)
-Gross_Margin <- Gross_Margin %>% group_by(Year) %>% 
-  mutate("Gross Margin " = sum(`Gross Margin`, na.rm = TRUE))
-
-Revenuetabel <- Revenuetabel %>% unite(Year, Quarter, col = "Date", sep = " ") 
-Gross_profit <- Gross_profit %>% unite(Year, Quarter, col = "Date", sep = " ") 
-Free_cashflow <- Free_cashflow %>% unite(Year, Quarter, col = "Date", sep = " ") 
-Gross_Margin <- Gross_Margin %>% unite(Year, Quarter, col = "Date", sep = " ") 
-
-
-Revenuetabelnorm <- Revenuetabel %>% select(Date, Revenue)
-Gross_profitnorm <- Gross_profit %>% select(Date, `Gross Profit`)
-Gross_Marginnorm <- Gross_Margin %>% select(Date, `Gross Margin`) 
-Free_cashflownorm <- Free_cashflow %>% select(Date, `Free cash flow`)
-
-Revenuetabelsom <- Revenuetabel %>% select(Date, `Revenue `)
-Gross_profitsom <- Gross_profit %>% select(Date, `Gross Profit `)
-Gross_Marginsom <- Gross_Margin %>% select(Date, `Gross Margin `)
-Free_cashflowsom <- Free_cashflow %>% select(Date, `Free cash flow `)
-
-Financial_numbersnorm <- left_join(Revenuetabelnorm, Gross_profitnorm, by = "Date")
-Financial_numbersnorm <- left_join(Financial_numbersnorm, Gross_Marginnorm, by = "Date")
-Financial_numbersnorm <- left_join(Financial_numbersnorm, Free_cashflownorm, by = "Date")
-
-Financial_numbersnorm <- Financial_numbersnorm %>% separate(Date, sep = " ", into = c("Year", "Quarter"))
-Financial_numbersnorm$'Year' <- as.numeric(Financial_numbersnorm$'Year')
-Financial_numbersnorm$'Revenue' <- as.numeric(Financial_numbersnorm$'Revenue')
-Financial_numbersnorm$'Gross Profit' <- as.numeric(Financial_numbersnorm$'Gross Profit')
-Financial_numbersnorm$'Gross Margin' <- as.numeric(Financial_numbersnorm$'Gross Margin')
-Financial_numbersnorm$'Free cash flow' <- as.numeric(Financial_numbersnorm$'Free cash flow')
-
-Financial_numbers_gather_norm <- Financial_numbersnorm %>% gather('Revenue', 'Gross Profit', 'Gross Margin', 'Free cash flow', key = 'Type', value = 'finvalue')
-
-Financial_numberssom <- left_join(Revenuetabelsom, Gross_profitsom, by = "Date")
-Financial_numberssom <- left_join(Financial_numberssom, Gross_Marginsom, by = "Date")
-Financial_numberssom <- left_join(Financial_numberssom, Free_cashflowsom, by = "Date")
-
-Financial_numberssom <- Financial_numberssom %>% separate(Date, sep = " ", into = c("Year", "Quarter"))
-Financial_numberssom$'Year' <- as.numeric(Financial_numberssom$'Year')
-Financial_numberssom$'Revenue ' <- as.numeric(Financial_numberssom$'Revenue ')
-Financial_numberssom$'Gross Profit ' <- as.numeric(Financial_numberssom$'Gross Profit ')
-Financial_numberssom$'Gross Margin ' <- as.numeric(Financial_numberssom$'Gross Margin ')
-Financial_numberssom$'Free cash flow ' <- as.numeric(Financial_numberssom$'Free cash flow ')
-
-Financial_numbers_gather_som <- Financial_numberssom %>% gather('Revenue ', 'Gross Profit ', 'Gross Margin ', 'Free cash flow ', key = 'Type', value = 'Total') %>% select(Year, Type, Total) %>% distinct()
 
 ##financiele cijfers, functies
 financefunction <- function(yearinput,df) {
   financefunction <- df %>% filter(df$Year == yearinput)
   return(financefunction)
 }
-
-#uitbreiding europa
-countriesafpassengercars <- read_xlsx("Data/Countries overview of af passenger cars.xlsx", skip = 2 , col_types = c("numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))
-countriesafinfrastructure <- read_xlsx("Data/countries overview of af infrastructure.xlsx", skip = 2 , col_types = c("numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric"))
-countriesafinfrastructure <- countriesafinfrastructure %>% mutate("Electricity\n(BEV + PHEV)" = Electricity,  "Natural Gas\n(CNG + LNG)" = `Natural Gas`)
-countriesafinfrastructure <- countriesafinfrastructure %>% select("Year", "Country", "Electricity\n(BEV + PHEV)", "H2", "Natural Gas\n(CNG + LNG)", "LPG", "Total")
-
-#uitbreiding europa, data in juiste vorm krijgen
-countriesafpassengercars <- countriesafpassengercars %>% gather('BEV', 'H2', 'CNG', 'LNG', 'PHEV', 'LPG', 'Total', key = 'Fuel', value = 'waardes')
-countriesafpassengercars$Country[1:2457] <- c('Ausria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia',
-                                              'Finland', 'France', 'Germany', 'Greece', 'Hungria', 'Ireland', 'Italy', 'Latvia', 'Lithuania',
-                                              'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia',
-                                              'Spain', 'Sweden')
-countriesafinfrastructure <- countriesafinfrastructure %>% gather('Electricity\n(BEV + PHEV)', 'H2', 'Natural Gas\n(CNG + LNG)', 'LPG', 'Total', key = 'Fuel', value = 'waardes')
-countriesafinfrastructure$Country[1:1755] <- c('Ausria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia',
-                                               'Finland', 'France', 'Germany', 'Greece', 'Hungria', 'Ireland', 'Italy', 'Latvia', 'Lithuania',
-                                               'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia',
-                                               'Spain', 'Sweden')
-
-#wereldkaart
-
-teslapercountrysales <- read_xlsx("Data/Verkoop landen tesla.xlsx", skip = 1, col_types = c("text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric")) %>% gather('2013', '2014', '2015', '2016', '2017', '2018', '2019', key = 'jaar', value = 'waarde')
-
-some.eu.countries <- c('Ukraine', 'France', 'Spain', 'Sweden', 'Norway', 'Germany', 'Finland', 'Poland', 'Italy', 'UK', 'Romania', 'Belarus', 'Greece', 'Bulgaria', 'Iceland', 'Hungary', 'Portugal', 'Austria', 'Czech Republic', 'Serbia', 'Ireland', 'Lithuania', 'Latvia', 'Croatia', 'Bosnia and Herzegovina', 'Slovakia', 'Estonia', 'Denmark', 'Netherlands', 'Switzerland', 'Moldova', 'Belgium', 'Armenia', 'Albania', 'Macedonia', 'Turkey', 'Slovenia', 'Montenegro', 'Kosovo', 'Cyprus', 'Luxembourg', 'Georgia', 'Andorra', 'Malta', 'Liechtenstein', 'San Marino', 'Monaco', 'Vatican')
-
-some.eu.map <- map_data("world", region = some.eu.countries)
-tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
-
-
-#Pieter
-
-# Customers: loyalty
-  
-  # Load and prep data
-
-    # Load data
-    loyalty_per_brand_data <- read_xlsx("Data/loyalty_per_brand_v4.xlsx", skip = 2)
-    
-    # Make tibble (already was, but just to be sure)
-    loyalty_per_brand_tibble = as_tibble(loyalty_per_brand_data)
-    
-    # Change to numeric (already was, but just to be sure)
-    loyalty_per_brand_tibble$Percentage <- as.numeric(loyalty_per_brand_tibble$Percentage)
-    
-    # Clean names
-    colnames(loyalty_per_brand_tibble) <- c("Ranking", "Brand", "Percentage", "Classification")
-  
-  
-  
-  # Delete Ranking as it has been made in excel. We want to make it based on the data loaded in R.
-  
-    # Delete Ranking
-    loyalty_per_brand_tibble <- loyalty_per_brand_tibble %>%
-      select(-Ranking)
-    
-    # Rank the tibble
-    loyalty_per_brand_ranked_tibble <- loyalty_per_brand_tibble[order(-loyalty_per_brand_tibble$Percentage), ]
-
-    # Add Ranking
-    loyalty_per_brand_ranked_tibble <- mutate(loyalty_per_brand_ranked_tibble, Rank = row_number())
-
-# # Growth: Comparison
-# 
-#   # growth_comp_data_5 <- read_xlsx("Dashboard/Data/growth_comparison_v5.xlsx")
-#   # View(growth_comp_data_5)
-# 
-#   # Ik denk correctere versie
-#   # growth_comp_data_5 <- read_xlsx("Data/growth_comparison_v5.xlsx")
-# 
-#   
-#   # Placeholder for presentation 10-11-20
-#     # Select
-#     growth_comp_sales_2019_1 <- growth_comp_data_5 %>% 
-#                                   select(c("Submodel", "2019")) %>%
-#                                   drop_na("2019") %>%
-#                                   # Drop others and segment total
-#                                   drop_na("Submodel")
-#     
-#     # To retain the order in the plot
-#     growth_comp_sales_2019_1$"2019" <- factor(growth_comp_sales_2019_1$"2019",
-#                                        levels = growth_comp_sales_2019_1$"2019")
-    
-  
-#jaske
-
-eusurvey <- read.csv("data/hev1.csv")
 
 # Define server logic required to draw a map
 shinyServer(function(input, output, session) {
