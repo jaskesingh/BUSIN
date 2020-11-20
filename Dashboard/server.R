@@ -101,13 +101,13 @@ shinyServer(function(input, output, session) {
       if(checkregion() == 1){
         NieuwC <- Nieuw %>% filter(Year == max(input$Year3))
         valueBox(
-          paste0(NieuwC$Fuel[NieuwC$'Cars sold' == max(NieuwC$'Cars sold')]),
+          paste0(NieuwC$Fuel[NieuwC$`Cars sold` == max(NieuwC$`Cars sold`)]),
           subtitle= paste("Best sold type of car in Belgium in ", max(input$Year3)), icon = icon('gas-pump'), color = "red"
       )}
       else{
         TweedehandsC <- Tweedehands %>% filter(Year == max(input$Year3))
         valueBox(
-          paste0(TweedehandsC$Fuel[TweedehandsC$'Cars sold' == max(TweedehandsC$'Cars sold')]),
+          paste0(TweedehandsC$Fuel[TweedehandsC$`Cars sold` == max(TweedehandsC$`Cars sold`)]),
           subtitle= paste("Best sold type of second hand car in Belgium in ", max(input$Year3)), icon = icon('gas-pump'), color = "red"
         )
       }
@@ -116,14 +116,14 @@ shinyServer(function(input, output, session) {
     output$populairstfuel <- renderValueBox({
       if(checkregion() == 1){
         NieuwC <- Nieuw %>% filter(Year == max(input$Year3) | Year == min(input$Year3))
-        NieuwC <- NieuwC %>% group_by(Fuel) %>% mutate(Difference = ('Cars sold'[Year == max(Year)] - 'Cars sold'[Year == min(Year)]))
+        NieuwC <- NieuwC %>% group_by(Fuel) %>% mutate(Difference = (`Cars sold`[Year == max(Year)] - `Cars sold`[Year == min(Year)]))
         valueBox(
           paste0(NieuwC$Fuel[NieuwC$Difference == max(NieuwC$Difference) & NieuwC$Year == max(input$Year3)]),
           subtitle= paste("Type of car that has augmented the most in Belgium between ", min(input$Year3), " and ", max(input$Year3)), icon = icon('gas-pump'), color = "red"
         )}
       else{
         TweedehandsC <- Tweedehands %>% filter(Year == max(input$Year3) | Year == min(input$Year3))
-        TweedehandsC <- TweedehandsC %>% group_by(Fuel) %>% mutate(Difference = ('Cars sold'[Year == max(Year)] - 'Cars sold'[Year == min(Year)]))
+        TweedehandsC <- TweedehandsC %>% group_by(Fuel) %>% mutate(Difference = (`Cars sold`[Year == max(Year)] - `Cars sold`[Year == min(Year)]))
         valueBox(
           paste0(TweedehandsC$Fuel[TweedehandsC$Difference == max(TweedehandsC$Difference) & TweedehandsC$Year == max(input$Year3)]),
           subtitle= paste("Type of second hand car that has augmented the most in Belgium between ", min(input$Year3), " and ", max(input$Year3)), icon = icon('gas-pump'), color = "red"
@@ -152,13 +152,14 @@ shinyServer(function(input, output, session) {
     checkregion <- reactive({input$Region})
     output$line02 <- renderPlotly({
       if(checkregion() == 1) {
-        NieuwC <- Nieuw %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3))
-        p2 <- NieuwC %>% ggplot(aes(x = Year, y = 'Cars sold')) + geom_line(aes(color = Fuel)) + labs(title = "Number of new cars sold in Belgium over the years") + theme_minimal() + scale_color_manual(values = c("purple", "orange", "red", "green", "blue"))
+        NieuwC <- Nieuw %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3), Fuel %in% input$Fuel)
+        p2 <- NieuwC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel), size = 1) + labs(title = "Number of new cars sold in Belgium over the years")
         ggplotly(p2)
       }
       else{
-        TweedehandsC <- Tweedehands %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3))
-        p3 <- TweedehandsC %>% ggplot(aes(x = Year, y = 'Cars sold')) + geom_line(aes(color = Fuel)) + labs(title = "Number of second hand cars sold in Belgium over the years") + theme_minimal() + scale_color_manual(values = c("purple", "orange", "red", "green", "blue"))
+        #lijn tweedehands: groei: aandeel elektrische auto's op belgische en eu markt
+        TweedehandsC <- Tweedehands %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3), Fuel %in% input$Fuel)
+        p3 <- TweedehandsC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel), size = 1) + labs(title = "Number of second hand cars sold in Belgium over the years")
         ggplotly(p3)
       }
     })
