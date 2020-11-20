@@ -141,7 +141,7 @@ hev1 <- hev %>% mutate(Gender = as.factor(Gender),
                        Employment_status = as.factor(Employment_status),
                        Income_group = as.factor(Income_group),
                        Country = as.factor(Country),
-                       buy_electric = as.logical(buy_electric),
+                       buy_electric = as.factor(buy_electric),
                        Household_members_number = as.factor(Household_members_number),
                        Plan_to_purchase_vehicle = as.factor(Plan_to_purchase_vehicle))
 levels(hev1$Gender) <- c("M", "F")
