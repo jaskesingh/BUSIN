@@ -401,8 +401,8 @@ shinyServer(function(input, output, session) {
       f3 <- eusurvey %>% filter(Country == input$incountry, Income_group == input$incomegr)
       p3 <- f3 %>% ggplot(aes(Income_group)) + 
         geom_bar(aes(fill = buy_electric), position = "dodge") +
-        labs(y = "Number of respondents", fill = "Buy EV") +
-        theme(axis.text.x = element_text(angle = 60, hjust = 1))
+        labs(y = "Number of respondents", fill = "Buy EV") + theme_minimal() +
+        theme(axis.text.x = element_text(angle = 60, hjust = 1)) + scale_fill_manual(values = c("red", "green"))
       ggplotly(p3)
     })
     
