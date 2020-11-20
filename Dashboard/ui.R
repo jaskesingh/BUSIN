@@ -398,7 +398,7 @@ shinyUI(
                                                                                                                   sep = "")),
                               box(
                                 title = "Tesla performance on the Stock Market",
-                                soldidHeader = T, status = "danger", plotlyOutput("tslastock"),
+                                solidHeader = T, status = "danger", plotlyOutput("tslastock"),
                                 dateInput(inputId = "st", label = "From",
                                             value = "2020-01-01"),
                                   dateInput(inputId = "en", label = "To")
