@@ -206,20 +206,20 @@ shinyServer(function(input, output, session) {
       
       # Pseudo-code:
       # Select only row with submodels and $input
-      # Filter na's
+      # Filter NA's
       # Plot 
       # Probably need to use if functions to adjust plot depending on input
       # But first check how plotly reacts to this. 
       
       # Todo:
-      # Oplossing voor leleijke getallen: round functie gebruiken
-      # Pas dit aan (maar lees verder)
-      # round(sum(Revenue$'Automotive Revenues Tesla'[Revenue$Year == input$Yearrev], na.rm = TRUE)/1000000, 2)
-      # Eigenlijk in mijn geval gewoon: round(value,2)
+      # Oplossing voor lelijke getallen: round-functie gebruiken
+        # Pas dit aan (maar lees verder)
+        # round(sum(Revenue$'Automotive Revenues Tesla'[Revenue$Year == input$Yearrev], na.rm = TRUE)/1000000, 2)
+        # Eigenlijk in mijn geval gewoon: round(value,2)
       #Voor plotly te customizen:
-      # plotly.com/r/hover-text-and-formatting
-      # scrol naar onder custumizeing .. with plotly express
-      # plotly werkt wel anders dan ggplot
+        # plotly.com/r/hover-text-and-formatting
+        # scrol naar onder custumizing .. with plotly express
+        # plotly werkt wel anders dan ggplot
       
       
       
@@ -227,6 +227,7 @@ shinyServer(function(input, output, session) {
       # Tesla in andere kleur
       
       
+      # Werkt niet zoals verwacht
       # Create plot
       # growth_comp_plot <- ggplot(growth_comp_sales_2019_1,
       #                            aes(x = year_2019_sales,
@@ -364,10 +365,7 @@ shinyServer(function(input, output, session) {
       
       
       # Te doen:
-      # - Eventueel: goal laten zetten? Bespreek met teamleden
-      # - Ggplotly zodat je precieze percentage ook ziet. Dan kan mogelijk checkbox zelfs weg.(Want wil ...
-      #   ... kunnen filteren op luxury/mass market of beiden). Mss voegt plotly ook toe dat merken kan ...
-      #   ... kiezen
+      # - Ggplotly zodat je precieze percentage en rank ook ziet.
       
       
     })

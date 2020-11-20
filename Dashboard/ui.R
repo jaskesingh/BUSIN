@@ -72,17 +72,19 @@ eusurvey <- read.csv("data/hev1.csv")
 
 # Pieter
 
-  # Load growth comparison (groco) data
+  # # Load growth comparison (groco) data
   # groco_data <- read_xlsx("Data/growth_comparison_v7.xlsx")
   # View(groco_data)
   # str(groco_data)
-  
-  # Clean it
-    
-    # Convert to numerics
-    # groco_data$'Change In Sales From 2018 To 2019 (%)'  <- as.numeric(groco_data$'Change In Sales From 2018 To 2019 (%)')
-    
-    # Round to correct for weird numbers
+  # 
+  # # Clean it
+  # 
+  #   # Convert to numerics
+  # 
+  #     #Merk op dat dit "New" omzet in "NA"
+  #     groco_data$'Change In Sales From 2018 To 2019 (%)'  <- as.numeric(groco_data$'Change In Sales From 2018 To 2019 (%)')
+  # 
+  #     groco_data$'Share In EV Market In 2018'  <- as.numeric(groco_data$'Share In EV Market In 2018')
       
 # Define UI for application that draws a map
 shinyUI(
