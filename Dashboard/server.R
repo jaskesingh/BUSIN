@@ -152,13 +152,14 @@ shinyServer(function(input, output, session) {
     checkregion <- reactive({input$Region})
     output$line02 <- renderPlotly({
       if(checkregion() == 1) {
-        NieuwC <- Nieuw %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3))
-        p2 <- NieuwC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel)) + labs(title = "Number of new cars sold in Belgium over the years") + theme_minimal() + scale_color_manual(values = c("purple", "orange", "red", "green", "blue"))
+        NieuwC <- Nieuw %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3), Fuel %in% input$Fuel)
+        p2 <- NieuwC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel), size = 1) + labs(title = "Number of new cars sold in Belgium over the years")
         ggplotly(p2)
       }
       else{
-        TweedehandsC <- Tweedehands %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3))
-        p3 <- TweedehandsC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel)) + labs(title = "Number of second hand cars sold in Belgium over the years") + theme_minimal() + scale_color_manual(values = c("purple", "orange", "red", "green", "blue"))
+        #lijn tweedehands: groei: aandeel elektrische auto's op belgische en eu markt
+        TweedehandsC <- Tweedehands %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3), Fuel %in% input$Fuel)
+        p3 <- TweedehandsC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel), size = 1) + labs(title = "Number of second hand cars sold in Belgium over the years")
         ggplotly(p3)
       }
     })
@@ -211,7 +212,7 @@ shinyServer(function(input, output, session) {
       # Todo:
       # Oplossing voor leleijke getallen: round functie gebruiken
       # Pas dit aan (maar lees verder)
-      # round(sum(Revenue$`Automotive Revenues Tesla`[Revenue$Year == input$Yearrev], na.rm = TRUE)/1000000, 2)
+      # round(sum(Revenue$'Automotive Revenues Tesla'[Revenue$Year == input$Yearrev], na.rm = TRUE)/1000000, 2)
       # Eigenlijk in mijn geval gewoon: round(value,2)
       #Voor plotly te customizen:
       # plotly.com/r/hover-text-and-formatting
@@ -400,16 +401,22 @@ shinyServer(function(input, output, session) {
     output$view <- renderPlotly({
       f3 <- eusurvey %>% filter(Country == input$incountry, Income_group == input$incomegr)
       p3 <- f3 %>% ggplot(aes(Income_group)) + 
+<<<<<<< HEAD
         geom_bar(aes(fill = buy_electric), position = "dodge") +
         labs(y = "Number of respondents", fill = "Buy EV") + theme_minimal() +
         theme(axis.text.x = element_text(angle = 60, hjust = 1)) + scale_fill_manual(values = c("red", "green"))
+=======
+        geom_bar(aes(fill = as.logical(buy_electric)), position = "dodge") +
+        labs(y = "Number of respondents", fill = "Buy EV") +
+        theme(axis.text.x = element_text(angle = 60, hjust = 1))
+>>>>>>> 159f8514ca22268e46fbaa3bc1cd28eb6781765d
       ggplotly(p3)
     })
     
     output$employ <- renderPlotly({
       f1 <- eusurvey %>% filter(Employment_status %in% input$estatus)
       p1 <- f1 %>% ggplot(aes(Employment_status)) +
-        geom_bar(aes(fill = buy_electric), position = "dodge") +
+        geom_bar(aes(fill = as.logical(buy_electric)), position = "dodge") +
         labs(y = "Number of respondents", fill = "Buy EV") +
         theme(axis.text.x = element_text(angle = 60, hjust = 1))
       ggplotly(p1) %>% 
@@ -422,7 +429,7 @@ shinyServer(function(input, output, session) {
     output$ggcountry <- renderPlotly({
       f2 <- eusurvey %>% filter(Country %in% input$gcountry)
       p2 <- f2 %>% ggplot(aes(Gender)) + 
-        geom_bar(aes(fill = buy_electric), position = "dodge") +
+        geom_bar(aes(fill = as.logical(buy_electric)), position = "dodge") +
         facet_wrap(~Country) + 
         labs(y = "Number of respondents", fill = "Buy EV")
       ggplotly(p2) %>% 
@@ -435,7 +442,7 @@ shinyServer(function(input, output, session) {
     output$plan <- renderPlotly({
       f4 <- eusurvey %>% filter (Country %in% input$carplancountry)
       p4 <- f4 %>% ggplot(aes(Plan_to_purchase_vehicle)) + 
-        geom_bar(aes(fill = buy_electric), position = "dodge") + 
+        geom_bar(aes(fill = as.logical(buy_electric)), position = "dodge") + 
         labs(y = "Number of respondents", x = "Plan to buy car", fill = "Buy EV") +
         theme(axis.text.x = element_text(angle = 60, hjust = 1))
       ggplotly(p4)
