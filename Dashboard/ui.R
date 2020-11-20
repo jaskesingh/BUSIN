@@ -125,11 +125,6 @@ shinyUI(
                           title = "New cars sold in the EU by segment in million units over the years", 
                           width = 12,
                           solidHeader = T, status = 'danger', plotlyOutput("line01"),
-                          selectInput(inputId = "Segment",
-                                      label = "Choose segment",
-                                      choices = VPS$Segment,
-                                      multiple = TRUE,
-                                      selected = c("Lower Medium (C)", "Luxury (E+F)", "MPV", "Small (A+B)", "SUV", "Upper Medium (D)")),
                           sliderInput(inputId = "Year2",
                                       label = "Choose year",
                                       min = 2008,
@@ -158,13 +153,7 @@ shinyUI(
                                       min = 2012,
                                       max = 2019,
                                       value = c(2012, 2019),
-                                      sep = ""),
-                          selectInput(inputId = "Fuel",
-                                      label = "Choose fuel type",
-                                      choices = nieuw$Fuel,
-                                      multiple = TRUE,
-                                      selected = c("Electric", "Petrol", "Diesel", "Alternative fuels", "Hybrid"))
-                          
+                                      sep = "")
                         ),
                         box(
                           title = "Market share of cars by fuel type in Belgium", solidHeader = T, status = 'danger', plotlyOutput("pie02"),
@@ -185,12 +174,7 @@ shinyUI(
                                       min = 2016,
                                       max = 2019,
                                       value = c(2016, 2019),
-                                      sep = ""),
-                          selectInput(inputId = "Fuel3",
-                                      label = "Choose fuel type",
-                                      choices = eu$Fuel,
-                                      multiple = TRUE,
-                                      selected = c("Electrically-chargeable", "Petrol", "Diesel", "Alternative fuels", "Hybrid"))
+                                      sep = "")
                         ),
                         box(
                           title = "Market share of new cars by fuel type in the EU", plotlyOutput("pie04"), solidHeader = T, status = 'danger',
@@ -415,9 +399,9 @@ shinyUI(
                               box(
                                 title = "Tesla performance on the Stock Market",
                                 soldidHeader = T, status = "danger", plotlyOutput("tslastock"),
-                                dateInput(inputId = "st", label = "start date",
+                                dateInput(inputId = "st", label = "From",
                                             value = "2020-01-01"),
-                                  dateInput(inputId = "en", label = "end date")
+                                  dateInput(inputId = "en", label = "To")
                                   )
                             )
                             
@@ -441,7 +425,7 @@ shinyUI(
                       fluidRow(
                         box(
                           title = "Number of Teslas per supercharger station", width = 12,
-                          solidHeader = T, status = "danger", plotlyOutput("hist01", height = "600px"),
+                          solidHeader = T, status = "danger", plotOutput("hist01", height = "600px"),
                           sliderInput(inputId = "Year",
                                       label = "Choose year",
                                       min = 2013,

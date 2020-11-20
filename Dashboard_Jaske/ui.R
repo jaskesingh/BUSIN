@@ -30,6 +30,7 @@ shinyUI(
     
     dashboardSidebar(
       sidebarMenu(
+        sidebarSearchForm("searchText", "buttonSearch", "Search"),
         menuItem(
           "EU Survey 2018", 
           tabName = "survey"
