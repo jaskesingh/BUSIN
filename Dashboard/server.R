@@ -154,14 +154,14 @@ shinyServer(function(input, output, session) {
       if(checkregion() == 1) {
         NieuwC <- Nieuw %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3))
         p2 <- NieuwC %>% ggplot(aes(x = Year, y = Cars.sold)) + geom_line(aes(color = Fuel)) + labs(title = "Number of new cars sold in Belgium over the years") + theme_minimal() +
-          scale_color_manual(values = c("purple", "orange", "red", "green", "blue"))
+          scale_color_manual(values = c("purple", "orange", "red", "green", "blue")) + ylab("Cars sold")
         ggplotly(p2)
       }
       else{
         #lijn tweedehands: groei: aandeel elektrische auto's op belgische en eu markt
         TweedehandsC <- Tweedehands %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3))
         p3 <- TweedehandsC %>% ggplot(aes(x = Year, y = Cars.sold)) + geom_line(aes(color = Fuel)) + labs(title = "Number of second hand cars sold in Belgium over the years") + theme_minimal() +
-          scale_color_manual(values = c("purple", "orange", "red", "green", "blue"))
+          scale_color_manual(values = c("purple", "orange", "red", "green", "blue")) + ylab("Cars sold")
         ggplotly(p3)
       }
     })
@@ -196,7 +196,7 @@ shinyServer(function(input, output, session) {
     output$hist05 <- renderPlotly({
       EuMSC2 <- EuMS %>% filter(Year >= min(input$Year8) & Year <= max(input$Year8))
       h5 <- EuMSC2 %>% ggplot(aes(x = Year, y = Market.Share)) + geom_line(aes(color = Fuel)) + labs(title = "Market Share of new cars in the EU over the years", input$Fuel3,"cars in the EU over the years") +
-        scale_y_continuous(limits = c(0, 60), breaks = seq(0,60, by= 10)) + theme_minimal() + scale_color_manual(values = c("purple", "orange", "red", "green", "blue"))
+        scale_y_continuous(limits = c(0, 60), breaks = seq(0,60, by= 10)) + theme_minimal() + scale_color_manual(values = c("purple", "orange", "red", "green", "blue")) + ylab("Market share")
       ggplotly(h5)
     })
   
