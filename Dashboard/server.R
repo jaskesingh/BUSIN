@@ -152,14 +152,16 @@ shinyServer(function(input, output, session) {
     checkregion <- reactive({input$Region})
     output$line02 <- renderPlotly({
       if(checkregion() == 1) {
-        NieuwC <- Nieuw %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3), Fuel %in% input$Fuel)
-        p2 <- NieuwC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel), size = 1) + labs(title = "Number of new cars sold in Belgium over the years")
+        NieuwC <- Nieuw %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3))
+        p2 <- NieuwC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel)) + labs(title = "Number of new cars sold in Belgium over the years") + theme_minimal() +
+          scale_color_manual(values = c("purple", "orange", "red", "green", "blue"))
         ggplotly(p2)
       }
       else{
         #lijn tweedehands: groei: aandeel elektrische auto's op belgische en eu markt
-        TweedehandsC <- Tweedehands %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3), Fuel %in% input$Fuel)
-        p3 <- TweedehandsC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel), size = 1) + labs(title = "Number of second hand cars sold in Belgium over the years")
+        TweedehandsC <- Tweedehands %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3))
+        p3 <- TweedehandsC %>% ggplot(aes(x = Year, y = `Cars sold`)) + geom_line(aes(color = Fuel)) + labs(title = "Number of second hand cars sold in Belgium over the years") + theme_minimal() +
+          scale_color_manual(values = c("purple", "orange", "red", "green", "blue"))
         ggplotly(p3)
       }
     })
@@ -401,15 +403,9 @@ shinyServer(function(input, output, session) {
     output$view <- renderPlotly({
       f3 <- eusurvey %>% filter(Country == input$incountry, Income_group == input$incomegr)
       p3 <- f3 %>% ggplot(aes(Income_group)) + 
-<<<<<<< HEAD
-        geom_bar(aes(fill = buy_electric), position = "dodge") +
-        labs(y = "Number of respondents", fill = "Buy EV") + theme_minimal() +
-        theme(axis.text.x = element_text(angle = 60, hjust = 1)) + scale_fill_manual(values = c("red", "green"))
-=======
         geom_bar(aes(fill = as.logical(buy_electric)), position = "dodge") +
         labs(y = "Number of respondents", fill = "Buy EV") +
         theme(axis.text.x = element_text(angle = 60, hjust = 1))
->>>>>>> 159f8514ca22268e46fbaa3bc1cd28eb6781765d
       ggplotly(p3)
     })
     
