@@ -427,7 +427,10 @@ shinyUI(
                       fluidRow(
                         box(
                           title = "Number of Teslas per supercharger station", width = 12,
-                          solidHeader = T, status = "danger", plotOutput("hist01", height = "600px"),
+                          solidHeader = T, status = "danger", verbatimTextOutput("brush_info"),
+                          plotOutput("hist01", height = "600px", click = "plot1_click",
+                                                                         brush = brushOpts(
+                                                                           id = "plot1_brush")),
                           sliderInput(inputId = "Year",
                                       label = "Choose year",
                                       min = 2013,
@@ -441,6 +444,7 @@ shinyUI(
                                       selected = c("Belgium", "Austria", "Czech Republic", "Denmark", "Finland", "France", "Germany", "Greece", "Ireland", "Italy", "Luxembourg", "Netherlands", "Norway", "Portugal", "Romania", "Slovenia", "Spain", "Sweden", "Switzerland"))
                         )
                       )
+                      #box(dataTableOutput("table02"))
                     ),
                     tabItem(
                       tabName = "Competition",

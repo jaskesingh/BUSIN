@@ -673,6 +673,32 @@ shinyServer(function(input, output, session) {
         ylab(label = "Number of Teslas sold" ) + xlab(label = "Number of supercharger stations") + theme_minimal()
       #ggplotly(h1)
     })
+    
+    selected_points <- reactiveVal()
+    
+    # update the reactiveVal whenever input$plot1_brush changes, i.e. new points are selected.
+    observeEvent(input$plot1_brush,{
+      selected_points( brushedPoints(ratio, input$plot1_brush))
+    })
+    
+    output$brush_info <- renderPrint({
+      selected_points()
+    })
+    
+    output$click_info <- renderPrint({
+      nearPoints(ratio, input$plot1_click, addDist = TRUE)
+    })
+    
+    #output$table02 <- renderDataTable({
+      #verkooC <- verkoo %>% dplyr::filter(Country %in% input$Country, Year == input$Year)
+      #superchargersC <- superchargers %>% dplyr::filter(Year < input$Year+1, Status == 'OPEN', Country %in% input$Country)
+      #superchargersC <- plyr::count(superchargersC, "Country")
+      #ratio <- full_join(superchargersC, verkooC, by = 'Country')
+      #ratio$freq <- as.integer(ratio$freq)
+      #ratio[is.na(ratio)] = 0
+      #ratio$Country <- as.factor(ratio$Country)
+      #DT::datatable(ratio, selection = "single", options=list(stateSave = TRUE))
+    #})
   
   ## Competition
   ### Graph
