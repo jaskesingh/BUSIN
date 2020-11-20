@@ -46,7 +46,7 @@ eu <- read_xlsx("Data/% share of new passenger cars by fuel type in the EU.xlsx"
 
 #Klanten: aankoopproces
 aankoopproces <- read_xlsx("Data/Online.xlsx")
-aankoopproces <- aankoopproces %>% gather(`Not at all interested/not very interested`:`Somewhat interested/very interested`, key = "Interest", value="Percentage")
+aankoopproces <- aankoopproces %>% gather('Not at all interested/not very interested':'Somewhat interested/very interested', key = "Interest", value="Percentage")
 
 #Verkoop: periodieke tesla verkopen
 data <- read_xlsx("Data/Monthly Tesla Vehicle Sales.xlsx")
@@ -80,7 +80,7 @@ eusurvey <- read.csv("data/hev1.csv")
   # Clean it
     
     # Convert to numerics
-    # groco_data$`Change In Sales From 2018 To 2019 (%)`  <- as.numeric(groco_data$`Change In Sales From 2018 To 2019 (%)`)
+    # groco_data$'Change In Sales From 2018 To 2019 (%)'  <- as.numeric(groco_data$'Change In Sales From 2018 To 2019 (%)')
     
     # Round to correct for weird numbers
       
