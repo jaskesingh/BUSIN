@@ -236,7 +236,6 @@ shinyServer(function(input, output, session) {
                                                  "Top Charging Speed (km/h)",
                                                  "Price",
                                                  "Trunk Space (Including Frunk If Applicable)",
-                                                 "Segment",
                                                  "NCAP Stars",
                                                  "NCAP Adult Occupant Score (%)",
                                                  "NCAP Child Occupant Score (%)",
@@ -250,8 +249,10 @@ shinyServer(function(input, output, session) {
       groco_data_gather$"Value" <- as.numeric(groco_data_gather$"Value")
       groco_data_gather$"Type"  <- as.character(groco_data_gather$"Type")
       
-      groco_filtered_data <- groco_data_gather %>% filter(!is.na(Submodel), Type == input$growth_select_box, !is.na(Value)) %>%
-                                                   select(Submodel, Value)
+      groco_filtered_data <- groco_data_gather %>% filter(!is.na(Submodel), Type == input$growth_select_box, !is.na(Value)) %>% 
+        mutate(isvalue = (Submodel %in% c("Tesla Model 3","Tesla Model 3 Standard Range Plus","Tesla Model 3 Long Range","Tesla Model 3 Performance","Tesla Model S",
+                                          "Tesla Model S Long Range","Tesla Model S Performance","Tesla Model X","Tesla Model X Long Range","Tesla Model X Performance"))) %>%
+                                                   select(Submodel, Value, isvalue)
 
       
       # groco_if_else <- function(df){
@@ -278,21 +279,21 @@ shinyServer(function(input, output, session) {
       groco_filtered_data$Submodel <- factor(groco_filtered_data$Submodel,
                                                      levels = groco_filtered_data$Submodel)
       
+      
       groco_plot <-  groco_filtered_data  %>% 
                         ggplot(
                              aes(x = Value,
                                  y = Submodel,
-                                 fill = Submodel)
-                             ) +
+                                 fill = isvalue
+                             )) +
                         geom_col(position = "dodge") +
                         theme_minimal() +
-                        # scale_fill_manual(name = "Hidden_legend",
-                        #                   values = groco_if_else(groco_filtered_data)) +
+                        scale_fill_manual(name = "Hidden_legend",
+                                          values = c("coral2", "red2")) +
                         removeGridY() +
-                        theme(legend.position = "none")
-  
+                        theme(legend.position = "none") 
       
-      ggplotly(groco_plot)
+      ggplotly(groco_plot, tooltip = c("x", "y"))
   
     })
   
@@ -392,7 +393,7 @@ shinyServer(function(input, output, session) {
                                       legend.position = "none") 
       
       # Display plot
-      ggplotly(loyalty_per_brand_plot)
+      ggplotly(loyalty_per_brand_plot, tooltip = c("x", "y"))
       
       
       
@@ -502,7 +503,7 @@ shinyServer(function(input, output, session) {
       DataC <- Data %>% filter(Month >= min(input$Month) & Month <= max(input$Month), Year %in% input$Year9)
       MeanSales <- DataC %>% group_by(Month) %>% summarise(Sales = mean(Sales, na.rm = T) )
       p4 <- DataC %>% ggplot(aes(x= Month, y = Sales, na.rm = T)) + geom_line(aes(color = Year)) + geom_line(data = MeanSales, color = 'black') + scale_x_continuous(breaks = seq(0,12, by = 1)) + theme_minimal() + scale_color_manual(values = c("red", "orange", "green", "lightseagreen", "blue"))
-      ggplotly(p4)
+      ggplotly(p4, tooltip = c("x", "y", "color"))
     })
     
     
@@ -586,7 +587,7 @@ shinyServer(function(input, output, session) {
         labs(y = 'Value') + scale_y_continuous(limits = c(0,100), breaks = seq(0, 100, by= 5)) + scale_x_continuous(breaks = seq(min(Yeargrossmargin), max(Yeargrossmargin), by = 1)) +
         theme_minimal() + scale_color_manual(values = c("purple", "red")) + stat_smooth(method = 'lm', se = FALSE, aes(color = 'Trend'))
       
-      ggplotly(financevarmarp)
+      ggplotly(financevarmarp, tooltip = c("x", "y", "color"))
     })
     
     output$tslastock <- renderPlotly({
@@ -598,7 +599,7 @@ shinyServer(function(input, output, session) {
         stat_smooth(method = 'lm', se = FALSE, aes(color = 'Trend')) +
         theme_tq() + scale_color_manual(values = c("red"))
       
-      ggplotly(p)
+      ggplotly(p, tooltip = c("x", "y"))
     })
     
   
@@ -742,7 +743,7 @@ shinyServer(function(input, output, session) {
         theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
         scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + xlab("Brand") + scale_fill_manual(values = c("green", "red")) + scale_x_discrete(labels = c("Ionity", "Tesla"))
       #h2 <- laadpalenC %>% ggplot(aes(x = Country, y = freq, fill = Description)) + geom_col(position = "dodge") + theme_minimal() + scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + coord_flip() + scale_fill_manual(values = c("orange", "blue"))
-      ggplotly(h2, tooltip = c("Description", "freq"))
+      ggplotly(h2, tooltip = c("x", "y"))
     })
     
 
