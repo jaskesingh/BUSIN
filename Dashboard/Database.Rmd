@@ -35,13 +35,13 @@ tweedehands <- read_xlsx("Data/Verkoop per brandstof (België) met market share.
 eu <- read_xlsx("Data/% share of new passenger cars by fuel type in the EU.xlsx")
 NieuwMS <- nieuw %>% gather(MS12, MS13, MS14, MS15, MS16, MS17, MS18, MS19,key = "Year", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
 NieuwMS$Year <- recode(NieuwMS$Year, MS12 = "2012", MS13 = "2013", MS14 = "2014", MS15 = "2015", MS16 = "2016", MS17 = "2017", MS18 = "2018", MS19 = "2019" )
-Nieuw <- nieuw %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
+Nieuw <- nieuw %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars.sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
 Nieuw$Year <- as.integer(Nieuw$Year)
 NieuwMS$Year <- as.integer(NieuwMS$Year)
 NieuwMS$Market.Share <- as.double(NieuwMS$Market.Share)
 TweedehandsMS <- tweedehands %>% gather(MS12, MS13, MS14, MS15, MS16, MS17, MS18, MS19,key = "Year", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
 TweedehandsMS$Year <- recode(TweedehandsMS$Year, MS12 = "2012", MS13 = "2013", MS14 = "2014", MS15 = "2015", MS16 = "2016", MS17 = "2017", MS18 = "2018", MS19 = "2019" )
-Tweedehands <- tweedehands %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
+Tweedehands <- tweedehands %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars.sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
 Tweedehands$Year <- as.integer(Tweedehands$Year)
 TweedehandsMS$Year <- as.integer(TweedehandsMS$Year)
 TweedehandsMS$Market.Share <- as.double(TweedehandsMS$Market.Share)
@@ -55,17 +55,9 @@ dbWriteTable(con, "Tweedehands", Tweedehands)
 dbWriteTable(con, "TweedehandsMS", TweedehandsMS)
 dbWriteTable(con, "EuMS", EuMS)
 
+
 ##Best selling EV's compared
-# # Growth: Comparison
-# 
-#   # growth_comp_data_5 <- read_xlsx("Dashboard/Data/growth_comparison_v5.xlsx")
-#   # View(growth_comp_data_5)
-# 
-#   # Ik denk correctere versie
-#   # growth_comp_data_5 <- read_xlsx("Data/growth_comparison_v5.xlsx")
-# 
-#   
-#   # Placeholder for presentation 10-11-20
+#   # Werkt soort van
 #     # Select
 #     growth_comp_sales_2019_1 <- growth_comp_data_5 %>% 
 #                                   select(c("Submodel", "2019")) %>%
@@ -76,19 +68,22 @@ dbWriteTable(con, "EuMS", EuMS)
 #     # To retain the order in the plot
 #     growth_comp_sales_2019_1$"2019" <- factor(growth_comp_sales_2019_1$"2019",
 #                                        levels = growth_comp_sales_2019_1$"2019")
- # Load growth comparison (groco) data
+ 
+  # # Load growth comparison (groco) data
   # groco_data <- read_xlsx("Data/growth_comparison_v7.xlsx")
   # View(groco_data)
   # str(groco_data)
-  
-  # Clean it
-    
-    # Convert to numerics
-    # groco_data$`Change In Sales From 2018 To 2019 (%)`  <- as.numeric(groco_data$`Change In Sales From 2018 To 2019 (%)`)
-    
-    # Round to correct for weird numbers
+  # 
+  # # Clean it
+  # 
+  #   # Convert to numerics
+  # 
+  #     #Merk op dat dit "New" omzet in "NA"
+  #     groco_data$'Change In Sales From 2018 To 2019 (%)'  <- as.numeric(groco_data$'Change In Sales From 2018 To 2019 (%)')
+  # 
+  #     groco_data$'Share In EV Market In 2018'  <- as.numeric(groco_data$'Share In EV Market In 2018')
 
-#dbWriteTable(con, "", )
+#dbWriteTable(con, "", )       # voor growth data
 
 ```
 

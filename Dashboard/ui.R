@@ -46,7 +46,7 @@ eu <- read_xlsx("Data/% share of new passenger cars by fuel type in the EU.xlsx"
 
 #Klanten: aankoopproces
 aankoopproces <- read_xlsx("Data/Online.xlsx")
-aankoopproces <- aankoopproces %>% gather(`Not at all interested/not very interested`:`Somewhat interested/very interested`, key = "Interest", value="Percentage")
+aankoopproces <- aankoopproces %>% gather('Not at all interested/not very interested':'Somewhat interested/very interested', key = "Interest", value="Percentage")
 
 #Verkoop: periodieke tesla verkopen
 data <- read_xlsx("Data/Monthly Tesla Vehicle Sales.xlsx")
@@ -72,17 +72,19 @@ eusurvey <- read.csv("data/hev1.csv")
 
 # Pieter
 
-  # Load growth comparison (groco) data
+  # # Load growth comparison (groco) data
   # groco_data <- read_xlsx("Data/growth_comparison_v7.xlsx")
   # View(groco_data)
   # str(groco_data)
-  
-  # Clean it
-    
-    # Convert to numerics
-    # groco_data$`Change In Sales From 2018 To 2019 (%)`  <- as.numeric(groco_data$`Change In Sales From 2018 To 2019 (%)`)
-    
-    # Round to correct for weird numbers
+  # 
+  # # Clean it
+  # 
+  #   # Convert to numerics
+  # 
+  #     #Merk op dat dit "New" omzet in "NA"
+  #     groco_data$'Change In Sales From 2018 To 2019 (%)'  <- as.numeric(groco_data$'Change In Sales From 2018 To 2019 (%)')
+  # 
+  #     groco_data$'Share In EV Market In 2018'  <- as.numeric(groco_data$'Share In EV Market In 2018')
       
 # Define UI for application that draws a map
 shinyUI(
@@ -398,7 +400,7 @@ shinyUI(
                                                                                                                   sep = "")),
                               box(
                                 title = "Tesla performance on the Stock Market",
-                                soldidHeader = T, status = "danger", plotlyOutput("tslastock"),
+                                solidHeader = T, status = "danger", plotlyOutput("tslastock"),
                                 dateInput(inputId = "st", label = "From",
                                             value = "2020-01-01"),
                                   dateInput(inputId = "en", label = "To")
@@ -425,7 +427,10 @@ shinyUI(
                       fluidRow(
                         box(
                           title = "Number of Teslas per supercharger station", width = 12,
-                          solidHeader = T, status = "danger", plotOutput("hist01", height = "600px"),
+                          solidHeader = T, status = "danger", verbatimTextOutput("brush_info"),
+                          plotOutput("hist01", height = "600px", click = "plot1_click",
+                                                                         brush = brushOpts(
+                                                                           id = "plot1_brush")),
                           sliderInput(inputId = "Year",
                                       label = "Choose year",
                                       min = 2013,
@@ -439,6 +444,7 @@ shinyUI(
                                       selected = c("Belgium", "Austria", "Czech Republic", "Denmark", "Finland", "France", "Germany", "Greece", "Ireland", "Italy", "Luxembourg", "Netherlands", "Norway", "Portugal", "Romania", "Slovenia", "Spain", "Sweden", "Switzerland"))
                         )
                       )
+                      #box(dataTableOutput("table02"))
                     ),
                     tabItem(
                       tabName = "Competition",
