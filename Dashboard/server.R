@@ -217,6 +217,9 @@ shinyServer(function(input, output, session) {
   
   
   ## Best selling EV's compared
+    
+    # KPI ???
+    
     output$growth_comparison_bar <- renderPlotly({
     
       groco_data_gather <- groco_data %>% gather("Sales In 2019",
@@ -290,35 +293,7 @@ shinyServer(function(input, output, session) {
   
       
       ggplotly(groco_plot)
-    
-      
-      
-      # Pseudo-code:
-      # Select only row with submodels and $input
-      # Filter NA's
-      # Plot 
-      # Probably need to use if functions to adjust plot depending on input
-      # But first check how plotly reacts to this. 
-      
-      # Todo:
-      # Oplossing voor lelijke getallen: round-functie gebruiken
-        # Pas dit aan (maar lees verder)
-        # round(sum(Revenue$'Automotive Revenues Tesla'[Revenue$Year == input$Yearrev], na.rm = TRUE)/1000000, 2)
-        # Eigenlijk in mijn geval gewoon: round(value,2)
-      #Voor plotly te customizen:
-        # plotly.com/r/hover-text-and-formatting
-        # scrol naar onder custumizing .. with plotly express
-        # plotly werkt wel anders dan ggplot
-      
-      
-      
-      # KPI: marktaandeel 3 modellen
-      # Tesla in andere kleur
-    
-      
-      # Te doen:
-      # - Op einde: code opruimen, oude datasets weggooien.
-      
+  
     })
   
   
