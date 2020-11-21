@@ -175,7 +175,7 @@ shinyUI(
                     ),
                     tabItem(tabName = "best_selling_evs_compared",
                             fluidRow(
-                              box(title = "Top 15 EV's of 2019 compared",
+                              box(title = "Top 15 best sold EV's of 2019 compared by different characteristics",
                                   status = "danger",
                                   solidHeader = T,
                                   width = 12,
