@@ -59,6 +59,21 @@ tesla.eu.map <- dbReadTable(con, "tesla.eu.map")
 dbDisconnect(con)
 
 
+# Pieter
+
+  # Load growth comparison (groco) data
+  groco_data <- read_xlsx("Data/growth_comparison_v7.xlsx")
+
+  # Clean it
+  
+    # Convert to numerics
+    
+    #Merk op dat dit "New" omzet in "NA"
+    groco_data$'Change In Sales From 2018 To 2019 (%)'  <- as.numeric(groco_data$'Change In Sales From 2018 To 2019 (%)')
+    
+    groco_data$'Share In EV Market In 2018'  <- as.numeric(groco_data$'Share In EV Market In 2018')
+
+
 ##financiele cijfers, functies
 financefunction <- function(yearinput,df) {
   financefunction <- df %>% filter(df$Year == yearinput)
@@ -202,7 +217,81 @@ shinyServer(function(input, output, session) {
   
   
   ## Best selling EV's compared
-    output$growth_comparison_bar <- renderPlot({
+    output$growth_comparison_bar <- renderPlotly({
+    
+      groco_data_gather <- groco_data %>% gather("Sales In 2019",
+                                                 "Sales In 2018",
+                                                 "Change In Sales From 2018 To 2019 (%)",
+                                                 "Share In EV Market In 2019",
+                                                 "Share In EV Market In 2018",
+                                                 "Proportion Of Sales Of This Model That Was EV In 2019 (%)",
+                                                 "Proportion Of Sales Of This Model That Was EV In 2018 (%)",
+                                                 "Range",
+                                                 "Top Speed (km/h)",
+                                                 "Acceleration (0-100 km/h)",
+                                                 "Horsepower",
+                                                 "Top Charging Speed (km/h)",
+                                                 "Price",
+                                                 "Trunk Space (Including Frunk If Applicable)",
+                                                 "Segment",
+                                                 "NCAP Stars",
+                                                 "NCAP Adult Occupant Score (%)",
+                                                 "NCAP Child Occupant Score (%)",
+                                                 "NCAP Vulnerable Road Users Score (%)",
+                                                 "NCAP Safety Assist Score (%)",
+                                                 "NCAP Average Score (%)",
+                                                 key = "Type",
+                                                 value = "Value"
+                                                 )
+      
+      groco_data_gather$"Value" <- as.numeric(groco_data_gather$"Value")
+      groco_data_gather$"Type"  <- as.character(groco_data_gather$"Type")
+      
+      groco_filtered_data <- groco_data_gather %>% filter(!is.na(Submodel), Type == input$growth_select_box, !is.na(Value)) %>%
+                                                   select(Submodel, Value)
+
+      
+      # groco_if_else <- function(df){
+      #   if(df$Submodel == "Tesla Model 3" | 
+      #      df$Submodel == "Tesla Model 3 Standard Range Plus"|
+      #      df$Submodel == "Tesla Model 3 Long Range"|
+      #      df$Submodel == "Tesla Model 3 Performance"|
+      #      df$Submodel == "Tesla Model S"|
+      #      df$Submodel == "Tesla Model S Long Range"|
+      #      df$Submodel == "Tesla Model S Performance"|
+      #      df$Submodel == "Tesla Model X"|
+      #      df$Submodel == "Tesla Model X Long Range"|
+      #      df$Submodel == "Tesla Model X Performance") {
+      #     col = "red2"
+      #   }
+      #   else{col = "coral2"}
+      #   return(col)
+      # }
+      
+      # Reverse order (so the barplot shows the values from high to low)
+      groco_filtered_data <- groco_filtered_data[order(groco_filtered_data$Value), ]
+      
+      # Make sure we retain the order in the plot
+      groco_filtered_data$Submodel <- factor(groco_filtered_data$Submodel,
+                                                     levels = groco_filtered_data$Submodel)
+      
+      groco_plot <-  groco_filtered_data  %>% 
+                        ggplot(
+                             aes(x = Value,
+                                 y = Submodel,
+                                 fill = Submodel)
+                             ) +
+                        geom_col(position = "dodge") +
+                        theme_minimal() +
+                        # scale_fill_manual(name = "Hidden_legend",
+                        #                   values = groco_if_else(groco_filtered_data)) +
+                        removeGridY() +
+                        theme(legend.position = "none")
+  
+      
+      ggplotly(groco_plot)
+    
+      
       
       # Pseudo-code:
       # Select only row with submodels and $input
@@ -225,36 +314,7 @@ shinyServer(function(input, output, session) {
       
       # KPI: marktaandeel 3 modellen
       # Tesla in andere kleur
-      
-      
-      # Werkt niet zoals verwacht
-      # Create plot
-      # growth_comp_plot <- ggplot(growth_comp_sales_2019_1,
-      #                            aes(x = year_2019_sales,
-      #                                y = submodel)) +
-      #   geom_bar(stat = "identity",
-      #            fill = "tomato3") +
-      #   theme(axis.text.y = element_text(angle = 65, vjust=0.6)) +
-      #   theme_minimal()
-      # 
-      # growth_comp_plot
-      
-      
-      # Ook dit leidt tot niks.
-      # growth_comp_sales_2019_1 <- growth_comp_sales_2019_1 %>%
-      #                             mutate(year_2019_sales = fct_reorder(year_2019_sales, submodel))
-      # View(growth_comp_sales_2019_1)
-      # str(growth_comp_sales_2019_1)
-      # growth_comp_sales_2019_1$year_2019_sales <- as.numeric(growth_comp_sales_2019_1$year_2019_sales)
-      # 
-      # growth_comp_plot <- ggplot(growth_comp_sales_2019_1,
-      #                            aes(x = year_2019_sales,
-      #                                y = submodel)) +
-      #   geom_col(fill = "tomato3") +
-      #   theme_minimal() +
-      #   theme(axis.text.x = element_text(angle = 65, vjust=0.6))
-      # 
-      # growth_comp_plot
+    
       
       # Te doen:
       # - Op einde: code opruimen, oude datasets weggooien.
@@ -307,7 +367,7 @@ shinyServer(function(input, output, session) {
     
     
   ### Graph
-    output$loyalty_bar <- renderPlot({
+    output$loyalty_bar <- renderPlotly({
       
       # Filter based on input
       loyalty_per_brand_chosen_class <- loyalty_per_brand_ranked_tibble %>% filter(Classification %in% input$loyalty_checkboxes)
@@ -341,31 +401,28 @@ shinyServer(function(input, output, session) {
                                            y = Brand,
                                            fill = factor(ifelse(Brand == "Tesla", "Highlighted", "Normal"))
                                        )
-      ) +
-        geom_col() + 
-        theme_minimal() +
-        scale_fill_manual(name = "Hidden_legend", 
-                          values = c("red2", "coral2")) +
-        scale_x_continuous(breaks = seq(0, 1, 0.1),
-                           limits = c(0, 1),
-                           labels = percent_format(accuracy = 1),
-                           expand = expansion(mult = c(0, 0.01))
-        ) +
-        removeGridY() +
-        theme(axis.text = element_text(size = 12),
-              axis.title = element_text(size = 15),
-              legend.position = "none") # +
-      # geom_text(aes(x = 0, label = (Percentage*100)),
-      # hjust = 0
-      # )
+                              ) +
+                                geom_col() + 
+                                theme_minimal() +
+                                scale_fill_manual(name = "Hidden_legend", 
+                                                  values = c("red2", "coral2")) +
+                                scale_x_continuous(breaks = seq(0, 1, 0.1),
+                                                   limits = c(0, 1),
+                                                   labels = percent_format(accuracy = 1),
+                                                   expand = expansion(mult = c(0, 0.01))
+                                ) +
+                                removeGridY() +
+                                theme(axis.text = element_text(size = 12),
+                                      axis.title = element_text(size = 15),
+                                      legend.position = "none") 
       
       # Display plot
-      loyalty_per_brand_plot
+      ggplotly(loyalty_per_brand_plot)
       
       
       
       # Te doen:
-      # - Ggplotly zodat je precieze percentage en rank ook ziet.
+      # - Ggplotly: rank tonen ipv factor...
       
       
     })

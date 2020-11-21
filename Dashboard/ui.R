@@ -69,22 +69,6 @@ teslapercountrysales <- read_xlsx("Data/Verkoop landen tesla.xlsx", skip = 1, co
 
 #jaske
 eusurvey <- read.csv("data/hev1.csv")
-
-# Pieter
-
-  # # Load growth comparison (groco) data
-  # groco_data <- read_xlsx("Data/growth_comparison_v7.xlsx")
-  # View(groco_data)
-  # str(groco_data)
-  # 
-  # # Clean it
-  # 
-  #   # Convert to numerics
-  # 
-  #     #Merk op dat dit "New" omzet in "NA"
-  #     groco_data$'Change In Sales From 2018 To 2019 (%)'  <- as.numeric(groco_data$'Change In Sales From 2018 To 2019 (%)')
-  # 
-  #     groco_data$'Share In EV Market In 2018'  <- as.numeric(groco_data$'Share In EV Market In 2018')
       
 # Define UI for application that draws a map
 shinyUI(
@@ -191,10 +175,12 @@ shinyUI(
                     ),
                     tabItem(tabName = "best_selling_evs_compared",
                             fluidRow(
-                              box(title = "Top 15 EV's of 2019 compared (Work-in-progress)",
+                              box(title = "Top 15 EV's of 2019 compared",
                                   status = "danger",
                                   solidHeader = T,
-                                  plotOutput("growth_comparison_bar"),
+                                  width = 12,
+                                  plotlyOutput("growth_comparison_bar",
+                                               height = "580px"),
                                   selectInput(inputId = "growth_select_box",
                                               label = "Select parameter for comparison",
                                               choices = c("Sales In 2019",
@@ -256,8 +242,8 @@ shinyUI(
                               width = 12,
                               status = "danger",
                               solidHeader = T,
-                              plotOutput("loyalty_bar",
-                                         height = "500px"),
+                              plotlyOutput("loyalty_bar",
+                                         height = "580px"),
                               checkboxGroupInput(inputId = "loyalty_checkboxes",
                                                  label = "Choose class(es) to compare Tesla with",
                                                  choices = c("Luxury", "Mass market"),
