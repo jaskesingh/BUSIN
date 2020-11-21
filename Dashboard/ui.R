@@ -69,22 +69,6 @@ teslapercountrysales <- read_xlsx("Data/Verkoop landen tesla.xlsx", skip = 1, co
 
 #jaske
 eusurvey <- read.csv("data/hev1.csv")
-
-# Pieter
-
-  # # Load growth comparison (groco) data
-  # groco_data <- read_xlsx("Data/growth_comparison_v7.xlsx")
-  # View(groco_data)
-  # str(groco_data)
-  # 
-  # # Clean it
-  # 
-  #   # Convert to numerics
-  # 
-  #     #Merk op dat dit "New" omzet in "NA"
-  #     groco_data$'Change In Sales From 2018 To 2019 (%)'  <- as.numeric(groco_data$'Change In Sales From 2018 To 2019 (%)')
-  # 
-  #     groco_data$'Share In EV Market In 2018'  <- as.numeric(groco_data$'Share In EV Market In 2018')
       
 # Define UI for application that draws a map
 shinyUI(
@@ -191,10 +175,12 @@ shinyUI(
                     ),
                     tabItem(tabName = "best_selling_evs_compared",
                             fluidRow(
-                              box(title = "Top 15 EV's of 2019 compared (Work-in-progress)",
+                              box(title = "Top 15 best sold EV's of 2019 compared by different characteristics",
                                   status = "danger",
                                   solidHeader = T,
-                                  plotOutput("growth_comparison_bar"),
+                                  width = 12,
+                                  plotlyOutput("growth_comparison_bar",
+                                               height = "580px"),
                                   selectInput(inputId = "growth_select_box",
                                               label = "Select parameter for comparison",
                                               choices = c("Sales In 2019",
@@ -211,7 +197,6 @@ shinyUI(
                                                           "Top Charging Speed (km/h)",
                                                           "Price",
                                                           "Trunk Space (Including Frunk If Applicable)",
-                                                          "Segment",
                                                           "NCAP Stars",
                                                           "NCAP Adult Occupant Score (%)",
                                                           "NCAP Child Occupant Score (%)",
@@ -256,8 +241,8 @@ shinyUI(
                               width = 12,
                               status = "danger",
                               solidHeader = T,
-                              plotOutput("loyalty_bar",
-                                         height = "500px"),
+                              plotlyOutput("loyalty_bar",
+                                         height = "580px"),
                               checkboxGroupInput(inputId = "loyalty_checkboxes",
                                                  label = "Choose class(es) to compare Tesla with",
                                                  choices = c("Luxury", "Mass market"),
@@ -292,12 +277,12 @@ shinyUI(
                           title = "Based on",
                             tabPanel("Income", 
                                selectInput(inputId = "incountry",
-                                           label = "choose Country",
+                                           label = "Choose Country",
                                            choices = unique(eusurvey$Country),
                                            selected = "Belgium"
                                ),
                                selectInput(inputId = "incomegr",
-                                           label = "choose income group",
+                                           label = "Choose income group",
                                            choices = unique(eusurvey$Income_group),
                                            multiple = T,
                                            selected = "middle"
@@ -427,7 +412,10 @@ shinyUI(
                       fluidRow(
                         box(
                           title = "Number of Teslas per supercharger station", width = 12,
-                          solidHeader = T, status = "danger", plotOutput("hist01", height = "600px"),
+                          solidHeader = T, status = "danger", verbatimTextOutput("brush_info"),
+                          plotOutput("hist01", height = "600px", click = "plot1_click",
+                                                                         brush = brushOpts(
+                                                                           id = "plot1_brush")),
                           sliderInput(inputId = "Year",
                                       label = "Choose year",
                                       min = 2013,
@@ -441,6 +429,7 @@ shinyUI(
                                       selected = c("Belgium", "Austria", "Czech Republic", "Denmark", "Finland", "France", "Germany", "Greece", "Ireland", "Italy", "Luxembourg", "Netherlands", "Norway", "Portugal", "Romania", "Slovenia", "Spain", "Sweden", "Switzerland"))
                         )
                       )
+                      #box(dataTableOutput("table02"))
                     ),
                     tabItem(
                       tabName = "Competition",
@@ -474,6 +463,12 @@ shinyUI(
                                   )
                             ),
                             fluidRow(
+                              box(title = "Tesla sales in Europe per year", solidHeader = T, status="danger", 
+                                  selectInput(inputId = "teslajaar",
+                                              label = "Choose the year you want to see (green is new that year)",
+                                              choices = unique(teslapercountrysales$jaar),
+                                              selected = 2013),
+                                  plotOutput("distPlot", height = "650px")),
                               box(title = "Choose your options", solidHeader = T, status="danger", 
                                   radioButtons("Europe", label= "Choose what you want to see on the graph", choices = list("Europe" = 1, "Per chosen country" = 2)),
                                   sliderInput(inputId = "YearEU", 
@@ -489,13 +484,8 @@ shinyUI(
                                                 'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia',
                                                 'Spain', 'Sweden'), selected = "Belgium"),
                                   dataTableOutput("europemaptable")
-                              ),
-                              box(title = "Tesla sales in Europe per year", solidHeader = T, status="danger", 
-                                  selectInput(inputId = "teslajaar",
-                                              label = "choose the year you want to see (green is new that year)",
-                                              choices = unique(teslapercountrysales$jaar),
-                                              selected = 2013),
-                                  plotOutput("distPlot", height = "650px")))
+                              )
+                              )
                           )
                 
                       )
