@@ -422,10 +422,12 @@ shinyServer(function(input, output, session) {
   ### Table
     
     output$country <- renderDataTable({
-      t1 <- eusurvey %>% filter(Country == input$country) %>%
-        group_by(Country, Gender, buy_electric) %>% 
-        summarise(median(Age), n = n()) %>% 
-        arrange(desc(n))
+      t1 <- eusurvey %>% filter(Country == input$ccountry) %>%
+        group_by(Country, as.factor(Gender), as.logical(buy_electric)) %>% 
+        summarise(median(Age), n = n()) %>% rename("Gender" = "as.factor(Gender)",
+                                                   "Average age" = "median(Age)",
+                                                   "Buy electric" = "as.logical(buy_electric)",
+                                                   "Number of respondents" = "n")
       datatable(t1, filter = "top")
     })
     
