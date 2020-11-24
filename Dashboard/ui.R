@@ -85,7 +85,7 @@ shinyUI(
                     menuItem("Customers", tabName = "Customers", newTab = T, 
                              menuSubItem("Purchase process", tabName = "Purchaseprocess"),
                              menuSubItem("Brand loyalty", tabName = "dashboard_loyalty"),
-                             menuSubItem("Survey", tabName = "survey")
+                             menuSubItem("EV popularity", tabName = "survey")
                              ),
                     menuItem("Sales", tabName = "Sales", newTab =T, 
                              menuSubItem("Periodic analysis", tabName = "Periodic")),
@@ -175,7 +175,7 @@ shinyUI(
                     ),
                     tabItem(tabName = "best_selling_evs_compared",
                             fluidRow(
-                              box(title = "Top 15 EV's of 2019 compared",
+                              box(title = "Top 15 best sold EV's of 2019 compared by different characteristics",
                                   status = "danger",
                                   solidHeader = T,
                                   width = 12,
@@ -263,7 +263,7 @@ shinyUI(
                           box(
                             title = "Per country",
                               tabPanel(" ", 
-                               selectInput(inputId = "country",
+                               selectInput(inputId = "ccountry",
                                            label = "Choose country",
                                            choices = unique(eusurvey$Country),
                                            selected = "Belgium",
