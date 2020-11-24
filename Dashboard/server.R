@@ -40,7 +40,7 @@ NieuwMS <- dbReadTable(con, "NieuwMS")
 Tweedehands <- dbReadTable(con, "Tweedehands")
 TweedehandsMS <- dbReadTable(con, "TweedehandsMS")
 EuMS <- dbReadTable(con, "EuMS")
-# <- dbReadTable(con, "") (hier moet nog een gelezen worden)
+groco_data_gather <- dbReadTable(con, "groco_data_gather")
 aankoopproces <- dbReadTable(con, "aankoopproces")
 loyalty_per_brand_ranked_tibble <- dbReadTable(con, "loyalty_per_brand_ranked_tibble")
 eusurvey <- dbReadTable(con, "eusurvey")
@@ -57,22 +57,6 @@ countriesafinfrastructure <- dbReadTable(con, "countriesafinfrastructure")
 tesla.eu.map <- dbReadTable(con, "tesla.eu.map")
 
 dbDisconnect(con)
-
-
-# Pieter
-
-  # Load growth comparison (groco) data
-  groco_data <- read_xlsx("Data/growth_comparison_v7.xlsx")
-
-  # Clean it
-  
-    # Convert to numerics
-    
-    #Merk op dat dit "New" omzet in "NA"
-    groco_data$'Change In Sales From 2018 To 2019 (%)'  <- as.numeric(groco_data$'Change In Sales From 2018 To 2019 (%)')
-    
-    groco_data$'Share In EV Market In 2018'  <- as.numeric(groco_data$'Share In EV Market In 2018')
-
 
 ##financiele cijfers, functies
 financefunction <- function(yearinput,df) {
@@ -222,60 +206,13 @@ shinyServer(function(input, output, session) {
     
     output$growth_comparison_bar <- renderPlotly({
     
-      groco_data_gather <- groco_data %>% gather("Sales In 2019",
-                                                 "Sales In 2018",
-                                                 "Change In Sales From 2018 To 2019 (%)",
-                                                 "Share In EV Market In 2019",
-                                                 "Share In EV Market In 2018",
-                                                 "Proportion Of Sales Of This Model That Was EV In 2019 (%)",
-                                                 "Proportion Of Sales Of This Model That Was EV In 2018 (%)",
-                                                 "Range",
-                                                 "Top Speed (km/h)",
-                                                 "Acceleration (0-100 km/h)",
-                                                 "Horsepower",
-                                                 "Top Charging Speed (km/h)",
-                                                 "Price",
-                                                 "Trunk Space (Including Frunk If Applicable)",
-                                                 "NCAP Stars",
-                                                 "NCAP Adult Occupant Score (%)",
-                                                 "NCAP Child Occupant Score (%)",
-                                                 "NCAP Vulnerable Road Users Score (%)",
-                                                 "NCAP Safety Assist Score (%)",
-                                                 "NCAP Average Score (%)",
-                                                 key = "Type",
-                                                 value = "Value"
-                                                 )
-      
-      groco_data_gather$"Value" <- as.numeric(groco_data_gather$"Value")
-      groco_data_gather$"Type"  <- as.character(groco_data_gather$"Type")
-      
       groco_filtered_data <- groco_data_gather %>% filter(!is.na(Submodel), Type == input$growth_select_box, !is.na(Value)) %>% 
         mutate(isvalue = (Submodel %in% c("Tesla Model 3","Tesla Model 3 Standard Range Plus","Tesla Model 3 Long Range","Tesla Model 3 Performance","Tesla Model S",
                                           "Tesla Model S Long Range","Tesla Model S Performance","Tesla Model X","Tesla Model X Long Range","Tesla Model X Performance"))) %>%
                                                    select(Submodel, Value, isvalue)
 
-      
-      # groco_if_else <- function(df){
-      #   if(df$Submodel == "Tesla Model 3" | 
-      #      df$Submodel == "Tesla Model 3 Standard Range Plus"|
-      #      df$Submodel == "Tesla Model 3 Long Range"|
-      #      df$Submodel == "Tesla Model 3 Performance"|
-      #      df$Submodel == "Tesla Model S"|
-      #      df$Submodel == "Tesla Model S Long Range"|
-      #      df$Submodel == "Tesla Model S Performance"|
-      #      df$Submodel == "Tesla Model X"|
-      #      df$Submodel == "Tesla Model X Long Range"|
-      #      df$Submodel == "Tesla Model X Performance") {
-      #     col = "red2"
-      #   }
-      #   else{col = "coral2"}
-      #   return(col)
-      # }
-      
-      # Reverse order (so the barplot shows the values from high to low)
       groco_filtered_data <- groco_filtered_data[order(groco_filtered_data$Value), ]
-      
-      # Make sure we retain the order in the plot
+
       groco_filtered_data$Submodel <- factor(groco_filtered_data$Submodel,
                                                      levels = groco_filtered_data$Submodel)
       
@@ -344,34 +281,25 @@ shinyServer(function(input, output, session) {
     
   ### Graph
     output$loyalty_bar <- renderPlotly({
-      
-      # Filter based on input
+
       loyalty_per_brand_chosen_class <- loyalty_per_brand_ranked_tibble %>% filter(Classification %in% input$loyalty_checkboxes)
-      
-      # Regardless of the end users selection, we want to make sure Tesla is included in the comparison.  
-      
-      # That's why we first select Tesla from our ranked tibble and store it safely ...
+
       loyalty_per_brand_ranked_Tesla <- loyalty_per_brand_ranked_tibble %>%
         filter(Brand == "Tesla") 
-      
-      # ... and then, from the dataset that the end user selected, we remove Tesla (even if it's not there)...
+
       loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% filter(!Brand %in% c("Tesla"))
-      
-      # ... followed by adding it back from our safely stored row. Now we know for sure that Tesla is included, and only once so.
+
       loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% add_row(Brand = loyalty_per_brand_ranked_Tesla$Brand,
                                                                                    Percentage = loyalty_per_brand_ranked_Tesla$Percentage,
                                                                                    Classification = loyalty_per_brand_ranked_Tesla$Classification,
                                                                                    Rank = loyalty_per_brand_ranked_Tesla$Rank
       )
-      
-      # Reverse order (so the barplot shows the values from high to low)
+
       loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class[order(loyalty_per_brand_chosen_class$Percentage), ]
-      
-      # Make sure we retain the order in the plot
+
       loyalty_per_brand_chosen_class$Brand <- factor(loyalty_per_brand_chosen_class$Brand,
                                                      levels = loyalty_per_brand_chosen_class$Brand)
-      
-      # Create the plot
+
       loyalty_per_brand_plot <- ggplot(loyalty_per_brand_chosen_class,
                                        aes(x = Percentage,
                                            y = Brand,
@@ -391,15 +319,9 @@ shinyServer(function(input, output, session) {
                                 theme(axis.text = element_text(size = 12),
                                       axis.title = element_text(size = 15),
                                       legend.position = "none") 
-      
-      # Display plot
+
       ggplotly(loyalty_per_brand_plot, tooltip = c("x", "y"))
-      
-      
-      
-      # Te doen:
-      # - Ggplotly: rank tonen ipv factor...
-      
+
       
     })
   
@@ -584,7 +506,7 @@ shinyServer(function(input, output, session) {
         select(Year, Total, Type) %>% distinct()
       
       financevarmarp <- financevarmar %>% ggplot(aes(x = Year, y = Total, color = Type)) + geom_line() + 
-        labs(y = 'Value') + scale_y_continuous(limits = c(0,100), breaks = seq(0, 100, by= 5)) + scale_x_continuous(breaks = seq(min(Yeargrossmargin), max(Yeargrossmargin), by = 1)) +
+        labs(y = 'Value') + scale_y_continuous(limits = c(50,100), breaks = seq(50, 100, by= 5)) + scale_x_continuous(breaks = seq(min(Yeargrossmargin), max(Yeargrossmargin), by = 1)) +
         theme_minimal() + scale_color_manual(values = c("purple", "red")) + stat_smooth(method = 'lm', se = FALSE, aes(color = 'Trend'))
       
       ggplotly(financevarmarp, tooltip = c("x", "y", "color"))
