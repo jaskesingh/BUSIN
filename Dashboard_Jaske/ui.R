@@ -1,6 +1,8 @@
 
 library(shiny)
 library(shinydashboard)
+library(shinyjs)
+library(htmltools)
 library(ggplot2)
 library(tidyr)
 library(tidyverse)
@@ -13,12 +15,16 @@ library(quantmod)
 
 eusurvey <- read.csv("data/hev1.csv")
 
+logotsla <- tags$a(href='https://cdn.freelogovectors.net/wp-content/uploads/2014/05/tesla_motors-logo.png',
+                 tags$img(src='tesla_motors-logo.png', height='60', width='50'),
+                 'Menu')
+
 shinyUI(
   dashboardPage(
     skin = 'red',
     
     dashboardHeader(
-      title = "TEST",
+      title = logotsla, titleWidth = 600,
       dropdownMenu(
         type = "tasks",
         taskItem(
@@ -29,6 +35,7 @@ shinyUI(
       ),
     
     dashboardSidebar(
+    
       sidebarMenu(
         sidebarSearchForm("searchText", "buttonSearch", "Search"),
         menuItem(

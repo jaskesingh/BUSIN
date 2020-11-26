@@ -69,8 +69,12 @@ Free_cashflow <- read_xlsx("Data/Tesla's free cash flow by quarter 2020 world wi
 countriesafpassengercars <- read_xlsx("Data/Countries overview of af passenger cars.xlsx", skip = 2 , col_types = c("numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))
 teslapercountrysales <- read_xlsx("Data/Verkoop landen tesla.xlsx", skip = 1, col_types = c("text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric")) %>% gather('2013', '2014', '2015', '2016', '2017', '2018', '2019', key = 'jaar', value = 'waarde')
 
-#jaske
+#Jaske
+
+##Bevraging in de EU over consumentengedrag in verband met de automotive sector
 eusurvey <- read.csv("data/hev1.csv")
+
+
       
 # Define UI for application that draws a map
 shinyUI(
@@ -78,23 +82,22 @@ shinyUI(
                 dashboardHeader(title = 'Menu'),
                 dashboardSidebar(
                   sidebarMenu(
-                    sidebarSearchForm("searchText", "buttonSearch", "Search"),
                     menuItem("Growth", tabName = "Growth", newTab = T, icon = icon('chart-line'), 
-                             menuSubItem("Sales per segment", tabName = "Salespersegment"), 
-                             menuSubItem("Sales per fuel type", tabName = "fueltype"),
-                             menuSubItem("Best selling EV's compared", tabName = "best_selling_evs_compared")
+                             menuSubItem("Sales per segment", tabName = "Salespersegment", icon = icon('search-dollar')), 
+                             menuSubItem("Sales per fuel type", tabName = "fueltype", icon = icon('funnel-dollar')),
+                             menuSubItem("Best selling EV's compared", tabName = "best_selling_evs_compared", icon = icon('medal'))
                              ),
                     menuItem("Customers", tabName = "Customers", newTab = T, icon = icon('users'),
-                             menuSubItem("Purchase process", tabName = "Purchaseprocess"),
-                             menuSubItem("Brand loyalty", tabName = "dashboard_loyalty"),
-                             menuSubItem("EV popularity", tabName = "survey")
+                             menuSubItem("Purchase process", tabName = "Purchaseprocess", icon = icon('wallet')),
+                             menuSubItem("Brand loyalty", tabName = "dashboard_loyalty", icon = icon('grin-hearts') ),
+                             menuSubItem("EV popularity", tabName = "survey",icon = icon('grin-stars'))
                              ),
                     menuItem("Sales", tabName = "Sales", icon = icon('dollar-sign')),
                     menuItem("Finance", tabName = "Finance", icon = icon('file-invoice-dollar')),
                     menuItem("Superchargers", tabName = "Superchargers", newTab = T, icon = icon('bolt'),
-                             menuSubItem("Map", tabName = "Map"), 
-                             menuSubItem("Statistics", tabName = "Statistics"), 
-                             menuSubItem("Competition", tabName = "Competition")),
+                             menuSubItem("Map", tabName = "Map", icon = icon('map-marked-alt')), 
+                             menuSubItem("Statistics", tabName = "Statistics", icon = icon('chart-bar')), 
+                             menuSubItem("Competition", tabName = "Competition", icon = icon('fist-raised'))),
                     menuItem("Expansion in Europe", tabName = "Expansion_in_Europe", icon = icon('expand-arrows-alt'))
                   )),
                 dashboardBody(

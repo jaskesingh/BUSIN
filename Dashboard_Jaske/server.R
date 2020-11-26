@@ -1,6 +1,8 @@
 
 library(shiny)
 library(shinydashboard)
+library(shinyjs)
+library(htmltools)
 library(ggplot2)
 library(tidyr)
 library(tidyverse)
