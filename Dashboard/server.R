@@ -360,7 +360,8 @@ shinyServer(function(input, output, session) {
       p3 <- f3 %>% ggplot(aes(Income_group)) + 
         geom_bar(aes(fill = as.logical(buy_electric)), position = "dodge") +
         labs(y = "Number of respondents", fill = "Buy EV") +
-        theme(axis.text.x = element_text(angle = 60, hjust = 1))
+        theme(axis.text.x = element_text(angle = 60, hjust = 1))  + theme_minimal() + 
+        scale_fill_manual(values = c("red", "lightseagreen"))
       ggplotly(p3)
     })
     
@@ -369,7 +370,8 @@ shinyServer(function(input, output, session) {
       p1 <- f1 %>% ggplot(aes(Employment_status)) +
         geom_bar(aes(fill = as.logical(buy_electric)), position = "dodge") +
         labs(y = "Number of respondents", fill = "Buy EV") +
-        theme(axis.text.x = element_text(angle = 60, hjust = 1))
+        theme(axis.text.x = element_text(angle = 60, hjust = 1)) + theme_minimal() + 
+        scale_fill_manual(values = c("red", "lightseagreen"))
       ggplotly(p1) %>% 
         layout( 
           xaxis = list(automargin=TRUE), 
@@ -382,7 +384,8 @@ shinyServer(function(input, output, session) {
       p2 <- f2 %>% ggplot(aes(Gender)) + 
         geom_bar(aes(fill = as.logical(buy_electric)), position = "dodge") +
         facet_wrap(~Country) + 
-        labs(y = "Number of respondents", fill = "Buy EV")
+        labs(y = "Number of respondents", fill = "Buy EV") + theme_minimal() + 
+        scale_fill_manual(values = c("red", "lightseagreen"))
       ggplotly(p2) %>% 
         layout( 
           xaxis = list(automargin=TRUE), 
@@ -394,8 +397,9 @@ shinyServer(function(input, output, session) {
       f4 <- eusurvey %>% filter (Country %in% input$carplancountry)
       p4 <- f4 %>% ggplot(aes(Plan_to_purchase_vehicle)) + 
         geom_bar(aes(fill = as.logical(buy_electric)), position = "dodge") + 
-        labs(y = "Number of respondents", x = "Plan to buy car", fill = "Buy EV") +
-        theme(axis.text.x = element_text(angle = 60, hjust = 1))
+        labs(y = "Number of respondents", x = "Plan to buy car", fill = "Buy EV") + theme_minimal() +
+        theme(axis.text.x = element_text(angle = 60, hjust = 1)) +  
+        scale_fill_manual(values = c("red", "lightseagreen"))
       ggplotly(p4)
       
     })
@@ -411,7 +415,7 @@ shinyServer(function(input, output, session) {
       
       ggplotly(eusurvey %>% group_by(Country, tesla_sold) %>% summarize(n=n(),prop=sum(buy_electric==1)/n()) %>%
                  ggplot(aes(Country, prop)) + geom_point(aes(color = tesla_sold)) + 
-                 labs(y = "Percentage of people willing to buy ev", x = "Countries", color = "Tesla sold") +
+                 labs(y = "Percentage of people willing to buy ev", x = "Countries", color = "Tesla sold") + theme_minimal() +
                  theme(axis.text.x = element_text(angle = 60, hjust = 1)) + 
                  scale_color_manual(values=c("black", "red"))
       )
