@@ -375,22 +375,24 @@ shinyServer(function(input, output, session) {
     
     output$view <- renderPlotly({
       f3 <- eusurvey %>% filter(Country %in% input$incountry, Income_group %in% input$incomegr)
-      p3 <- f3 %>% ggplot(aes(Income_group) + 
-        geom_bar(aes(fill = as.logical(buy_electric)), position = "dodge") +
+      p3 <- f3 %>% ggplot(aes(x = Income_group, fill = as.logical(buy_electric), 
+                              text = paste('Buy EV: ', as.logical(buy_electric)))) + 
+        geom_bar(position = "dodge") +
         labs(y = "Number of respondents", fill = "Buy EV") +
         theme(axis.text.x = element_text(angle = 60, hjust = 1)) + theme_minimal() + 
-        scale_fill_manual(values = c("red", "lightseagreen")))
-      ggplotly(p3)
+        scale_fill_manual(values = c("red", "lightseagreen"))
+      ggplotly(p3, tooltip = c("count", "x", "text"))
     })
     
     output$employ <- renderPlotly({
       f1 <- eusurvey %>% filter(Employment_status %in% input$estatus)
-      p1 <- f1 %>% ggplot(aes(Employment_status)) +
+      p1 <- f1 %>% ggplot(aes(x = Employment_status, 
+                              text = paste('Buy EV: ', as.logical(buy_electric)))) +
         geom_bar(aes(fill = as.logical(buy_electric)), position = "dodge") +
         labs(y = "Number of respondents", fill = "Buy EV") +
         theme(axis.text.x = element_text(angle = 60, hjust = 1)) + theme_minimal() + 
         scale_fill_manual(values = c("red", "lightseagreen"))
-      ggplotly(p1) %>% 
+      ggplotly(p1, tooltip = c("count", "x", "text")) %>% 
         layout( 
           xaxis = list(automargin=TRUE), 
           yaxis = list(automargin=TRUE)
@@ -399,12 +401,14 @@ shinyServer(function(input, output, session) {
     
     output$ggcountry <- renderPlotly({
       f2 <- eusurvey %>% filter(Country %in% input$gcountry)
-      p2 <- f2 %>% ggplot(aes(Gender)) + 
+      p2 <- f2 %>% ggplot(aes(x = Gender, 
+                              text = paste('Buy EV: ', as.logical(buy_electric),
+                                           "<br>Country: ", Country))) + 
         geom_bar(aes(fill = as.logical(buy_electric)), position = "dodge") +
         facet_wrap(~Country) + 
         labs(y = "Number of respondents", fill = "Buy EV") + theme_minimal() + 
         scale_fill_manual(values = c("red", "lightseagreen"))
-      ggplotly(p2) %>% 
+      ggplotly(p2, tooltip = c("count", "x", "Country", "text")) %>% 
         layout( 
           xaxis = list(automargin=TRUE), 
           yaxis = list(automargin=TRUE)
