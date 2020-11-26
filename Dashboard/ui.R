@@ -77,23 +77,23 @@ shinyUI(
                 dashboardSidebar(
                   sidebarMenu(
                     sidebarSearchForm("searchText", "buttonSearch", "Search"),
-                    menuItem("Growth", tabName = "Growth", newTab = T, 
+                    menuItem("Growth", tabName = "Growth", newTab = T, icon = icon('chart-line'), 
                              menuSubItem("Sales per segment", tabName = "Salespersegment"), 
                              menuSubItem("Sales per fuel type", tabName = "fueltype"),
                              menuSubItem("Best selling EV's compared", tabName = "best_selling_evs_compared")
                              ),
-                    menuItem("Customers", tabName = "Customers", newTab = T, 
+                    menuItem("Customers", tabName = "Customers", newTab = T, icon = icon('users'),
                              menuSubItem("Purchase process", tabName = "Purchaseprocess"),
                              menuSubItem("Brand loyalty", tabName = "dashboard_loyalty"),
                              menuSubItem("EV popularity", tabName = "survey")
                              ),
-                    menuItem("Sales", tabName = "Sales"),
-                    menuItem("Finance", tabName = "Finance"),
-                    menuItem("Superchargers", tabName = "Superchargers", newTab = T, 
+                    menuItem("Sales", tabName = "Sales", icon = icon('dollar-sign')),
+                    menuItem("Finance", tabName = "Finance", icon = icon('file-invoice-dollar')),
+                    menuItem("Superchargers", tabName = "Superchargers", newTab = T, icon = icon('bolt'),
                              menuSubItem("Map", tabName = "Map"), 
                              menuSubItem("Statistics", tabName = "Statistics"), 
                              menuSubItem("Competition", tabName = "Competition")),
-                    menuItem("Expansion in Europe", tabName = "Expansion_in_Europe")
+                    menuItem("Expansion in Europe", tabName = "Expansion_in_Europe", icon = icon('expand-arrows-alt'))
                   )),
                 dashboardBody(
                   tabItems(
