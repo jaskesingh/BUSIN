@@ -15,6 +15,8 @@ library(grid)
 library(rworldmap)
 library(shiny)
 library(shinydashboard)
+library(shinyjs)
+library(htmltools)
 library(plotly)
 library(leaflet)
 library(DT)
@@ -549,7 +551,7 @@ shinyServer(function(input, output, session) {
       p <- TSLA %>% ggplot(aes(date , close)) + geom_line() +
         labs(title = "TSLA stock evolution", y = "Closing Price", x = "") + 
         stat_smooth(method = 'lm', se = FALSE, aes(color = 'Trend')) +
-        theme_tq() + scale_color_manual(values = c("red"))
+        theme_tq() + scale_color_manual(values = c("red")) + theme(legend.title = element_blank())
       
       ggplotly(p, tooltip = c("x", "y"))
     })
@@ -815,6 +817,7 @@ shinyServer(function(input, output, session) {
       
       gg
     })
+    
 }) 
 
     

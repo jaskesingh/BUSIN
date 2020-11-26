@@ -18,6 +18,8 @@ library(rworldmap)
 library(plotly)
 library(leaflet)
 library(shinydashboard)
+library(shinyjs)
+library(htmltools)
 library(stringr)
 library(DT)
 library(tidyverse)
@@ -102,8 +104,8 @@ shinyUI(
                     tabItem(
                       tabName = "Salespersegment",
                       fluidRow(
-                        valueBoxOutput("bestsoldsegment"),
-                        valueBoxOutput("populairst")
+                        valueBoxOutput("bestsoldsegment", width = 6),
+                        valueBoxOutput("populairst", width = 6)
                       ),
                       fluidRow(
                         box(
@@ -123,11 +125,11 @@ shinyUI(
                       tabName = "fueltype",
                       fluidRow(
                         column( width = 12,
-                                valueBoxOutput("bestsoldfuel"),
-                                valueBoxOutput("populairstfuel")),
+                                valueBoxOutput("bestsoldfuel", width = 6),
+                                valueBoxOutput("populairstfuel", width = 6)),
                         column( width = 12,
-                                valueBoxOutput("bestsoldfueleu"),
-                                valueBoxOutput("populairstfueleu"))
+                                valueBoxOutput("bestsoldfueleu", width = 6),
+                                valueBoxOutput("populairstfueleu", width = 6))
                       ),
                       fluidRow(
                         box(
@@ -236,8 +238,8 @@ shinyUI(
                     tabItem(
                       tabName = "dashboard_loyalty", 
                         fluidRow(
-                          valueBoxOutput("loyalty_percentage_of_tesla"),
-                          valueBoxOutput("loyalty_rank_of_tesla")
+                          valueBoxOutput("loyalty_percentage_of_tesla", width = 6),
+                          valueBoxOutput("loyalty_rank_of_tesla", width = 6)
                         ),
                         fluidRow(
                           box(title = "Loyalty per brand",
@@ -260,8 +262,8 @@ shinyUI(
                     tabName = "survey",
                       h2("Survey taken in 2018 in EU-countries"),
                         fluidRow(
-                          valueBoxOutput("surveytotal"),
-                          valueBoxOutput("totalcountries")
+                          valueBoxOutput("surveytotal", width = 6),
+                          valueBoxOutput("totalcountries", width = 6)
                         ),
                         fluidRow(
                           box(
@@ -495,7 +497,7 @@ shinyUI(
                       )
                             
                             
-                    )  
+                    ) 
                   )
                 )
 
