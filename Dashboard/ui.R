@@ -87,9 +87,8 @@ shinyUI(
                              menuSubItem("Brand loyalty", tabName = "dashboard_loyalty"),
                              menuSubItem("EV popularity", tabName = "survey")
                              ),
-                    menuItem("Sales", tabName = "Sales", newTab =T, 
-                             menuSubItem("Periodic analysis", tabName = "Periodic")),
-                    menuItem("Finance", tabName = "Finance", badgeLabel = "New", badgeColor = "green"),
+                    menuItem("Sales", tabName = "Sales"),
+                    menuItem("Finance", tabName = "Finance"),
                     menuItem("Superchargers", tabName = "Superchargers", newTab = T, 
                              menuSubItem("Map", tabName = "Map"), 
                              menuSubItem("Statistics", tabName = "Statistics"), 
@@ -332,7 +331,7 @@ shinyUI(
                     
                     #Sales
                     tabItem(
-                      tabName = "Periodic",
+                      tabName = "Sales",
                       fluidPage(
                       box(title = "Periodic Tesla sales over the years", 
                           "Black line is the mean sales of all the selected years", plotlyOutput("line04"),

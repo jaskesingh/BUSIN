@@ -374,12 +374,12 @@ shinyServer(function(input, output, session) {
   ### Graph
     
     output$view <- renderPlotly({
-      f3 <- eusurvey %>% filter(Country == input$incountry, Income_group == input$incomegr)
-      p3 <- f3 %>% ggplot(aes(Income_group)) + 
+      f3 <- eusurvey %>% filter(Country %in% input$incountry, Income_group %in% input$incomegr)
+      p3 <- f3 %>% ggplot(aes(Income_group) + 
         geom_bar(aes(fill = as.logical(buy_electric)), position = "dodge") +
         labs(y = "Number of respondents", fill = "Buy EV") +
-        theme(axis.text.x = element_text(angle = 60, hjust = 1))  + theme_minimal() + 
-        scale_fill_manual(values = c("red", "lightseagreen"))
+        theme(axis.text.x = element_text(angle = 60, hjust = 1)) + theme_minimal() + 
+        scale_fill_manual(values = c("red", "lightseagreen")))
       ggplotly(p3)
     })
     
