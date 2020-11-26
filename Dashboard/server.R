@@ -417,12 +417,14 @@ shinyServer(function(input, output, session) {
     
     output$plan <- renderPlotly({
       f4 <- eusurvey %>% filter (Country %in% input$carplancountry)
-      p4 <- f4 %>% ggplot(aes(Plan_to_purchase_vehicle)) + 
+      p4 <- f4 %>% ggplot(aes(x = Plan_to_purchase_vehicle, 
+                              text = paste('Buy EV: ', as.logical(buy_electric),
+                                           '<br>Country: ', Country))) + 
         geom_bar(aes(fill = as.logical(buy_electric)), position = "dodge") + 
         labs(y = "Number of respondents", x = "Plan to buy car", fill = "Buy EV") + theme_minimal() +
         theme(axis.text.x = element_text(angle = 60, hjust = 1)) +  
         scale_fill_manual(values = c("red", "lightseagreen"))
-      ggplotly(p4)
+      ggplotly(p4, tooltip = c("count", "x", "text"))
       
     })
     
