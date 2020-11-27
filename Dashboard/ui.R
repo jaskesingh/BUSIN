@@ -284,6 +284,15 @@ shinyUI(
                           ),
                         tabBox(
                           title = "Based on",
+                            tabPanel("Gender",
+                                     selectInput(inputId = "gcountry",
+                                                 label = "Choose country",
+                                                 choices = unique(eusurvey$Country),
+                                                 multiple = T,
+                                                 selected = "Belgium"
+                                     ),
+                                     plotlyOutput("ggcountry")
+                          ),
                             tabPanel("Income", 
                                selectInput(inputId = "incountry",
                                            label = "Choose Country",
@@ -307,15 +316,7 @@ shinyUI(
                                ),
                                plotlyOutput("employ")
                           ),
-                          tabPanel("Gender",
-                               selectInput(inputId = "gcountry",
-                                           label = "Choose country",
-                                           choices = unique(eusurvey$Country),
-                                           multiple = T,
-                                           selected = "Belgium"
-                               ),
-                               plotlyOutput("ggcountry")
-                          ),
+                          
                           tabPanel("Plan to buy car",
                                selectInput(inputId = "carplancountry",
                                            label = "Choose country",
