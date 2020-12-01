@@ -110,4 +110,21 @@ shinyServer(function(input, output) {
         
         ggplotly(p)
     })
+    
+    runjs({'
+        var el2 = document.querySelector(".skin-blue");
+        el2.className = "skin-blue sidebar-mini";
+        var clicker = document.querySelector(".sidebar-toggle");
+        clicker.id = "switchState";
+    '})
+    
+    onclick('switchState', runjs({'
+        var title = document.querySelector(".logo")
+        if (title.style.visibility == "hidden") {
+          title.style.visibility = "visible";
+        } else {
+          title.style.visibility = "hidden";
+        }
+  '}))
+    
 })
