@@ -28,7 +28,7 @@ library(quantmod)
 
 #Caro
 
-#Map + table01 + infoboxen
+#Map + table01 + infoboxes
 superchargers <- read_xlsx("Data/Superchargers.xlsx")
 superchargers <- superchargers %>% separate(GPS, sep = ",", into = c("Latitude", "Longitude"))
 superchargers$Longitude <- as.double(superchargers$Longitude)
@@ -38,19 +38,19 @@ superchargers <- data.frame(superchargers)
 #Histogram01
 verkoo <- read_xlsx("Data/Yearly Tesla Sales Country Split (Europe).xlsx")
 
-#Groei: verkoop alle merken per segment
+#Growth: Sale of all brands per segment
 VPS <- read_xlsx("Data/New cars sold in the EU by segment in million units.xlsx")
 
-#Groei: aandeel elektrische auto's op Belgische en EU markt
+#Growth: Share of electric vehicles on Belgian and European market
 nieuw <- read_xlsx("Data/Verkoop per brandstof (België) met market share.xlsx", sheet = "Nieuw")
 Nieuw <- nieuw %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
 eu <- read_xlsx("Data/% share of new passenger cars by fuel type in the EU.xlsx")
 
-#Klanten: aankoopproces
+#Customers: Purchase process
 aankoopproces <- read_xlsx("Data/Online.xlsx")
 aankoopproces <- aankoopproces %>% gather('Not at all interested/not very interested':'Somewhat interested/very interested', key = "Interest", value="Percentage")
 
-#Verkoop: periodieke tesla verkopen
+#Sale: Periodic tesla sales
 data <- read_xlsx("Data/Monthly Tesla Vehicle Sales.xlsx")
 Data <- data %>% gather(January:December, key=  "Month", value="Sales") %>% mutate(Month = str_replace(Month, "January", "1"), Month = str_replace(Month, "February", "2"), Month = str_replace(Month, "March", "3"), Month = str_replace(Month, "April", "4"), Month = str_replace(Month, "May", "5"), Month = str_replace(Month, "June", "6"), Month = str_replace(Month, "July", "7"), Month = str_replace(Month, "August", "8"), Month = str_replace(Month, "September", "9"), Month = str_replace(Month, "October", "10"), Month = str_replace(Month, "November", "11"), Month = str_replace(Month, "December", "12"))
 Data$Month <- as.integer(Data$Month)
@@ -59,24 +59,24 @@ Data$Year <- as.factor(Data$Year)
 
 #Lien
 
-#financieel tabblad
+#Financial tab
 Revenue <- read_xlsx("data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Revenues (automotive)", col_types = c("numeric", "text", "numeric", "numeric"))
 Gross_Margin <- read_xlsx("Data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Gross margin", col_types = c("numeric", "text", "numeric", "numeric"))
 Gross_profit <- read_xlsx("Data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Gross profit", col_types = c("numeric", "text", "numeric", "numeric", "numeric"))
 Free_cashflow <- read_xlsx("Data/Tesla's free cash flow by quarter 2020 world wide.xlsx", skip = 3 , sheet = "Data", col_types = c("numeric", "text", "numeric"))
 
-#uitbreiding in europa tabblad
+#Expansion in Europa tab
 countriesafpassengercars <- read_xlsx("Data/Countries overview of af passenger cars.xlsx", skip = 2 , col_types = c("numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))
 teslapercountrysales <- read_xlsx("Data/Verkoop landen tesla.xlsx", skip = 1, col_types = c("text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric")) %>% gather('2013', '2014', '2015', '2016', '2017', '2018', '2019', key = 'jaar', value = 'waarde')
 
 #Jaske
 
-##Bevraging in de EU over consumentengedrag in verband met de automotive sector
+#Survey in the EU about consumer behavior related to the automotive sector
 eusurvey <- read.csv("data/hev1.csv")
 
 
       
-# Define UI for application that draws a map
+#Define UI for application that draws a map
 shinyUI(
   dashboardPage(skin = 'red',
                 dashboardHeader(title = 'Menu'),
