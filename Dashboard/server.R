@@ -60,18 +60,18 @@ tesla.eu.map <- dbReadTable(con, "tesla.eu.map")
 
 dbDisconnect(con)
 
-##financiele cijfers, functies
+##Financial numbers, functions
 financefunction <- function(yearinput,df) {
   financefunction <- df %>% filter(df$Year == yearinput)
   return(financefunction)
 }
 
-# Define server logic required to draw a map
+#Define server logic required to draw a map
 shinyServer(function(input, output, session) {
   
   #Growth
-  ## Sales per segment
-  ### Infoboxes 
+  ##Sales per segment
+  ###Infoboxes 
     output$bestsoldsegment <- renderValueBox({
       VPSC2 <- VPS %>% filter(Year == max(input$Year2))
       valueBox(
