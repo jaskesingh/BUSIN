@@ -66,7 +66,7 @@ financefunction <- function(yearinput,df) {
   return(financefunction)
 }
 
-#Define server logic required to draw a map
+#Define server 
 shinyServer(function(input, output, session) {
   
   #Growth
@@ -559,7 +559,7 @@ shinyServer(function(input, output, session) {
   
   #Superchargers
   ## Map
-  ### Table
+    # Table
     output$table01 <- renderDataTable({
       DT::datatable(superchargers, selection = "single",options=list(stateSave = TRUE))
     })
@@ -675,17 +675,6 @@ shinyServer(function(input, output, session) {
     output$click_info <- renderPrint({
       nearPoints(ratio, input$plot1_click, addDist = TRUE)
     })
-    
-    #output$table02 <- renderDataTable({
-      #verkooC <- verkoo %>% dplyr::filter(Country %in% input$Country, Year == input$Year)
-      #superchargersC <- superchargers %>% dplyr::filter(Year < input$Year+1, Status == 'OPEN', Country %in% input$Country)
-      #superchargersC <- plyr::count(superchargersC, "Country")
-      #ratio <- full_join(superchargersC, verkooC, by = 'Country')
-      #ratio$freq <- as.integer(ratio$freq)
-      #ratio[is.na(ratio)] = 0
-      #ratio$Country <- as.factor(ratio$Country)
-      #DT::datatable(ratio, selection = "single", options=list(stateSave = TRUE))
-    #})
   
   ## Competition
   ### Graph
@@ -696,7 +685,6 @@ shinyServer(function(input, output, session) {
       h2 <- laadpalenC %>% ggplot(aes(x = Description, y = freq, fill = Level)) + geom_col() + gghighlight(Description == "Tesla", calculate_per_facet = T, use_direct_label = F) + facet_wrap(Country~., nrow = 3, ncol = 9) + theme_minimal() +
         theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
         scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + xlab("Brand") + scale_fill_manual(values = c("green", "red")) + scale_x_discrete(labels = c("Ionity", "Tesla"))
-      #h2 <- laadpalenC %>% ggplot(aes(x = Country, y = freq, fill = Description)) + geom_col(position = "dodge") + theme_minimal() + scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + coord_flip() + scale_fill_manual(values = c("orange", "blue"))
       ggplotly(h2, tooltip = c("x", "y"))
     })
     
