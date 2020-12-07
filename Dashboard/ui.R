@@ -18,6 +18,8 @@ library(rworldmap)
 library(plotly)
 library(leaflet)
 library(shinydashboard)
+library(shinyjs)
+library(htmltools)
 library(stringr)
 library(DT)
 library(tidyverse)
@@ -26,7 +28,7 @@ library(quantmod)
 
 #Caro
 
-#Map + table01 + infoboxen
+#Map + table01 + infoboxes
 superchargers <- read_xlsx("Data/Superchargers.xlsx")
 superchargers <- superchargers %>% separate(GPS, sep = ",", into = c("Latitude", "Longitude"))
 superchargers$Longitude <- as.double(superchargers$Longitude)
@@ -36,19 +38,19 @@ superchargers <- data.frame(superchargers)
 #Histogram01
 verkoo <- read_xlsx("Data/Yearly Tesla Sales Country Split (Europe).xlsx")
 
-#Groei: verkoop alle merken per segment
+#Growth: Sale of all brands per segment
 VPS <- read_xlsx("Data/New cars sold in the EU by segment in million units.xlsx")
 
-#Groei: aandeel elektrische auto's op Belgische en EU markt
+#Growth: Share of electric vehicles on Belgian and European market
 nieuw <- read_xlsx("Data/Verkoop per brandstof (België) met market share.xlsx", sheet = "Nieuw")
 Nieuw <- nieuw %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
 eu <- read_xlsx("Data/% share of new passenger cars by fuel type in the EU.xlsx")
 
-#Klanten: aankoopproces
+#Customers: Purchase process
 aankoopproces <- read_xlsx("Data/Online.xlsx")
 aankoopproces <- aankoopproces %>% gather('Not at all interested/not very interested':'Somewhat interested/very interested', key = "Interest", value="Percentage")
 
-#Verkoop: periodieke tesla verkopen
+#Sale: Periodic tesla sales
 data <- read_xlsx("Data/Monthly Tesla Vehicle Sales.xlsx")
 Data <- data %>% gather(January:December, key=  "Month", value="Sales") %>% mutate(Month = str_replace(Month, "January", "1"), Month = str_replace(Month, "February", "2"), Month = str_replace(Month, "March", "3"), Month = str_replace(Month, "April", "4"), Month = str_replace(Month, "May", "5"), Month = str_replace(Month, "June", "6"), Month = str_replace(Month, "July", "7"), Month = str_replace(Month, "August", "8"), Month = str_replace(Month, "September", "9"), Month = str_replace(Month, "October", "10"), Month = str_replace(Month, "November", "11"), Month = str_replace(Month, "December", "12"))
 Data$Month <- as.integer(Data$Month)
@@ -57,44 +59,46 @@ Data$Year <- as.factor(Data$Year)
 
 #Lien
 
-#financieel tabblad
+#Financial tab
 Revenue <- read_xlsx("data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Revenues (automotive)", col_types = c("numeric", "text", "numeric", "numeric"))
 Gross_Margin <- read_xlsx("Data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Gross margin", col_types = c("numeric", "text", "numeric", "numeric"))
 Gross_profit <- read_xlsx("Data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Gross profit", col_types = c("numeric", "text", "numeric", "numeric", "numeric"))
 Free_cashflow <- read_xlsx("Data/Tesla's free cash flow by quarter 2020 world wide.xlsx", skip = 3 , sheet = "Data", col_types = c("numeric", "text", "numeric"))
 
-#uitbreiding in europa tabblad
+#Expansion in Europa tab
 countriesafpassengercars <- read_xlsx("Data/Countries overview of af passenger cars.xlsx", skip = 2 , col_types = c("numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))
 teslapercountrysales <- read_xlsx("Data/Verkoop landen tesla.xlsx", skip = 1, col_types = c("text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric")) %>% gather('2013', '2014', '2015', '2016', '2017', '2018', '2019', key = 'jaar', value = 'waarde')
 
-#jaske
+#Jaske
+
+#Survey in the EU about consumer behavior related to the automotive sector
 eusurvey <- read.csv("data/hev1.csv")
+
+
       
-# Define UI for application that draws a map
+#Define UI for application that draws a map
 shinyUI(
   dashboardPage(skin = 'red',
                 dashboardHeader(title = 'Menu'),
                 dashboardSidebar(
                   sidebarMenu(
-                    sidebarSearchForm("searchText", "buttonSearch", "Search"),
-                    menuItem("Growth", tabName = "Growth", newTab = T, 
-                             menuSubItem("Sales per segment", tabName = "Salespersegment"), 
-                             menuSubItem("Sales per fuel type", tabName = "fueltype"),
-                             menuSubItem("Best selling EV's compared", tabName = "best_selling_evs_compared")
+                    menuItem("Growth", tabName = "Growth", newTab = T, icon = icon('chart-line'), 
+                             menuSubItem("Sales per segment", tabName = "Salespersegment", icon = icon('search-dollar')), 
+                             menuSubItem("Sales per fuel type", tabName = "fueltype", icon = icon('funnel-dollar')),
+                             menuSubItem("Best selling EV's compared", tabName = "best_selling_evs_compared", icon = icon('medal'))
                              ),
-                    menuItem("Customers", tabName = "Customers", newTab = T, 
-                             menuSubItem("Purchase process", tabName = "Purchaseprocess"),
-                             menuSubItem("Brand loyalty", tabName = "dashboard_loyalty"),
-                             menuSubItem("EV popularity", tabName = "survey")
+                    menuItem("Customers", tabName = "Customers", newTab = T, icon = icon('users'),
+                             menuSubItem("Purchase process", tabName = "Purchaseprocess", icon = icon('wallet')),
+                             menuSubItem("Brand loyalty", tabName = "dashboard_loyalty", icon = icon('grin-hearts') ),
+                             menuSubItem("EV popularity", tabName = "survey",icon = icon('grin-stars'))
                              ),
-                    menuItem("Sales", tabName = "Sales", newTab =T, 
-                             menuSubItem("Periodic analysis", tabName = "Periodic")),
-                    menuItem("Finance", tabName = "Finance", badgeLabel = "New", badgeColor = "green"),
-                    menuItem("Superchargers", tabName = "Superchargers", newTab = T, 
-                             menuSubItem("Map", tabName = "Map"), 
-                             menuSubItem("Statistics", tabName = "Statistics"), 
-                             menuSubItem("Competition", tabName = "Competition")),
-                    menuItem("Expansion in Europe", tabName = "Expansion_in_Europe")
+                    menuItem("Sales", tabName = "Sales", icon = icon('dollar-sign')),
+                    menuItem("Finance", tabName = "Finance", icon = icon('file-invoice-dollar')),
+                    menuItem("Superchargers", tabName = "Superchargers", newTab = T, icon = icon('bolt'),
+                             menuSubItem("Map", tabName = "Map", icon = icon('map-marked-alt')), 
+                             menuSubItem("Statistics", tabName = "Statistics", icon = icon('chart-bar')), 
+                             menuSubItem("Competition", tabName = "Competition", icon = icon('fist-raised'))),
+                    menuItem("Expansion in Europe", tabName = "Expansion_in_Europe", icon = icon('expand-arrows-alt'))
                   )),
                 dashboardBody(
                   tabItems(
@@ -103,8 +107,8 @@ shinyUI(
                     tabItem(
                       tabName = "Salespersegment",
                       fluidRow(
-                        valueBoxOutput("bestsoldsegment"),
-                        valueBoxOutput("populairst")
+                        valueBoxOutput("bestsoldsegment", width = 6),
+                        valueBoxOutput("populairst", width = 6)
                       ),
                       fluidRow(
                         box(
@@ -124,11 +128,11 @@ shinyUI(
                       tabName = "fueltype",
                       fluidRow(
                         column( width = 12,
-                                valueBoxOutput("bestsoldfuel"),
-                                valueBoxOutput("populairstfuel")),
+                                valueBoxOutput("bestsoldfuel", width = 6),
+                                valueBoxOutput("populairstfuel", width = 6)),
                         column( width = 12,
-                                valueBoxOutput("bestsoldfueleu"),
-                                valueBoxOutput("populairstfueleu"))
+                                valueBoxOutput("bestsoldfueleu", width = 6),
+                                valueBoxOutput("populairstfueleu", width = 6))
                       ),
                       fluidRow(
                         box(
@@ -174,6 +178,11 @@ shinyUI(
                       )
                     ),
                     tabItem(tabName = "best_selling_evs_compared",
+                            fluidRow(
+                              valueBoxOutput("teslax"),
+                              valueBoxOutput("tesla3"),
+                              valueBoxOutput("teslas")
+                            ),
                             fluidRow(
                               box(title = "Top 15 best sold EV's of 2019 compared by different characteristics",
                                   status = "danger",
@@ -232,8 +241,8 @@ shinyUI(
                     tabItem(
                       tabName = "dashboard_loyalty", 
                         fluidRow(
-                          valueBoxOutput("loyalty_percentage_of_tesla"),
-                          valueBoxOutput("loyalty_rank_of_tesla")
+                          valueBoxOutput("loyalty_percentage_of_tesla", width = 6),
+                          valueBoxOutput("loyalty_rank_of_tesla", width = 6)
                         ),
                         fluidRow(
                           box(title = "Loyalty per brand",
@@ -256,8 +265,8 @@ shinyUI(
                     tabName = "survey",
                       h2("Survey taken in 2018 in EU-countries"),
                         fluidRow(
-                          valueBoxOutput("surveytotal"),
-                          valueBoxOutput("totalcountries")
+                          valueBoxOutput("surveytotal", width = 6),
+                          valueBoxOutput("totalcountries", width = 6)
                         ),
                         fluidRow(
                           box(
@@ -275,6 +284,15 @@ shinyUI(
                           ),
                         tabBox(
                           title = "Based on",
+                            tabPanel("Gender",
+                                     selectInput(inputId = "gcountry",
+                                                 label = "Choose country",
+                                                 choices = unique(eusurvey$Country),
+                                                 multiple = T,
+                                                 selected = "Belgium"
+                                     ),
+                                     plotlyOutput("ggcountry")
+                          ),
                             tabPanel("Income", 
                                selectInput(inputId = "incountry",
                                            label = "Choose Country",
@@ -298,15 +316,7 @@ shinyUI(
                                ),
                                plotlyOutput("employ")
                           ),
-                          tabPanel("Gender",
-                               selectInput(inputId = "gcountry",
-                                           label = "Choose country",
-                                           choices = unique(eusurvey$Country),
-                                           multiple = T,
-                                           selected = "Belgium"
-                               ),
-                               plotlyOutput("ggcountry")
-                          ),
+                          
                           tabPanel("Plan to buy car",
                                selectInput(inputId = "carplancountry",
                                            label = "Choose country",
@@ -327,7 +337,7 @@ shinyUI(
                     
                     #Sales
                     tabItem(
-                      tabName = "Periodic",
+                      tabName = "Sales",
                       fluidPage(
                       box(title = "Periodic Tesla sales over the years", 
                           "Black line is the mean sales of all the selected years", plotlyOutput("line04"),
@@ -491,7 +501,7 @@ shinyUI(
                       )
                             
                             
-                    )  
+                    ) 
                   )
                 )
 

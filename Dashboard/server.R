@@ -15,6 +15,8 @@ library(grid)
 library(rworldmap)
 library(shiny)
 library(shinydashboard)
+library(shinyjs)
+library(htmltools)
 library(plotly)
 library(leaflet)
 library(DT)
@@ -58,18 +60,18 @@ tesla.eu.map <- dbReadTable(con, "tesla.eu.map")
 
 dbDisconnect(con)
 
-##financiele cijfers, functies
+##Financial numbers, functions
 financefunction <- function(yearinput,df) {
   financefunction <- df %>% filter(df$Year == yearinput)
   return(financefunction)
 }
 
-# Define server logic required to draw a map
+#Define server logic required to draw a map
 shinyServer(function(input, output, session) {
   
   #Growth
-  ## Sales per segment
-  ### Infoboxes 
+  ##Sales per segment
+  ###Infoboxes 
     output$bestsoldsegment <- renderValueBox({
       VPSC2 <- VPS %>% filter(Year == max(input$Year2))
       valueBox(
@@ -201,9 +203,27 @@ shinyServer(function(input, output, session) {
   
   
   ## Best selling EV's compared
+  ###Infoboxes
+    output$tesla3 <- renderValueBox({
+      groco_data_gather_2 <- groco_data_gather %>% filter(Submodel == "Tesla Model 3", Type == "Sales In 2019")
+        valueBox(
+          paste0(groco_data_gather_2$Value),
+          subtitle= paste("Tesla model 3 sales 2019"), icon = icon('car-side'), color = "red")
+    })
+    output$teslax <- renderValueBox({
+      groco_data_gather_3 <- groco_data_gather %>% filter(Submodel == "Tesla Model X", Type == "Sales In 2019")
+        valueBox(
+          paste0(groco_data_gather_3$Value),
+          subtitle= paste("Tesla model X sales 2019"), icon = icon('car-side'), color = "red")
+    })
+    output$teslas <- renderValueBox({
+      groco_data_gather_4 <- groco_data_gather %>% filter(Submodel == "Tesla Model S", Type == "Sales In 2019")
+        valueBox(
+          paste0(groco_data_gather_4$Value),
+          subtitle= paste("Tesla model S sales 2019"), icon = icon('car-side'), color = "red")
+    })
     
-    # KPI ???
-    
+    ###Graph
     output$growth_comparison_bar <- renderPlotly({
     
       groco_filtered_data <- groco_data_gather %>% filter(!is.na(Submodel), Type == input$growth_select_box, !is.na(Value)) %>% 
@@ -356,21 +376,25 @@ shinyServer(function(input, output, session) {
   ### Graph
     
     output$view <- renderPlotly({
-      f3 <- eusurvey %>% filter(Country == input$incountry, Income_group == input$incomegr)
-      p3 <- f3 %>% ggplot(aes(Income_group)) + 
-        geom_bar(aes(fill = as.logical(buy_electric)), position = "dodge") +
+      f3 <- eusurvey %>% filter(Country %in% input$incountry, Income_group %in% input$incomegr)
+      p3 <- f3 %>% ggplot(aes(x = Income_group, fill = as.logical(buy_electric), 
+                              text = paste('Buy EV: ', as.logical(buy_electric)))) + 
+        geom_bar(position = "dodge") +
         labs(y = "Number of respondents", fill = "Buy EV") +
-        theme(axis.text.x = element_text(angle = 60, hjust = 1))
-      ggplotly(p3)
+        theme(axis.text.x = element_text(angle = 60, hjust = 1)) + theme_minimal() + 
+        scale_fill_manual(values = c("red", "lightseagreen"))
+      ggplotly(p3, tooltip = c("count", "x", "text"))
     })
     
     output$employ <- renderPlotly({
       f1 <- eusurvey %>% filter(Employment_status %in% input$estatus)
-      p1 <- f1 %>% ggplot(aes(Employment_status)) +
+      p1 <- f1 %>% ggplot(aes(x = Employment_status, 
+                              text = paste('Buy EV: ', as.logical(buy_electric)))) +
         geom_bar(aes(fill = as.logical(buy_electric)), position = "dodge") +
         labs(y = "Number of respondents", fill = "Buy EV") +
-        theme(axis.text.x = element_text(angle = 60, hjust = 1))
-      ggplotly(p1) %>% 
+        theme(axis.text.x = element_text(angle = 60, hjust = 1)) + theme_minimal() + 
+        scale_fill_manual(values = c("red", "lightseagreen"))
+      ggplotly(p1, tooltip = c("count", "x", "text")) %>% 
         layout( 
           xaxis = list(automargin=TRUE), 
           yaxis = list(automargin=TRUE)
@@ -379,11 +403,14 @@ shinyServer(function(input, output, session) {
     
     output$ggcountry <- renderPlotly({
       f2 <- eusurvey %>% filter(Country %in% input$gcountry)
-      p2 <- f2 %>% ggplot(aes(Gender)) + 
+      p2 <- f2 %>% ggplot(aes(x = Gender, 
+                              text = paste('Buy EV: ', as.logical(buy_electric),
+                                           "<br>Country: ", Country))) + 
         geom_bar(aes(fill = as.logical(buy_electric)), position = "dodge") +
         facet_wrap(~Country) + 
-        labs(y = "Number of respondents", fill = "Buy EV")
-      ggplotly(p2) %>% 
+        labs(y = "Number of respondents", fill = "Buy EV") + theme_minimal() + 
+        scale_fill_manual(values = c("red", "lightseagreen"))
+      ggplotly(p2, tooltip = c("count", "x", "Country", "text")) %>% 
         layout( 
           xaxis = list(automargin=TRUE), 
           yaxis = list(automargin=TRUE)
@@ -392,11 +419,14 @@ shinyServer(function(input, output, session) {
     
     output$plan <- renderPlotly({
       f4 <- eusurvey %>% filter (Country %in% input$carplancountry)
-      p4 <- f4 %>% ggplot(aes(Plan_to_purchase_vehicle)) + 
+      p4 <- f4 %>% ggplot(aes(x = Plan_to_purchase_vehicle, 
+                              text = paste('Buy EV: ', as.logical(buy_electric),
+                                           '<br>Country: ', Country))) + 
         geom_bar(aes(fill = as.logical(buy_electric)), position = "dodge") + 
-        labs(y = "Number of respondents", x = "Plan to buy car", fill = "Buy EV") +
-        theme(axis.text.x = element_text(angle = 60, hjust = 1))
-      ggplotly(p4)
+        labs(y = "Number of respondents", x = "Plan to buy car", fill = "Buy EV") + theme_minimal() +
+        theme(axis.text.x = element_text(angle = 60, hjust = 1)) +  
+        scale_fill_manual(values = c("red", "lightseagreen"))
+      ggplotly(p4, tooltip = c("count", "x", "text"))
       
     })
     
@@ -411,7 +441,7 @@ shinyServer(function(input, output, session) {
       
       ggplotly(eusurvey %>% group_by(Country, tesla_sold) %>% summarize(n=n(),prop=sum(buy_electric==1)/n()) %>%
                  ggplot(aes(Country, prop)) + geom_point(aes(color = tesla_sold)) + 
-                 labs(y = "Percentage of people willing to buy ev", x = "Countries", color = "Tesla sold") +
+                 labs(y = "Percentage of people willing to buy ev", x = "Countries", color = "Tesla sold") + theme_minimal() +
                  theme(axis.text.x = element_text(angle = 60, hjust = 1)) + 
                  scale_color_manual(values=c("black", "red"))
       )
@@ -521,7 +551,7 @@ shinyServer(function(input, output, session) {
       p <- TSLA %>% ggplot(aes(date , close)) + geom_line() +
         labs(title = "TSLA stock evolution", y = "Closing Price", x = "") + 
         stat_smooth(method = 'lm', se = FALSE, aes(color = 'Trend')) +
-        theme_tq() + scale_color_manual(values = c("red"))
+        theme_tq() + scale_color_manual(values = c("red")) + theme(legend.title = element_blank())
       
       ggplotly(p, tooltip = c("x", "y"))
     })
@@ -787,6 +817,7 @@ shinyServer(function(input, output, session) {
       
       gg
     })
+    
 }) 
 
     
