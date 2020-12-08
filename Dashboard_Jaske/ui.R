@@ -15,8 +15,8 @@ library(quantmod)
 
 eusurvey <- read.csv("data/hev1.csv")
 
-logotsla <- tags$a(href='https://cdn.freelogovectors.net/wp-content/uploads/2014/05/tesla_motors-logo.png',
-                 tags$img(src='tesla_motors-logo.png', height='60', width='50'),
+logotsla <- tags$a(href='https://www.google.com',
+                 tags$img(src="data/tesla-logo2.jpg", height='50', width='50'),
                  'Menu')
 
 shinyUI(

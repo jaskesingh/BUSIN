@@ -261,6 +261,7 @@ shinyUI(
                           )
                         )
                     ),
+                ## Creates a 
                    tabItem(
                     tabName = "survey",
                       h2("Survey taken in 2018 in EU-countries"),
