@@ -619,7 +619,7 @@ shinyServer(function(input, output, session) {
       clickId <- input$mymap_marker_click$id
       dataTableProxy("table01") %>%
         selectRows(which(superchargers$id == clickId)) %>%
-        selectPage(which(input$table01_rows_all == clickId) %/% 
+        selectPage((which(input$table01_rows_all == clickId)-1) %/% 
                      input$table01_state$length+1)})
   
   ## Statistics
