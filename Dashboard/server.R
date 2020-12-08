@@ -29,7 +29,7 @@ library(ggExtra)
 library(toOrdinal)
 library(tidyquant)
 library(quantmod)
-library(ggflags) #geef dit in om te installeren: devtools::install_github("rensa/ggflags")
+library(ggflags) #Installation: devtools::install_github("rensa/ggflags")
 library(RSQLite)
 
 # Establish connection with the database
@@ -60,18 +60,19 @@ tesla.eu.map <- dbReadTable(con, "tesla.eu.map")
 
 dbDisconnect(con)
 
-##Financial numbers, functions
+## Financial numbers, functions
 financefunction <- function(yearinput,df) {
   financefunction <- df %>% filter(df$Year == yearinput)
   return(financefunction)
 }
 
-#Define server 
+# Define server 
 shinyServer(function(input, output, session) {
   
-  #Growth
-  ##Sales per segment
-  ###Infoboxes 
+  # Growth
+  ## Sales per segment
+  ### Infoboxes
+  #### Shows best sold segment of the last year that is selected
     output$bestsoldsegment <- renderValueBox({
       VPSC2 <- VPS %>% filter(Year == max(input$Year2))
       valueBox(
@@ -79,7 +80,7 @@ shinyServer(function(input, output, session) {
         subtitle= paste("Best sold segment in ", max(input$Year2)), icon = icon('car-side'), color = "red")
     })
   
-  
+  #### Shows the segment that has augmented the most between the selected years
     output$populairst <- renderValueBox({
       VPSC2 <- VPS %>% filter(Year == max(input$Year2) | Year == min(input$Year2))
       VPSC2 <- VPSC2 %>% group_by(Segment) %>% mutate(Difference = (Sales[Year == max(Year)] - Sales[Year == min(Year)]))
@@ -89,6 +90,7 @@ shinyServer(function(input, output, session) {
     })
   
   ### Graph
+  #### Shows interactive line graph of new cars sold in the Eu by segment in million units over the years
   output$line01 <- renderPlotly({
     VPSC2 <- VPS %>% filter(Year >= min(input$Year2) & Year <= max(input$Year2))
     p <- VPSC2 %>% ggplot(aes(x=Year, y=Sales)) + geom_line(aes(color = Segment)) + labs(title = "New cars sold in the EU by segment in million units over the years.") + 
@@ -98,7 +100,9 @@ shinyServer(function(input, output, session) {
   
   ## Sales per fuel type
   ### Infoboxes
+  #### Shows the best sold type of car in Belgium in the last selected year
     output$bestsoldfuel <- renderValueBox({
+  ##### Checks if new (1) or second hand (0) is selected    
       if(checkregion() == 1){
         NieuwC <- Nieuw %>% filter(Year == max(input$Year3))
         valueBox(
@@ -114,7 +118,9 @@ shinyServer(function(input, output, session) {
       }
     })
   
+  #### Shows the type of car that has augmented the most in Belgium between the selected years  
     output$populairstfuel <- renderValueBox({
+  ##### Checks if new (1) or second hand (0) is selected    
       if(checkregion() == 1){
         NieuwC <- Nieuw %>% filter(Year == max(input$Year3) | Year == min(input$Year3))
         NieuwC <- NieuwC %>% group_by(Fuel) %>% mutate(Difference = (Cars.sold[Year == max(Year)] - Cars.sold[Year == min(Year)]))
@@ -132,6 +138,7 @@ shinyServer(function(input, output, session) {
       }
     })
     
+  #### Shows the best sold type of car in the EU in the last selected year 
     output$bestsoldfueleu <- renderValueBox({
       EuMSC <- EuMS %>% filter(Year == input$Year7)
       valueBox(
@@ -140,6 +147,7 @@ shinyServer(function(input, output, session) {
       )
     })
     
+  #### Shows the type of car that has augmented the most in the EU between the selected years  
     output$populairstfueleu <- renderValueBox({
       EUMSC2 <- EuMS %>% filter(Year == max(input$Year8) | Year == min(input$Year8))
       EUMSC2 <- EUMSC2 %>% group_by(Fuel) %>% mutate(Difference = (Market.Share[Year == max(Year)] - Market.Share[Year == min(Year)]))
@@ -150,8 +158,11 @@ shinyServer(function(input, output, session) {
     })
   
   ### Graphs
+  #### Checks which graphs it has to show: new or second hand  
     checkregion <- reactive({input$Region})
+  ##### Shows interactive line graph of the number of cars sold in Belgium over the selected years
     output$line02 <- renderPlotly({
+  ###### Checks if new (1) or second hand (0) is selected 
       if(checkregion() == 1) {
         NieuwC <- Nieuw %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3))
         p2 <- NieuwC %>% ggplot(aes(x = Year, y = Cars.sold)) + geom_line(aes(color = Fuel)) + labs(title = "Number of new cars sold in Belgium over the years") + theme_minimal() +
@@ -159,7 +170,6 @@ shinyServer(function(input, output, session) {
         ggplotly(p2)
       }
       else{
-        #lijn tweedehands: groei: aandeel elektrische auto's op belgische en eu markt
         TweedehandsC <- Tweedehands %>% filter(Year >= min(input$Year3) & Year <= max(input$Year3))
         p3 <- TweedehandsC %>% ggplot(aes(x = Year, y = Cars.sold)) + geom_line(aes(color = Fuel)) + labs(title = "Number of second hand cars sold in Belgium over the years") + theme_minimal() +
           scale_color_manual(values = c("purple", "orange", "red", "green", "blue")) + ylab("Cars sold")
@@ -167,8 +177,11 @@ shinyServer(function(input, output, session) {
       }
     })
     
+  #### Checks which graphs it has to show: new or second hand    
     checktype <- reactive({input$Region2})
+  #### Shows interactive pie chart of the market share of cars by fuel type in Belgium in the selected year
     output$pie02 <- renderPlotly({
+  ###### Checks if new (1) or second hand (0) is selected 
       if(checktype() == 1){
         NieuwMSC <- NieuwMS %>% filter(Year == input$Year5)
         fig1 <- plot_ly(NieuwMSC, labels = ~Fuel, values = ~Market.Share, type = 'pie')
@@ -177,7 +190,6 @@ shinyServer(function(input, output, session) {
                                 yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
       }
       else{
-        #taart tweedehands: groei: aandeel elektrische auto's op belgische en eu markt
         TweedehandsMSC <- TweedehandsMS %>% filter(Year == input$Year5)
         fig2 <- plot_ly(TweedehandsMSC, labels = ~Fuel, values = ~Market.Share, type = 'pie')
         fig2 <- fig2 %>% layout(title = "Market share of second hand cars by fuel type in Belgium",
@@ -186,6 +198,7 @@ shinyServer(function(input, output, session) {
       }
     })
     
+  #### Shows interactive pie chart of the market share of new cars by fuel type in the EU in the selected year
     output$pie04 <- renderPlotly({
       EuMSC <- EuMS %>% filter(Year == input$Year7)
       fig3 <- plot_ly(EuMSC, labels = ~Fuel, values = ~Market.Share, type = 'pie')
@@ -194,6 +207,7 @@ shinyServer(function(input, output, session) {
                               yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
     })
     
+  #### Shows interactive line graph of the market share of new cars by fuel type in the EU over the selected years
     output$hist05 <- renderPlotly({
       EuMSC2 <- EuMS %>% filter(Year >= min(input$Year8) & Year <= max(input$Year8))
       h5 <- EuMSC2 %>% ggplot(aes(x = Year, y = Market.Share)) + geom_line(aes(color = Fuel)) + labs(title = "Market Share of new cars in the EU over the years", input$Fuel3,"cars in the EU over the years") +
@@ -256,9 +270,10 @@ shinyServer(function(input, output, session) {
   
   
   
-  #Customers
+  # Customers
   ## Purchase process
-
+  ### Graph
+  #### Shows interactive bar chart of the share of Europeans interested in online vehicle purchasing in 2018  
     output$hist07 <- renderPlotly({
       aankoopprocesC2 <- aankoopproces %>% filter(Country %in% input$Country4, Interest %in% input$Interest)
       aankoopprocesC2 <- aankoopprocesC2 %>% group_by(Interest) %>% mutate(Level = ifelse(Percentage == max(Percentage), "Highest", ifelse(Percentage == min(Percentage), "Lowest", "Between")))
@@ -266,9 +281,8 @@ shinyServer(function(input, output, session) {
         scale_y_continuous(limits = c(0, 70), breaks = seq(0,70, by= 10)) + theme_minimal() + scale_fill_manual(values = c("red", "green", "blue")) 
       ggplotly(h7)})
   
-  ##Brand loyalty
+  ## Brand loyalty
   ### Infoboxes  
-  
     output$loyalty_percentage_of_tesla <- renderValueBox({
       loyalty_per_brand_ranked_Tesla <- loyalty_per_brand_ranked_tibble %>%
         filter(Brand == "Tesla")
@@ -450,9 +464,9 @@ shinyServer(function(input, output, session) {
   
   
   
-  #Sales
-  ## Periodic analysis
-    
+  # Sales
+  ## Graph
+  ### Shows interactive line graph of the periodic Tesla sales of the selected years  
     output$line04 <- renderPlotly({
       DataC <- Data %>% filter(Month >= min(input$Month) & Month <= max(input$Month), Year %in% input$Year9)
       MeanSales <- DataC %>% group_by(Month) %>% summarise(Sales = mean(Sales, na.rm = T) )
@@ -557,19 +571,20 @@ shinyServer(function(input, output, session) {
     })
     
   
-  #Superchargers
+  # Superchargers
   ## Map
-    # Table
+  ### Table
     output$table01 <- renderDataTable({
       DT::datatable(superchargers, selection = "single",options=list(stateSave = TRUE))
     })
     
-    # to keep track of previously selected row
+  #### Keeps track of previously selected row
     prev_row <- reactiveVal()
     
-    # new icon style
+  #### Creates new icon style to locate the selected supercharger
     my_icon = makeAwesomeIcon(icon = 'flag', markerColor = 'red', iconColor = 'white')
-    
+  
+  #### Shows selected row on map   
     observeEvent(input$table01_rows_selected, {
       row_selected = superchargers[input$table01_rows_selected,]
       proxy <- leafletProxy('mymap')
@@ -580,7 +595,7 @@ shinyServer(function(input, output, session) {
                           lat=row_selected$Latitude,
                           icon = my_icon)
       
-      # Reset previously selected marker
+  #### Resets previously selected marker
       if(!is.null(prev_row()))
       {
         proxy %>%
@@ -590,7 +605,7 @@ shinyServer(function(input, output, session) {
                      lat=prev_row()$Latitude)
       }
       
-      # set new value to reactiveVal 
+  #### sets new value to reactiveVal 
       prev_row(row_selected)
     })
     
@@ -599,6 +614,7 @@ shinyServer(function(input, output, session) {
       leaflet() %>% addTiles() %>% addMarkers(data = superchargers, layerId = as.character(superchargers$id) )
     })
     
+  #### Shows selected supercharger in table  
     observeEvent(input$mymap_marker_click, {
       clickId <- input$mymap_marker_click$id
       dataTableProxy("table01") %>%
@@ -608,36 +624,41 @@ shinyServer(function(input, output, session) {
   
   ## Statistics
   ### Infoboxes
-    
+  #### Shows the total number of supercharger stations 
     output$totbox <- renderValueBox({
       valueBox(
         paste0(sum(aantal$freq)),
         subtitle= "Total number of supercharger stations", icon = icon('charging-station'), color = "red"
       )
     })
+  #### Shows the number of open supercharger stations
     output$openbox <- renderValueBox({
       valueBox(
         paste0(aantal$freq[aantal$Status == "OPEN"]),
         subtitle= "Number of open supercharger stations", icon = icon('charging-station'), color = "red"
       )
     })
+  #### Shows the number of building supercharger stations
     output$buildbox <- renderValueBox({
       valueBox(
         paste0(aantal$freq[aantal$Status == "CONSTRUCTION"]),
         subtitle= "Number of building supercharger stations", icon = icon('tools'),color = "red"
       )
     })
+  #### Shows the number of permit supercharger stations
     output$permitbox <- renderValueBox({
       valueBox(
         paste0(aantal$freq[aantal$Status == "PERMIT"]),
         subtitle= "Number of permit supercharger stations", icon = icon('scroll'), color = "red"
       )
     })
+  #### Shows the number of permanently closed supercharger stations
     output$pclosedbox <- renderValueBox({
       valueBox(
         paste0(aantal$freq[aantal$Status == "CLOSED_PERM"]),
-        subtitle= "Number of permantly closed supercharger stations", icon = icon('lock'), color = "red"
+        subtitle= "Number of permanently closed supercharger stations", icon = icon('lock'), color = "red"
       )})
+  #### Shows the number of temporarly closed supercharger stations
     output$tclosedbox <- renderValueBox({
       valueBox(
         paste0(aantal$freq[aantal$Status == "CLOSED_TEMP"]),
@@ -646,28 +667,29 @@ shinyServer(function(input, output, session) {
     })
     
   ### Graph 
+  #### Shows scatter plot of the number of Teslas per supercharger station in the selected year
     output$hist01 <- renderPlot({
       verkooC <- verkoo %>% dplyr::filter(Country %in% input$Country, Year == input$Year)
       superchargersC <- superchargers %>% dplyr::filter(Year < input$Year+1, Status == 'OPEN', Country %in% input$Country)
+  ##### Counts the number of superchargers per country
       superchargersC <- plyr::count(superchargersC, "Country")
       ratio <- full_join(superchargersC, verkooC, by = 'Country')
       ratio$freq <- as.integer(ratio$freq)
+  ##### Gives the value 0 to countries with no superchargers
       ratio[is.na(ratio)] = 0
       ratio$Country <- as.factor(ratio$Country)
-      #h1 <- ratio %>% ggplot(aes(x= freq, y = Sales, label = Country)) + geom_point() + geom_text(aes(label = Country), check_overlap = TRUE, vjust = "outward", hjust = "inward") + labs(title = paste0("Teslas/supercharger station in ", input$Year)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-        #scale_y_continuous(limits = c(0, 31000), breaks = seq(0,31000, by= 5000)) + scale_x_continuous(limits = c(0, 80), breaks = seq(0, 80, by = 10)) + ylab(label = "Number of Teslas sold" ) + xlab(label = "Number of supercharger stations") + theme_minimal()
       ratio %>% ggplot(aes(x= freq, y= Sales, country = Countries, size= freq)) + geom_flag() + scale_country() + scale_size(range = c(0, 15)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
         ylab(label = "Number of Teslas sold" ) + xlab(label = "Number of supercharger stations") + theme_minimal()
-      #ggplotly(h1)
     })
     
+  ### Table
     selected_points <- reactiveVal()
     
-    # update the reactiveVal whenever input$plot1_brush changes, i.e. new points are selected.
+  #### Updates the reactiveVal whenever input$plot1_brush changes, i.e. new points are selected.
     observeEvent(input$plot1_brush,{
       selected_points( brushedPoints(ratio, input$plot1_brush))
     })
-    
+  ##### Shows the information of the selected points 
     output$brush_info <- renderPrint({
       selected_points()
     })
@@ -677,8 +699,8 @@ shinyServer(function(input, output, session) {
     })
   
   ## Competition
-  ### Graph
-   
+  ### Graphs
+  #### Shows interactive bar chart of the number of supercharger stations per selected country 
     output$hist02 <- renderPlotly({
       laadpalenC <- laadpalen %>% filter(Country %in% input$Country2)
       laadpalenC <- laadpalenC %>% group_by(Country) %>% mutate(Level = ifelse(freq[Description == "Tesla"] == max(freq), "Highest", ifelse(freq[Description == "Tesla"] == min(freq), "Lowest", "Between")))
@@ -688,7 +710,7 @@ shinyServer(function(input, output, session) {
       ggplotly(h2, tooltip = c("x", "y"))
     })
     
-
+  #### Shows interactive pie chart of superchargers market share
     output$pie01 <- renderPlotly({
       fig <- plot_ly(taart, labels = ~Description, values = ~ratio, type = 'pie')
       fig <- fig %>% layout(xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
