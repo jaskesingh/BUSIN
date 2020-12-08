@@ -347,13 +347,13 @@ shinyServer(function(input, output, session) {
   
   ## Survey
   ### Infoboxes
-    
+  #### Shows number of total surveyrespondents  
     output$surveytotal <- renderValueBox({
       valueBox(
         nrow(eusurvey), subtitle = "Number of respondents", icon = icon("user-alt"), color = 'red'
       )
     })
-    
+  #### Shows number of countries where survey was taken  
     output$totalcountries <- renderValueBox({
       valueBox(
         length(unique(eusurvey$Country)), subtitle = "Number of countries",
@@ -362,7 +362,7 @@ shinyServer(function(input, output, session) {
     })
     
   ### Table
-    
+  #### Shows country, gender, average age and number of respondents that would buy or not buy an ev
     output$country <- renderDataTable({
       t1 <- eusurvey %>% filter(Country == input$ccountry) %>%
         group_by(Country, as.factor(Gender), as.logical(buy_electric)) %>% 
@@ -374,7 +374,7 @@ shinyServer(function(input, output, session) {
     })
     
   ### Graph
-    
+  #### Shows the number of respondents per different income group and whether they are willing to buy an ev  
     output$view <- renderPlotly({
       f3 <- eusurvey %>% filter(Country %in% input$incountry, Income_group %in% input$incomegr)
       p3 <- f3 %>% ggplot(aes(x = Income_group, fill = as.logical(buy_electric), 
@@ -385,7 +385,7 @@ shinyServer(function(input, output, session) {
         scale_fill_manual(values = c("red", "lightseagreen"))
       ggplotly(p3, tooltip = c("count", "x", "text"))
     })
-    
+  #### Shows the number of respondents per different employment status and whether they are willing to buy an ev
     output$employ <- renderPlotly({
       f1 <- eusurvey %>% filter(Employment_status %in% input$estatus)
       p1 <- f1 %>% ggplot(aes(x = Employment_status, 
@@ -400,7 +400,7 @@ shinyServer(function(input, output, session) {
           yaxis = list(automargin=TRUE)
         )
     })
-    
+  #### Shows the number of respondents per gender and country and whether they are willing to buy an ev  
     output$ggcountry <- renderPlotly({
       f2 <- eusurvey %>% filter(Country %in% input$gcountry)
       p2 <- f2 %>% ggplot(aes(x = Gender, 
@@ -416,7 +416,7 @@ shinyServer(function(input, output, session) {
           yaxis = list(automargin=TRUE)
         )
     })
-    
+  #### Shows the number of respondents that are planning to purchase a vehicle and whether they are willing to buy an ev  
     output$plan <- renderPlotly({
       f4 <- eusurvey %>% filter (Country %in% input$carplancountry)
       p4 <- f4 %>% ggplot(aes(x = Plan_to_purchase_vehicle, 
@@ -429,7 +429,7 @@ shinyServer(function(input, output, session) {
       ggplotly(p4, tooltip = c("count", "x", "text"))
       
     })
-    
+  #### Shows the percentage of respondents that are willing to buy an ev per country and whether Tesla already sells it's ev's in that country  
     output$propev <- renderPlotly({
       teslacountries <- c("Austria", "Belgium", "Czech Republic", "Denmark", 
                           "Finland", "France", "Germany", "Ireland", "Italy", 
