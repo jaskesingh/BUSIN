@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+#[Load libraries]
 library(RSQLite)
 library(tidyverse)
 library(readr)
@@ -17,40 +18,68 @@ library(readxl)
 ```
 
 ```{r}
-# Establish connection with the database
+#[Establish connection with the database]
 con <- dbConnect(drv = SQLite(), "Tesla_database.sqlite")
 ```
 
 ```{r}
 #Growth
 ##Sales per segment
+#[Load data]
 VPS <- read_xlsx("Data/New cars sold in the EU by segment in million units.xlsx")
+
+#[Transform the data so that there is column "Year" and a column "Sales"]
 VPS <- VPS %>% gather('2008':'2019', key=  "Year", value="Sales")
+
+#[Assign the right datatype to the different variables]
 VPS$Year <- as.numeric(VPS$Year)
 VPS$Sales <- as.double(VPS$Sales)
 
+#[Save table in database]
 dbWriteTable(con, "VPS", VPS)
 
 ##Sales per fuel type
+#[Load data]
 nieuw <- read_xlsx("Data/Verkoop per brandstof (België) met market share.xlsx", sheet = "Nieuw")
 tweedehands <- read_xlsx("Data/Verkoop per brandstof (België) met market share.xlsx", sheet = "Tweedehands")
 eu <- read_xlsx("Data/% share of new passenger cars by fuel type in the EU.xlsx")
+
+#[Transform the data so that there is a column "Year" and a column "Market.Share"]
 NieuwMS <- nieuw %>% gather(MS12, MS13, MS14, MS15, MS16, MS17, MS18, MS19,key = "Year", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
+
+#[Rename the values of the column "Year"]
 NieuwMS$Year <- recode(NieuwMS$Year, MS12 = "2012", MS13 = "2013", MS14 = "2014", MS15 = "2015", MS16 = "2016", MS17 = "2017", MS18 = "2018", MS19 = "2019" )
+
+#[Transform the data so that there is a column "Year" and a column "Market.Share"]
 Nieuw <- nieuw %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars.sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
+
+#[Assign the right datatype to the different variables]
 Nieuw$Year <- as.integer(Nieuw$Year)
 NieuwMS$Year <- as.integer(NieuwMS$Year)
 NieuwMS$Market.Share <- as.double(NieuwMS$Market.Share)
+
+#[Transform the data so that there is a column "Year" and a column "Market.Share"]
 TweedehandsMS <- tweedehands %>% gather(MS12, MS13, MS14, MS15, MS16, MS17, MS18, MS19,key = "Year", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
+
+#[Rename the values of the column "Year"]
 TweedehandsMS$Year <- recode(TweedehandsMS$Year, MS12 = "2012", MS13 = "2013", MS14 = "2014", MS15 = "2015", MS16 = "2016", MS17 = "2017", MS18 = "2018", MS19 = "2019" )
+
+#[Transform the data so that there is a column "Year" and a column "Cars.sold"]
 Tweedehands <- tweedehands %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars.sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
+
+#[Assign the right datatype to the different variables]
 Tweedehands$Year <- as.integer(Tweedehands$Year)
 TweedehandsMS$Year <- as.integer(TweedehandsMS$Year)
 TweedehandsMS$Market.Share <- as.double(TweedehandsMS$Market.Share)
+
+#[Transform the data so that there is a column "Year" and a column "Market.Share"]
 EuMS <- eu %>% gather('2016', '2017', '2018', '2019',key = "Year", value = "Market.Share",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
+
+#[Assign the right datatype to the different variables]
 EuMS$Year <- as.integer(EuMS$Year)
 EuMS$Market.Share <- as.double(EuMS$Market.Share)
 
+#[Save tables in database]
 dbWriteTable(con, "Nieuw", Nieuw)
 dbWriteTable(con, "NieuwMS", NieuwMS)
 dbWriteTable(con, "Tweedehands", Tweedehands)
@@ -95,10 +124,16 @@ dbWriteTable(con, "groco_data_gather", groco_data_gather)
 ```{r}
 #Customers
 ##Purchase process
+#[Load data]
 aankoopproces <- read_xlsx("Data/Online.xlsx")
+
+#[Transform the data so that there is a column "Interest" and a column "Percentage"]
 aankoopproces <- aankoopproces %>% gather(`Not at all interested/not very interested`:`Somewhat interested/very interested`, key = "Interest", value="Percentage")
+
+#[Order the different categories from least interest to most interest]
 aankoopproces$Interest <- ordered(aankoopproces$Interest, levels = c("Not at all interested/not very interested", "Neutral", "Somewhat interested/very interested"))
 
+#[Save table in database]
 dbWriteTable(con, "aankoopproces", aankoopproces)
 
 ##Brand loyalty
@@ -181,23 +216,30 @@ dbWriteTable(con, "eusurvey", hev1)
 
 ```{r}
 #Sales
+#[Load data]
 data <- read_xlsx("Data/Monthly Tesla Vehicle Sales.xlsx")
+
+#[Transform the data so that there is a column "Month" and a column "Sales" + replace the months by their number]
 Data <- data %>% gather(January:December, key=  "Month", value="Sales") %>% mutate(Month = str_replace(Month, "January", "1"), Month = str_replace(Month, "February", "2"), Month = str_replace(Month, "March", "3"), Month = str_replace(Month, "April", "4"), Month = str_replace(Month, "May", "5"), Month = str_replace(Month, "June", "6"), Month = str_replace(Month, "July", "7"), Month = str_replace(Month, "August", "8"), Month = str_replace(Month, "September", "9"), Month = str_replace(Month, "October", "10"), Month = str_replace(Month, "November", "11"), Month = str_replace(Month, "December", "12"))
+
+#[Assign the right datatype to the different variables]
 Data$Month <- as.integer(Data$Month)
 Data$Year <- as.factor(Data$Year) 
 
+#[Save table in database]
 dbWriteTable(con, "Data", Data)
 
 ```
 
 ```{r}
 #Finance
+#[Load data and give the right datatype to the variables]
 Revenue <- read_xlsx("Data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Revenues (automotive)", col_types = c("numeric", "text", "numeric", "numeric"))
 Gross_Margin <- read_xlsx("Data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Gross margin", col_types = c("numeric", "text", "numeric", "numeric"))
 Gross_profit <- read_xlsx("Data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Gross profit", col_types = c("numeric", "text", "numeric", "numeric", "numeric"))
 Free_cashflow <- read_xlsx("Data/Tesla's free cash flow by quarter 2020 world wide.xlsx", skip = 3 , sheet = "Data", col_types = c("numeric", "text", "numeric"))
 
-##cleaning
+#[Make new columns and save them in a table]
 Revenuetabel <- Revenue %>% group_by(Year) %>% 
   mutate("Revenue " = sum(Revenue, na.rm = TRUE)/1000000)
 Free_cashflow <- Free_cashflow %>% group_by(Year) %>% 
@@ -207,12 +249,13 @@ Gross_profit <- Gross_profit %>% group_by(Year) %>%
 Gross_Margin <- Gross_Margin %>% group_by(Year) %>% 
   mutate("Gross Margin " = sum(`Gross Margin`, na.rm = TRUE))
 
+#[Make a date column with year and quarter]
 Revenuetabel <- Revenuetabel %>% unite(Year, Quarter, col = "Date", sep = " ") 
 Gross_profit <- Gross_profit %>% unite(Year, Quarter, col = "Date", sep = " ") 
 Free_cashflow <- Free_cashflow %>% unite(Year, Quarter, col = "Date", sep = " ") 
 Gross_Margin <- Gross_Margin %>% unite(Year, Quarter, col = "Date", sep = " ") 
 
-
+#[Select the columns that are needed]
 Revenuetabelnorm <- Revenuetabel %>% select(Date, Revenue)
 Gross_profitnorm <- Gross_profit %>% select(Date, `Gross Profit`)
 Gross_Marginnorm <- Gross_Margin %>% select(Date, `Gross Margin`) 
@@ -223,22 +266,24 @@ Gross_profitsom <- Gross_profit %>% select(Date, `Gross Profit `)
 Gross_Marginsom <- Gross_Margin %>% select(Date, `Gross Margin `)
 Free_cashflowsom <- Free_cashflow %>% select(Date, `Free cash flow `)
 
+#[Join the tables based on date]
 Financial_numbersnorm <- left_join(Revenuetabelnorm, Gross_profitnorm, by = "Date")
 Financial_numbersnorm <- left_join(Financial_numbersnorm, Gross_Marginnorm, by = "Date")
 Financial_numbersnorm <- left_join(Financial_numbersnorm, Free_cashflownorm, by = "Date")
 
+Financial_numberssom <- left_join(Revenuetabelsom, Gross_profitsom, by = "Date")
+Financial_numberssom <- left_join(Financial_numberssom, Gross_Marginsom, by = "Date")
+Financial_numberssom <- left_join(Financial_numberssom, Free_cashflowsom, by = "Date")
+
+#[Separate the data column in year and quarter]
 Financial_numbersnorm <- Financial_numbersnorm %>% separate(Date, sep = " ", into = c("Year", "Quarter"))
+
+#[Give every column the right datatype]
 Financial_numbersnorm$'Year' <- as.numeric(Financial_numbersnorm$'Year')
 Financial_numbersnorm$'Revenue' <- as.numeric(Financial_numbersnorm$'Revenue')
 Financial_numbersnorm$'Gross Profit' <- as.numeric(Financial_numbersnorm$'Gross Profit')
 Financial_numbersnorm$'Gross Margin' <- as.numeric(Financial_numbersnorm$'Gross Margin')
 Financial_numbersnorm$'Free cash flow' <- as.numeric(Financial_numbersnorm$'Free cash flow')
-
-Financial_numbers_gather_norm <- Financial_numbersnorm %>% gather('Revenue', 'Gross Profit', 'Gross Margin', 'Free cash flow', key = 'Type', value = 'finvalue')
-
-Financial_numberssom <- left_join(Revenuetabelsom, Gross_profitsom, by = "Date")
-Financial_numberssom <- left_join(Financial_numberssom, Gross_Marginsom, by = "Date")
-Financial_numberssom <- left_join(Financial_numberssom, Free_cashflowsom, by = "Date")
 
 Financial_numberssom <- Financial_numberssom %>% separate(Date, sep = " ", into = c("Year", "Quarter"))
 Financial_numberssom$'Year' <- as.numeric(Financial_numberssom$'Year')
@@ -247,31 +292,48 @@ Financial_numberssom$'Gross Profit ' <- as.numeric(Financial_numberssom$'Gross P
 Financial_numberssom$'Gross Margin ' <- as.numeric(Financial_numberssom$'Gross Margin ')
 Financial_numberssom$'Free cash flow ' <- as.numeric(Financial_numberssom$'Free cash flow ')
 
+#[Transform the data from a wide format to a long format]
+Financial_numbers_gather_norm <- Financial_numbersnorm %>% gather('Revenue', 'Gross Profit', 'Gross Margin', 'Free cash flow', key = 'Type', value = 'finvalue')
+
 Financial_numbers_gather_som <- Financial_numberssom %>% gather('Revenue ', 'Gross Profit ', 'Gross Margin ', 'Free cash flow ', key = 'Type', value = 'Total') %>% select(Year, Type, Total) %>% distinct()
 
+#[Save tables in database]
 dbWriteTable(con, "Financial_numbers_gather_norm", Financial_numbers_gather_norm)
 dbWriteTable(con, "Financial_numbers_gather_som", Financial_numbers_gather_som)
-
-
 ```
 
 ```{r}
 #Superchargers
 ##Map
+#[Load data]
 superchargers <- read_xlsx("data/Superchargers.xlsx")
 superchargers <- superchargers %>% separate(GPS, sep = ",", into = c("Latitude", "Longitude"))
+
+#[Assign the right datatype to the different variables]
 superchargers$Longitude <- as.double(superchargers$Longitude)
 superchargers$Latitude <- as.double(superchargers$Latitude)
+
+#[Create new column "id" that contains the row numbers]
 superchargers$id <- seq.int(nrow(superchargers))
+
+#[Extract the year from the date to create new column "Year"]
 superchargers$Year <- format(superchargers$'Open Date', format="%Y")
+
+#[Transform to dataframe]
 superchargers <- data.frame(superchargers)
+
+#[Count how many superchargers there are of each status]
 aantal <- plyr::count(superchargers, "Status")
 
+#[Save tables in database]
 dbWriteTable(con, "aantal", aantal)
 dbWriteTable(con, "superchargers", superchargers)
 
 ##Statistics
+#[Load data]
 verkoo <- read_xlsx("Data/Yearly Tesla Sales Country Split (Europe).xlsx")
+
+#[Assign the right datatype to the different variables]
 verkoo$'2013' <- as.numeric(verkoo$'2013')
 verkoo$'2014' <- as.numeric(verkoo$'2014')
 verkoo$'2015' <- as.numeric(verkoo$'2015')
@@ -279,16 +341,28 @@ verkoo$'2016' <- as.numeric(verkoo$'2016')
 verkoo$'2017' <- as.numeric(verkoo$'2017')
 verkoo$'2018' <- as.numeric(verkoo$'2018')
 verkoo$'2019' <- as.numeric(verkoo$'2019')
+
+#[Create a new column "Countries" with the ISO country codes]
 verkoo$Countries <- c("at", "be", "cz", "dk", "fi", "fr", "de", "gr", "ie", "it", "lu", "nl", "no", "pt", "ro", "si", "es", "se", "ch")
+
+#[Transform the data so that there is a column "Year" and a column "Sales"]
 verkoo <- verkoo %>% gather('2013':'2019',key = "Year", value = "Sales")
+
+#[Assign the right datatype to the different variables]
 verkoo$Year <- as.integer(verkoo$Year)       
 verkoo$Sales <- as.integer(verkoo$Sales)
+
+#[Transform to dataframe]
 verkoo <- data.frame(verkoo)
 
+#[Save table in database]
 dbWriteTable(con, "verkoo", verkoo)
 
 ##Competition
+#[Load data]
 ionity <- read_xlsx("Data/ionity_locations.xlsx")
+
+#[Rename columns]
 ionity$Supercharger <- ionity$name
 ionity$Stalls <- ionity$charger_count
 ionity$Open.Date <- ionity$golive
@@ -299,16 +373,35 @@ ionity$Description <- ionity$title
 ionity$Country <- ionity$geo_state.country
 ionity$City <- ionity$city
 ionity$State <- ionity$geo_state.name_en
+
+#[Keep only the superchargers that are open]
 ionity <- ionity %>% filter(Status != 'now building' | Status != 'Now building')
+
+#[Keep only the selected columns]
 ionity <- ionity %>% select(Supercharger, Stalls, Latitude, Longitude, Description, City, State, Country, Open.Date)
+
+#[Create new column with the brand + keep only the superchargers that are open + keep only the selected columns]
 teslapalen <- superchargers %>% mutate(Description = 'Tesla') %>% filter(Status == 'OPEN') %>% select(Supercharger, Stalls, Latitude, Longitude, Description, City, State, Country, Open.Date)
+
+#[Assign the right datatype to the different variables]
 ionity$Open.Date <- as.POSIXct(ionity$Open.Date, format = "%Y-%m-%d %H:%M")
+
+#[Merge the two tables together based on the columns that have the same name]
 laadpalen <- bind_rows(ionity, teslapalen)
+
+#[Assign the right datatype to the different variables]
 laadpalen$Country <- as.factor(laadpalen$Country)
+
+#[Count how many superchargers each brand has]
 taart <- plyr::count(laadpalen, "Description")
+
+#[Count how many superchargers each brand has in the different countries]
 laadpalen <- plyr::count(laadpalen, c("Description", "Country"))
+
+#[Calculate the market share of each brand]
 taart <- taart %>% dplyr::mutate(ratio = round(freq/sum(freq)*100))
 
+#[Save tables in database]
 dbWriteTable(con, "taart", taart)
 dbWriteTable(con, "laadpalen", laadpalen)
 
@@ -316,37 +409,51 @@ dbWriteTable(con, "laadpalen", laadpalen)
 
 ```{r}
 #Expansion in Europe
+#[Load data and give the right datatype to the variables]
 countriesafpassengercars <- read_xlsx("Data/Countries overview of af passenger cars.xlsx", skip = 2 , col_types = c("numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))
 countriesafinfrastructure <- read_xlsx("Data/countries overview of af infrastructure.xlsx", skip = 2 , col_types = c("numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric"))
+
+#[Make new column and select the right columns that will be used]
 countriesafinfrastructure <- countriesafinfrastructure %>% mutate("Electricity\n(BEV + PHEV)" = Electricity,  "Natural Gas\n(CNG + LNG)" = `Natural Gas`)
 countriesafinfrastructure <- countriesafinfrastructure %>% select("Year", "Country", "Electricity\n(BEV + PHEV)", "H2", "Natural Gas\n(CNG + LNG)", "LPG", "Total")
+
+#[Transform the data from a wide format to a long format]
 countriesafpassengercars <- countriesafpassengercars %>% gather('BEV', 'H2', 'CNG', 'LNG', 'PHEV', 'LPG', 'Total', key = 'Fuel', value = 'waardes')
+countriesafinfrastructure <- countriesafinfrastructure %>% gather('Electricity\n(BEV + PHEV)', 'H2', 'Natural Gas\n(CNG + LNG)', 'LPG', 'Total', key = 'Fuel', value = 'waardes')
+
+#[Insert the countries]
 countriesafpassengercars$Country[1:2457] <- c('Ausria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia',
                                               'Finland', 'France', 'Germany', 'Greece', 'Hungria', 'Ireland', 'Italy', 'Latvia', 'Lithuania',
                                               'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia',
                                               'Spain', 'Sweden')
-countriesafinfrastructure <- countriesafinfrastructure %>% gather('Electricity\n(BEV + PHEV)', 'H2', 'Natural Gas\n(CNG + LNG)', 'LPG', 'Total', key = 'Fuel', value = 'waardes')
+
 countriesafinfrastructure$Country[1:1755] <- c('Ausria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia',
                                                'Finland', 'France', 'Germany', 'Greece', 'Hungria', 'Ireland', 'Italy', 'Latvia', 'Lithuania',
                                                'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia',
                                                'Spain', 'Sweden')
-
+#[Save tables in database]
 dbWriteTable(con, "countriesafpassengercars", countriesafpassengercars)
 dbWriteTable(con, "countriesafinfrastructure", countriesafinfrastructure)
 
 #wereldkaart
-
+#[Load data and give the right datatype to the variables]
 teslapercountrysales <- read_xlsx("Data/Verkoop landen tesla.xlsx", skip = 1, col_types = c("text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric")) %>% gather('2013', '2014', '2015', '2016', '2017', '2018', '2019', key = 'jaar', value = 'waarde')
 
+#[Select all the countries from Europe]
 some.eu.countries <- c('Ukraine', 'France', 'Spain', 'Sweden', 'Norway', 'Germany', 'Finland', 'Poland', 'Italy', 'UK', 'Romania', 'Belarus', 'Greece', 'Bulgaria', 'Iceland', 'Hungary', 'Portugal', 'Austria', 'Czech Republic', 'Serbia', 'Ireland', 'Lithuania', 'Latvia', 'Croatia', 'Bosnia and Herzegovina', 'Slovakia', 'Estonia', 'Denmark', 'Netherlands', 'Switzerland', 'Moldova', 'Belgium', 'Armenia', 'Albania', 'Macedonia', 'Turkey', 'Slovenia', 'Montenegro', 'Kosovo', 'Cyprus', 'Luxembourg', 'Georgia', 'Andorra', 'Malta', 'Liechtenstein', 'San Marino', 'Monaco', 'Vatican')
 
+#[Get the world map from RStudio and insert the concerning countries]
 some.eu.map <- map_data("world", region = some.eu.countries)
+
+#[Join the data with the map]
 tesla.eu.map <- left_join(some.eu.map, teslapercountrysales, by = "region")
 
+#[Save table in database]
 dbWriteTable(con, "tesla.eu.map", tesla.eu.map)
 ```
 
 ```{r}
+#[Disconnect with database]
 dbDisconnect(con)
 ```
 
