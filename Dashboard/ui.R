@@ -37,7 +37,7 @@ Data <- dbReadTable(con, "Data")
 eusurvey <- dbReadTable(con, "eusurvey")
 Financial_numbers_gather_norm <- dbReadTable(con, "Financial_numbers_gather_norm")
 superchargers <- dbReadTable(con, "superchargers")
-#verkoo <- dbReadTable(con, "verkoo")
+verkoo <- dbReadTable(con, "verkoo")
 countriesafpassengercars <- dbReadTable(con, "countriesafpassengercars")
 countriesafinfrastructure <- dbReadTable(con, "countriesafinfrastructure")
 
@@ -53,7 +53,7 @@ dbDisconnect(con)
 #superchargers <- data.frame(superchargers)
 
 #Histogram01
-verkoo <- read_xlsx("Data/Yearly Tesla Sales Country Split (Europe).xlsx")
+#verkoo <- read_xlsx("Data/Yearly Tesla Sales Country Split (Europe).xlsx")
 
 #Growth: Sale of all brands per segment
 #VPS <- read_xlsx("Data/New cars sold in the EU by segment in million units.xlsx")
@@ -61,7 +61,7 @@ verkoo <- read_xlsx("Data/Yearly Tesla Sales Country Split (Europe).xlsx")
 #Growth: Share of electric vehicles on Belgian and European market
 #nieuw <- read_xlsx("Data/Verkoop per brandstof (België) met market share.xlsx", sheet = "Nieuw")
 #Nieuw <- nieuw %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
-eu <- read_xlsx("Data/% share of new passenger cars by fuel type in the EU.xlsx")
+#eu <- read_xlsx("Data/% share of new passenger cars by fuel type in the EU.xlsx")
 
 #Customers: Purchase process
 #aankoopproces <- read_xlsx("Data/Online.xlsx")
