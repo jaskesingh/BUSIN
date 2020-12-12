@@ -26,53 +26,57 @@ library(tidyverse)
 library(tidyquant)
 library(quantmod)
 
+# Establish connection with the database
+con <- dbConnect(drv = SQLite(), "Tesla_database.sqlite")
+
+#Read tables
+VPS <- dbReadTable(con, "VPS")
+Nieuw <- dbReadTable(con, "Nieuw")
+aankoopproces <- dbReadTable(con, "aankoopproces")
+Data <- dbReadTable(con, "Data")
+eusurvey <- dbReadTable(con, "eusurvey")
+Financial_numbers_gather_norm <- dbReadTable(con, "Financial_numbers_gather_norm")
+superchargers <- dbReadTable(con, "superchargers")
+verkoo <- dbReadTable(con, "verkoo")
+countriesafpassengercars <- dbReadTable(con, "countriesafpassengercars")
+countriesafinfrastructure <- dbReadTable(con, "countriesafinfrastructure")
+
+dbDisconnect(con)
+
 #Caro
 
 #Map + table01 + infoboxes
-superchargers <- read_xlsx("Data/Superchargers.xlsx")
-superchargers <- superchargers %>% separate(GPS, sep = ",", into = c("Latitude", "Longitude"))
-superchargers$Longitude <- as.double(superchargers$Longitude)
-superchargers$Latitude <- as.double(superchargers$Latitude)
-superchargers <- data.frame(superchargers)
+#superchargers <- read_xlsx("Data/Superchargers.xlsx")
+#superchargers <- superchargers %>% separate(GPS, sep = ",", into = c("Latitude", "Longitude"))
+#superchargers$Longitude <- as.double(superchargers$Longitude)
+#superchargers$Latitude <- as.double(superchargers$Latitude)
+#superchargers <- data.frame(superchargers)
 
 #Histogram01
-verkoo <- read_xlsx("Data/Yearly Tesla Sales Country Split (Europe).xlsx")
+#verkoo <- read_xlsx("Data/Yearly Tesla Sales Country Split (Europe).xlsx")
 
 #Growth: Sale of all brands per segment
-VPS <- read_xlsx("Data/New cars sold in the EU by segment in million units.xlsx")
+#VPS <- read_xlsx("Data/New cars sold in the EU by segment in million units.xlsx")
 
 #Growth: Share of electric vehicles on Belgian and European market
-nieuw <- read_xlsx("Data/Verkoop per brandstof (België) met market share.xlsx", sheet = "Nieuw")
-Nieuw <- nieuw %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
-eu <- read_xlsx("Data/% share of new passenger cars by fuel type in the EU.xlsx")
+#nieuw <- read_xlsx("Data/Verkoop per brandstof (België) met market share.xlsx", sheet = "Nieuw")
+#Nieuw <- nieuw %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
+#eu <- read_xlsx("Data/% share of new passenger cars by fuel type in the EU.xlsx")
 
 #Customers: Purchase process
-aankoopproces <- read_xlsx("Data/Online.xlsx")
-aankoopproces <- aankoopproces %>% gather('Not at all interested/not very interested':'Somewhat interested/very interested', key = "Interest", value="Percentage")
+#aankoopproces <- read_xlsx("Data/Online.xlsx")
+#aankoopproces <- aankoopproces %>% gather('Not at all interested/not very interested':'Somewhat interested/very interested', key = "Interest", value="Percentage")
 
 #Sale: Periodic tesla sales
-data <- read_xlsx("Data/Monthly Tesla Vehicle Sales.xlsx")
-Data <- data %>% gather(January:December, key=  "Month", value="Sales") %>% mutate(Month = str_replace(Month, "January", "1"), Month = str_replace(Month, "February", "2"), Month = str_replace(Month, "March", "3"), Month = str_replace(Month, "April", "4"), Month = str_replace(Month, "May", "5"), Month = str_replace(Month, "June", "6"), Month = str_replace(Month, "July", "7"), Month = str_replace(Month, "August", "8"), Month = str_replace(Month, "September", "9"), Month = str_replace(Month, "October", "10"), Month = str_replace(Month, "November", "11"), Month = str_replace(Month, "December", "12"))
-Data$Month <- as.integer(Data$Month)
-Data$Year <- as.factor(Data$Year) 
-
-
-#Lien
-
-#Financial tab
-Revenue <- read_xlsx("data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Revenues (automotive)", col_types = c("numeric", "text", "numeric", "numeric"))
-Gross_Margin <- read_xlsx("Data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Gross margin", col_types = c("numeric", "text", "numeric", "numeric"))
-Gross_profit <- read_xlsx("Data/Revenue-gross margin-gross profit worldwide 2015-2020.xlsx", sheet = "Gross profit", col_types = c("numeric", "text", "numeric", "numeric", "numeric"))
-Free_cashflow <- read_xlsx("Data/Tesla's free cash flow by quarter 2020 world wide.xlsx", skip = 3 , sheet = "Data", col_types = c("numeric", "text", "numeric"))
-
-#Expansion in Europa tab
-countriesafpassengercars <- read_xlsx("Data/Countries overview of af passenger cars.xlsx", skip = 2 , col_types = c("numeric", "text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric"))
-teslapercountrysales <- read_xlsx("Data/Verkoop landen tesla.xlsx", skip = 1, col_types = c("text", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "numeric")) %>% gather('2013', '2014', '2015', '2016', '2017', '2018', '2019', key = 'jaar', value = 'waarde')
+#data <- read_xlsx("Data/Monthly Tesla Vehicle Sales.xlsx")
+#Data <- data %>% gather(January:December, key=  "Month", value="Sales") %>% mutate(Month = str_replace(Month, "January", "1"), Month = str_replace(Month, "February", "2"), Month = str_replace(Month, "March", "3"), Month = str_replace(Month, "April", "4"), Month = str_replace(Month, "May", "5"), Month = str_replace(Month, "June", "6"), Month = str_replace(Month, "July", "7"), Month = str_replace(Month, "August", "8"), Month = str_replace(Month, "September", "9"), Month = str_replace(Month, "October", "10"), Month = str_replace(Month, "November", "11"), Month = str_replace(Month, "December", "12"))
+#Data$Month <- as.integer(Data$Month)
+#Data$Year <- as.factor(Data$Year) 
 
 #Jaske
 
 #Survey in the EU about consumer behavior related to the automotive sector
-eusurvey <- read.csv("data/hev1.csv")
+#eusurvey <- read.csv("data/hev1.csv")
 
 
       
@@ -112,7 +116,7 @@ shinyUI(
                       ),
                       fluidRow(
                         box(
-                          title = "New cars sold in the EU by segment in million units over the years", 
+                          title = "New cars sold in the EU by segment over the years", "In million units", 
                           width = 12,
                           solidHeader = T, status = 'danger', plotlyOutput("line01"),
                           sliderInput(inputId = "Year2",
@@ -372,16 +376,16 @@ shinyUI(
                                   "In million",
                                   solidHeader = T, status="danger", plotlyOutput("linefin"),sliderInput(inputId = "Yearrevline", 
                                                                                                         label = "Choose the range of years to appear",
-                                                                                                        min = min(Revenue$Year),
-                                                                                                        max = max(Revenue$Year),
-                                                                                                        value = c(min(Revenue$Year),max(Revenue$Year)),
+                                                                                                        min = min(Financial_numbers_gather_norm$Year),
+                                                                                                        max = max(Financial_numbers_gather_norm$Year),
+                                                                                                        value = c(min(Financial_numbers_gather_norm$Year),max(Financial_numbers_gather_norm$Year)),
                                                                                                         sep = "")
                               ),
                               box(title = "Quarterly", 
                                   "In million", solidHeader = T, status="danger", plotlyOutput("colfin"), sliderInput(inputId = "Yearrev", 
                                                                                                                       label = "Choose year to give the quarters of",
-                                                                                                                      min = min(Revenue$Year),
-                                                                                                                      max = max(Revenue$Year),
+                                                                                                                      min = min(Financial_numbers_gather_norm$Year),
+                                                                                                                      max = max(Financial_numbers_gather_norm$Year),
                                                                                                                       value = 2020, 
                                                                                                                       sep = ""))
                             ),
@@ -390,9 +394,9 @@ shinyUI(
                                      "In percentage",
                                      solidHeader = T, status = "danger", plotlyOutput("grossmargin"), sliderInput(inputId = "Yeargrossmargin", 
                                                                                                                   label = "Choose the range of years to appear",
-                                                                                                                  min = min(Revenue$Year),
-                                                                                                                  max = max(Revenue$Year),
-                                                                                                                  value = c(min(Revenue$Year),max(Revenue$Year)),
+                                                                                                                  min = min(Financial_numbers_gather_norm$Year),
+                                                                                                                  max = max(Financial_numbers_gather_norm$Year),
+                                                                                                                  value = c(min(Financial_numbers_gather_norm$Year),max(Financial_numbers_gather_norm$Year)),
                                                                                                                   sep = "")),
                               box(
                                 title = "Tesla performance on the Stock Market",
@@ -440,7 +444,6 @@ shinyUI(
                                       selected = c("Belgium", "Austria", "Czech Republic", "Denmark", "Finland", "France", "Germany", "Greece", "Ireland", "Italy", "Luxembourg", "Netherlands", "Norway", "Portugal", "Romania", "Slovenia", "Spain", "Sweden", "Switzerland"))
                         )
                       )
-                      #box(dataTableOutput("table02"))
                     ),
                     tabItem(
                       tabName = "Competition",
