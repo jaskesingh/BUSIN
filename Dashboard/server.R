@@ -366,13 +366,14 @@ shinyServer(function(input, output, session) {
   #### Shows number of total surveyrespondents  
     output$surveytotal <- renderValueBox({
       valueBox(
-        nrow(eusurvey), subtitle = "Number of respondents", icon = icon("user-alt"), color = 'red'
+        paste0(format(nrow(eusurvey), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)), 
+        subtitle = "Number of respondents", icon = icon("user-alt"), color = 'red'
       )
     })
   #### Shows number of countries where survey was taken  
     output$totalcountries <- renderValueBox({
-      valueBox(
-        length(unique(eusurvey$Country)), subtitle = "Number of countries",
+      valueBox( paste0(format(length(unique(eusurvey$Country)), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
+        subtitle = "Number of countries",
         icon = icon("globe-europe"), color = 'red'
       )
     })
