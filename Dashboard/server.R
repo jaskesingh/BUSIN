@@ -718,7 +718,7 @@ shinyServer(function(input, output, session) {
     output$hist02 <- renderPlotly({
       laadpalenC <- laadpalen %>% filter(Country %in% input$Country2)
       laadpalenC <- laadpalenC %>% group_by(Country) %>% mutate(Level = ifelse(freq[Description == "Tesla"] == max(freq), "Highest", ifelse(freq[Description == "Tesla"] == min(freq), "Lowest", "Between")))
-      h2 <- laadpalenC %>% ggplot(aes(x = Description, y = freq, fill = Level)) + geom_col() + gghighlight(Description == "Tesla", calculate_per_facet = T, use_direct_label = F) + facet_wrap(Country~., nrow = 3, ncol = 9) + theme_minimal() +
+      h2 <- laadpalenC %>% ggplot(aes(x = Description, y = freq, fill = Level)) + geom_col() + gghighlight(Description == "Tesla", calculate_per_facet = T, use_direct_label = F) + facet_wrap(Country~., nrow = 3) + theme_minimal() +
         theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
         scale_y_continuous(limits = c(0, 100), breaks = seq(0,100, by= 20)) + ylab("Number of supercharger stations") + xlab("Brand") + scale_fill_manual(values = c("green", "red")) + scale_x_discrete(labels = c("Ionity", "Tesla"))
       ggplotly(h2, tooltip = c("x", "y"))
