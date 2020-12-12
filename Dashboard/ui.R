@@ -25,6 +25,7 @@ library(DT)
 library(tidyverse)
 library(tidyquant)
 library(quantmod)
+library(RSQLite)
 
 # Establish connection with the database
 con <- dbConnect(drv = SQLite(), "Tesla_database.sqlite")
