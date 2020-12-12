@@ -179,9 +179,9 @@ shinyUI(
                     ),
                     tabItem(tabName = "best_selling_evs_compared",
                             fluidRow(
+                              valueBoxOutput("teslas"),
                               valueBoxOutput("teslax"),
-                              valueBoxOutput("tesla3"),
-                              valueBoxOutput("teslas")
+                              valueBoxOutput("tesla3")
                             ),
                             fluidRow(
                               box(title = "Top 15 best sold EV's of 2019 compared by different characteristics",
