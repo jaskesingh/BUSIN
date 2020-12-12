@@ -112,7 +112,7 @@ shinyUI(
                       ),
                       fluidRow(
                         box(
-                          title = "New cars sold in the EU by segment in million units over the years", 
+                          title = "New cars sold in the EU by segment over the years", "In million units", 
                           width = 12,
                           solidHeader = T, status = 'danger', plotlyOutput("line01"),
                           sliderInput(inputId = "Year2",
@@ -440,7 +440,6 @@ shinyUI(
                                       selected = c("Belgium", "Austria", "Czech Republic", "Denmark", "Finland", "France", "Germany", "Greece", "Ireland", "Italy", "Luxembourg", "Netherlands", "Norway", "Portugal", "Romania", "Slovenia", "Spain", "Sweden", "Switzerland"))
                         )
                       )
-                      #box(dataTableOutput("table02"))
                     ),
                     tabItem(
                       tabName = "Competition",
