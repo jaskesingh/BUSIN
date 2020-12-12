@@ -61,6 +61,7 @@ tesla.eu.map <- dbReadTable(con, "tesla.eu.map")
 dbDisconnect(con)
 
 ## Financial numbers, functions
+###Function filters on the year selected by the user]
 financefunction <- function(yearinput,df) {
   financefunction <- df %>% filter(df$Year == yearinput)
   return(financefunction)
@@ -478,20 +479,22 @@ shinyServer(function(input, output, session) {
   
   #Finance
   ### Infoboxes
-    
+  #### Selects the revenue for the chosen year  
     output$revbox <- renderValueBox({
       somjaar <- Financial_numbers_gather_som %>% filter(Year == input$Yearrev, Type == 'Revenue ') %>% group_by(Year) 
       
+  #### Shows the revenue for the chosen year     
       valueBox(
         paste0(format(round(somjaar$Total[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
         subtitle= paste0("Revenue ", input$Yearrev, " in million"), 
         icon = icon("dollar-sign"), color = 'red'
       )
-      
     })
-    
+  #### Selects the Free cashflow for the chosen year  
     output$frcashbox <- renderValueBox({
       somjaar <- Financial_numbers_gather_som %>% filter(Year == input$Yearrev, Type == 'Free cash flow ') %>% group_by(Year)
+      
+  #### Shows the free cashflow for the chosen year if the free cashflow is bigger or equal than zero, the box colors red 
       if(somjaar$Total[]>=0) {  
         valueBox(
           paste0(format(round(somjaar$Total[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
@@ -499,6 +502,8 @@ shinyServer(function(input, output, session) {
           icon = icon("dollar-sign"), color = 'red'
         )
       }
+      
+  #### Shows the free cashflow for the chosen year if the free cashflow is lower than zero, the box colors purple
       else {
         valueBox(
           paste0(format(round(somjaar$Total[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
@@ -508,8 +513,11 @@ shinyServer(function(input, output, session) {
       }
     })
     
+  #### Selects the Gross profit for the chosen year  
     output$grprbox <- renderValueBox({
       somjaar <- Financial_numbers_gather_som %>% filter(Year == input$Yearrev, Type == 'Gross Profit ') %>% group_by(Year)
+      
+  #### Shows the Gross profit for the chosen year    
       valueBox(
         paste0(format(round(somjaar$Total[], 2), decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)), 
         subtitle = paste0("Gross profit ", input$Yearrev, " in million"),  
@@ -518,43 +526,47 @@ shinyServer(function(input, output, session) {
     })
     
   ### Graph
-    
-    output$colfin <- renderPlotly({
-      x    <- Financial_numbers_gather_norm$Year
-      Yearrev <- seq(min(x), max(x), length.out = input$Yearrev)
-      
-      financevar <- financefunction(input$Yearrev, Financial_numbers_gather_norm) %>% filter(Type != "Gross Margin")
-      Value <- financevar$finvalue/1000000
-      
-      financevarpcol <- financevar %>% ggplot(aes(x = Quarter, y = Value, fill = Type))+ geom_col(position = "dodge") + 
-        labs(title = input$Yearrev, y = 'Value') + scale_fill_manual(values = c("green", "lightseagreen", "blue")) +  
-        theme_minimal() + geom_hline(yintercept = 0, color = "black", size = 1.5)
-      
-      ggplotly(financevarpcol)
-    })
-    
+  #### Filter on the chosen year period and select revenue, free cashflow and gross profit    
     output$linefin <- renderPlotly({
       y    <- Financial_numbers_gather_som$Year
       Yearrevline <- seq(min(y), max(y))
       financevar <- Financial_numbers_gather_som %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline), Type != "Gross Margin ") %>% group_by(Year, Type) %>% 
         select(Year, Total, Type)%>% distinct()
       
+  #### Shows interactive line graph of the revenue, free cashflow and gross profit of the selected years. The 0 axis is a bigger black line.      
       financevarpline <- financevar %>% ggplot(aes(x = Year , y = Total, color = Type))+ geom_line() +
         labs(y = 'Value') + scale_x_continuous(breaks = seq(min(Yearrevline), max(Yearrevline), by = 1)) +
         theme_minimal() + scale_color_manual(values = c("green","lightseagreen", "blue")) + geom_hline(yintercept = 0, color = "black", size = 1.5)
       ggplotly(financevarpline)
     })
     
+  #### Use the function to filter on the chosen year and select revenue, free cashflow and gross profit    
+    output$colfin <- renderPlotly({
+      x    <- Financial_numbers_gather_norm$Year
+      Yearrev <- seq(min(x), max(x), length.out = input$Yearrev)
+      financevar <- financefunction(input$Yearrev, Financial_numbers_gather_norm) %>% filter(Type != "Gross Margin")
+      
+  #### Make the value smaller by dividing by 1 000 000
+      Value <- financevar$finvalue/1000000
+      
+  #### Shows interactive bar graph of the revenue, free cashflow and gross profit of the selected year per quarter      
+      financevarpcol <- financevar %>% ggplot(aes(x = Quarter, y = Value, fill = Type))+ geom_col(position = "dodge") + 
+        labs(title = input$Yearrev, y = 'Value') + scale_fill_manual(values = c("green", "lightseagreen", "blue")) +  
+        theme_minimal() + geom_hline(yintercept = 0, color = "black", size = 1.5)
+      ggplotly(financevarpcol)
+    })
+
+  #### Filter on the chosen year period and select gross margin     
     output$grossmargin <- renderPlotly({
       y <- Financial_numbers_gather_som$Year
       Yeargrossmargin <- seq(min(y), max(y))
       financevarmar <- Financial_numbers_gather_som %>% filter(Year >= min(input$Yeargrossmargin) & Year <= max(input$Yeargrossmargin), Type == "Gross Margin ") %>% group_by(Year, Type) %>% 
         select(Year, Total, Type) %>% distinct()
       
+  #### Shows interactive line graph of the gross margin of the selected years, and gives a trendline.    
       financevarmarp <- financevarmar %>% ggplot(aes(x = Year, y = Total, color = Type)) + geom_line() + 
         labs(y = 'Value') + scale_y_continuous(limits = c(50,100), breaks = seq(50, 100, by= 5)) + scale_x_continuous(breaks = seq(min(Yeargrossmargin), max(Yeargrossmargin), by = 1)) +
         theme_minimal() + scale_color_manual(values = c("purple", "red")) + stat_smooth(method = 'lm', se = FALSE, aes(color = 'Trend'))
-      
       ggplotly(financevarmarp, tooltip = c("x", "y", "color"))
     })
     
@@ -671,10 +683,12 @@ shinyServer(function(input, output, session) {
     output$hist01 <- renderPlot({
       verkooC <- verkoo %>% dplyr::filter(Country %in% input$Country, Year == input$Year)
       superchargersC <- superchargers %>% dplyr::filter(Year < input$Year+1, Status == 'OPEN', Country %in% input$Country)
+      
   ##### Counts the number of superchargers per country
       superchargersC <- plyr::count(superchargersC, "Country")
       ratio <- full_join(superchargersC, verkooC, by = 'Country')
       ratio$freq <- as.integer(ratio$freq)
+      
   ##### Gives the value 0 to countries with no superchargers
       ratio[is.na(ratio)] = 0
       ratio$Country <- as.factor(ratio$Country)
@@ -721,14 +735,16 @@ shinyServer(function(input, output, session) {
   
   # Expansion in Europe
   ### Graph
+  #### Check whether the graph should show Europe or per country
     checkeurope <- reactive({input$Europe})
     output$colpascar <- renderPlotly({
-      
+  #### The graph gives the chosen country   
       if (checkeurope() == 2) {
+  #### Select the chosen country and give waardes the name value
         countriespasscarvar <- countriesafpassengercars %>% filter(Country == input$EUoptions)
         value <- countriespasscarvar$waardes
         
-        
+  #### Shows interactive bar chart of the amount of car passengers of the selected country for the different fuel types
         countriespasscarvarp <- countriespasscarvar %>% 
           ggplot(aes(x = Year, y = value, fill = Fuel)) + 
           geom_col(position = "dodge") + 
@@ -738,10 +754,13 @@ shinyServer(function(input, output, session) {
           theme_minimal() + scale_fill_manual(values = c("red", "orange", "green", "lightseagreen", "blue", "purple", "maroon1"))
       }
       
+  #### The graph gives the countries from Europe given in the dataset      
       else { 
+  #### Select the chosen year and give waardes the name value
         countriespasscarvar <- countriesafpassengercars %>% filter(Year == input$YearEU)
         value <- countriespasscarvar$waardes
-
+        
+  #### Shows interactive bar chart of the amount of car passengers of all the countries in the dataset for the different fuel types
         countriespasscarvarp <- countriespasscarvar %>% 
           ggplot(aes(x = Country, y = value, fill = Fuel ))+ 
           geom_col(position = "dodge") + 
@@ -751,12 +770,15 @@ shinyServer(function(input, output, session) {
       }
       ggplotly(countriespasscarvarp)
     })
-    
+      
     output$colinfr <- renderPlotly({
+  #### The graph gives the chosen country
       if (checkeurope() == 2) {
+  #### Select the chosen country and give waardes the name value
         countriesinfrvar <- countriesafinfrastructure %>% filter(Country == input$EUoptions)
         value <- countriesinfrvar$waardes
         
+  #### Shows interactive bar chart of the amount of infrastructure per different fuel type for the selected country        
         countriesinfrvarp <- countriesinfrvar %>% 
           ggplot(aes(x = Year, y = value, fill = Fuel))+ 
           geom_col(position = "dodge") + 
@@ -766,11 +788,13 @@ shinyServer(function(input, output, session) {
           theme_minimal() + 
           scale_fill_manual(values = c("purple", "green", "blue", "orange", "maroon1"))
       }
-      
+  #### The graph gives the countries from Europe given in the dataset     
       else {
+  #### Select the chosen year and give waardes the name value
         countriesinfrvar <- countriesafinfrastructure %>% filter(Year == input$YearEU)
         value <- countriesinfrvar$waardes
         
+  #### Shows interactive bar chart of the amount of infrastructure per different fuel type for all the countries in the dataset  
         countriesinfrvarp <- countriesinfrvar %>% 
           ggplot(aes(x = Country, y = value, fill = Fuel))+ 
           geom_col(position = "dodge") + 
@@ -782,20 +806,11 @@ shinyServer(function(input, output, session) {
       ggplotly(countriesinfrvarp)
     })
   
-  ### Table
-    output$europemaptable <- renderDataTable({
-      
-      teslamaptablevarshow <- tesla.eu.map %>% filter(jaar <= input$teslajaar & waarde >= 1) %>% 
-        group_by(region) %>% 
-        summarise(Year = min(jaar, na.rm = T)) %>% 
-        select(Year, region) %>% 
-        distinct() %>% 
-        arrange(desc(Year))
-      datatable(teslamaptablevarshow)
-    })
+
     
   ### Graph map
     output$distPlot <- renderPlot({
+  #### The function looks for the year, if it is 2013 the graph will be different. If it is higher than 2013, the selected year and the year below will be taken in consideration for the graph.
       teslamap <- function(inputjaar, df) {
         if (inputjaar == "2013") {
           teslamap <- df %>% filter(df$jaar == inputjaar, df$waarde > 0)
@@ -806,14 +821,20 @@ shinyServer(function(input, output, session) {
         return(teslamap)
       }
       
+  ###↨# Draw a basic map of Europe, which is non interactive
       teslamapvar <- teslamap(input$teslajaar, tesla.eu.map)
       gg <- teslamapvar %>% ggplot() + geom_map(dat = tesla.eu.map, map = tesla.eu.map, aes(map_id = region), fill = "white", color="black") + coord_map(ylim = c(35, 71))
+  
+  #### The year is 2013, so color all the countries with a Telsa in 2013 red
       if (input$teslajaar == "2013") {
         gg <- gg + geom_map(map = tesla.eu.map, aes(map_id = region, fill = jaar), colour = "black")
       }
+  #### The year is higher than 2013, so color countries with a Tesla for the selected year green and for the year below red to see which ones are new.
       else {
         gg <- gg + geom_map(map = tesla.eu.map, aes(map_id = region, fill = jaar), colour = "black")
       }
+      
+  #### Adjust the map to get an optimal view
       gg <- gg + expand_limits(x = tesla.eu.map$long, y = tesla.eu.map$lat)
       gg <- gg + theme(axis.title = element_blank(),
                        axis.text = element_blank(),
@@ -826,6 +847,17 @@ shinyServer(function(input, output, session) {
                        strip.background = element_rect(fill = 'white', colour = 'white')) + scale_fill_manual( values = c("red", "green"))
       
       gg
+    })
+  ### Table
+  #### Gives the countries that have a Tesla per year of first appearance of Tesla. The newest countries can be found at the top of the table
+    output$europemaptable <- renderDataTable({
+      teslamaptablevarshow <- tesla.eu.map %>% filter(jaar <= input$teslajaar & waarde >= 1) %>% 
+        group_by(region) %>% 
+        summarise(Year = min(jaar, na.rm = T)) %>% 
+        select(Year, region) %>% 
+        distinct() %>% 
+        arrange(desc(Year))
+      datatable(teslamaptablevarshow)
     })
     
 }) 
