@@ -88,9 +88,12 @@ dbWriteTable(con, "EuMS", EuMS)
 
 
 ##Best selling EV's compared
+#[Load data]
 groco_data <- read_xlsx("Data/growth_comparison_v7.xlsx")
+#[Assign the right datatype to the different variables]
 groco_data$'Change In Sales From 2018 To 2019 (%)'  <- as.numeric(groco_data$'Change In Sales From 2018 To 2019 (%)')
 groco_data$'Share In EV Market In 2018'  <- as.numeric(groco_data$'Share In EV Market In 2018')
+#[Prepare the data for further steps in the server: gather the columns and collapse them into key-value pairs]
 groco_data_gather <- groco_data %>% gather("Sales In 2019",
                                          "Sales In 2018",
                                          "Change In Sales From 2018 To 2019 (%)",
@@ -114,9 +117,11 @@ groco_data_gather <- groco_data %>% gather("Sales In 2019",
                                          key = "Type",
                                          value = "Value"
                                              )
+#[Assign the right datatype to the different variables]
 groco_data_gather$"Value" <- as.numeric(groco_data_gather$"Value")
 groco_data_gather$"Type"  <- as.character(groco_data_gather$"Type")   
 
+#[Save tables in database]
 dbWriteTable(con, "groco_data_gather", groco_data_gather)
 
 ```

@@ -219,19 +219,21 @@ shinyServer(function(input, output, session) {
   
   ## Best selling EV's compared
   ###Infoboxes
+  #### Shows sales of Tesla Model S in 2019
     output$teslas <- renderValueBox({
       groco_data_gather_4 <- groco_data_gather %>% filter(Submodel == "Tesla Model S", Type == "Sales In 2019")
       valueBox(
         paste0(format(groco_data_gather_4$Value, decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
         subtitle= paste("Tesla model S sales 2019"), icon = icon('car-side'), color = "red")
     })
+  #### Shows sales of Tesla Model S in 2019
     output$teslax <- renderValueBox({
       groco_data_gather_3 <- groco_data_gather %>% filter(Submodel == "Tesla Model X", Type == "Sales In 2019")
         valueBox(
           paste0(format(groco_data_gather_3$Value, decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
           subtitle= paste("Tesla model X sales 2019"), icon = icon('car-side'), color = "red")
     })
-    
+  #### Shows sales of Tesla Model S in 2019
     output$tesla3 <- renderValueBox({
       groco_data_gather_2 <- groco_data_gather %>% filter(Submodel == "Tesla Model 3", Type == "Sales In 2019")
       valueBox(
@@ -239,20 +241,24 @@ shinyServer(function(input, output, session) {
         subtitle= paste("Tesla model 3 sales 2019"), icon = icon('car-side'), color = "red")
     })
     
-    ###Graph
+  ###Graph
     output$growth_comparison_bar <- renderPlotly({
     
+  #### Use the inputs to filter the data so that only those submodels that have values are retained + select all Tesla models (to later color them using red2 instead of coral2)
       groco_filtered_data <- groco_data_gather %>% filter(!is.na(Submodel), Type == input$growth_select_box, !is.na(Value)) %>% 
         mutate(isvalue = (Submodel %in% c("Tesla Model 3","Tesla Model 3 Standard Range Plus","Tesla Model 3 Long Range","Tesla Model 3 Performance","Tesla Model S",
                                           "Tesla Model S Long Range","Tesla Model S Performance","Tesla Model X","Tesla Model X Long Range","Tesla Model X Performance"))) %>%
                                                    select(Submodel, Value, isvalue)
 
+  #### Order the values
       groco_filtered_data <- groco_filtered_data[order(groco_filtered_data$Value), ]
 
+  #### This makes sure the order is actually retained and properly displayed in the graph
       groco_filtered_data$Submodel <- factor(groco_filtered_data$Submodel,
                                                      levels = groco_filtered_data$Submodel)
       
       
+  #### Creates the graph
       groco_plot <-  groco_filtered_data  %>% 
                         ggplot(
                              aes(x = Value,
@@ -284,7 +290,8 @@ shinyServer(function(input, output, session) {
       ggplotly(h7)})
   
   ## Brand loyalty
-  ### Infoboxes  
+  ### Infoboxes
+  #### Shows loyalty of Tesla customers as percentage
     output$loyalty_percentage_of_tesla <- renderValueBox({
       loyalty_per_brand_ranked_Tesla <- loyalty_per_brand_ranked_tibble %>%
         filter(Brand == "Tesla")
@@ -300,6 +307,7 @@ shinyServer(function(input, output, session) {
       
     })
     
+  #### Shows place of Tesla in loyalty ranking  
     output$loyalty_rank_of_tesla <- renderValueBox({
       loyalty_per_brand_ranked_Tesla <- loyalty_per_brand_ranked_tibble %>%
         filter(Brand == "Tesla") 
@@ -308,7 +316,7 @@ shinyServer(function(input, output, session) {
       valueBox(
         loyalty_ordinal_rank_tesla,
         subtitle = "Place of Tesla in loyalty ranking",
-        icon = icon('award'), #keuze uit award, crown of trophy
+        icon = icon('award'), 
         color = "red"
       )
       
@@ -316,26 +324,34 @@ shinyServer(function(input, output, session) {
     
     
   ### Graph
+  #### Shows the loyalty ranking
     output$loyalty_bar <- renderPlotly({
-
+  
+  #### Filters such that only the selected inputs are shown, which can be "luxury", "mass market" or both
       loyalty_per_brand_chosen_class <- loyalty_per_brand_ranked_tibble %>% filter(Classification %in% input$loyalty_checkboxes)
-
+ 
+  #### Tesla is classified as a luxury brand in our dataset, but we want to make sure that regardless of the selected classification, Tesla is shown. 
+  #### That's why we first save Tesla in a separate variable....
       loyalty_per_brand_ranked_Tesla <- loyalty_per_brand_ranked_tibble %>%
         filter(Brand == "Tesla") 
 
+  #### .... and then delete it from the variable with the selection ("luxury", "mass market" or both) applied....
       loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% filter(!Brand %in% c("Tesla"))
 
+  #### .... and then we add Tesla again. 
       loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class %>% add_row(Brand = loyalty_per_brand_ranked_Tesla$Brand,
                                                                                    Percentage = loyalty_per_brand_ranked_Tesla$Percentage,
                                                                                    Classification = loyalty_per_brand_ranked_Tesla$Classification,
                                                                                    Rank = loyalty_per_brand_ranked_Tesla$Rank
       )
-
+  #### Orders the values
       loyalty_per_brand_chosen_class <- loyalty_per_brand_chosen_class[order(loyalty_per_brand_chosen_class$Percentage), ]
 
+  #### This makes sure the order is actually retained and properly displayed in the graph
       loyalty_per_brand_chosen_class$Brand <- factor(loyalty_per_brand_chosen_class$Brand,
                                                      levels = loyalty_per_brand_chosen_class$Brand)
 
+  #### Create plot
       loyalty_per_brand_plot <- ggplot(loyalty_per_brand_chosen_class,
                                        aes(x = Percentage,
                                            y = Brand,
@@ -528,16 +544,19 @@ shinyServer(function(input, output, session) {
     })
     
   ### Graph
-  #### Filter on the chosen year period and select revenue, free cashflow and gross profit    
+  #### Make new variables with existing values    
     output$linefin <- renderPlotly({
       y    <- Financial_numbers_gather_som$Year
       Yearrevline <- seq(min(y), max(y))
+      maxval <- max(Financial_numbers_gather_som$Total)
+      minval <- min(Financial_numbers_gather_som$Total)
+  #### Filter on the chosen year period and select revenue, free cashflow and gross profit
       financevar <- Financial_numbers_gather_som %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline), Type != "Gross Margin ") %>% group_by(Year, Type) %>% 
         select(Year, Total, Type)%>% distinct()
       
   #### Shows interactive line graph of the revenue, free cashflow and gross profit of the selected years. The 0 axis is a bigger black line.      
       financevarpline <- financevar %>% ggplot(aes(x = Year , y = Total, color = Type))+ geom_line() +
-        labs(y = 'Value') + scale_x_continuous(breaks = seq(min(Yearrevline), max(Yearrevline), by = 1)) +
+        labs(y = 'Value') + scale_x_continuous(breaks = seq(min(Yearrevline), max(Yearrevline), by = 1)) + scale_y_continuous(limits = c(minval, maxval)) +
         theme_minimal() + scale_color_manual(values = c("green","lightseagreen", "blue")) + geom_hline(yintercept = 0, color = "black", size = 1.5)
       ggplotly(financevarpline)
     })
