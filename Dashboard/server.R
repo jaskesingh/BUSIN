@@ -528,16 +528,19 @@ shinyServer(function(input, output, session) {
     })
     
   ### Graph
-  #### Filter on the chosen year period and select revenue, free cashflow and gross profit    
+  #### Make new variables with existing values    
     output$linefin <- renderPlotly({
       y    <- Financial_numbers_gather_som$Year
       Yearrevline <- seq(min(y), max(y))
+      maxval <- max(Financial_numbers_gather_som$Total)
+      minval <- min(Financial_numbers_gather_som$Total)
+  #### Filter on the chosen year period and select revenue, free cashflow and gross profit
       financevar <- Financial_numbers_gather_som %>% filter(Year >= min(input$Yearrevline) & Year <= max(input$Yearrevline), Type != "Gross Margin ") %>% group_by(Year, Type) %>% 
         select(Year, Total, Type)%>% distinct()
       
   #### Shows interactive line graph of the revenue, free cashflow and gross profit of the selected years. The 0 axis is a bigger black line.      
       financevarpline <- financevar %>% ggplot(aes(x = Year , y = Total, color = Type))+ geom_line() +
-        labs(y = 'Value') + scale_x_continuous(breaks = seq(min(Yearrevline), max(Yearrevline), by = 1)) +
+        labs(y = 'Value') + scale_x_continuous(breaks = seq(min(Yearrevline), max(Yearrevline), by = 1)) + scale_y_continuous(limits = c(minval, maxval)) +
         theme_minimal() + scale_color_manual(values = c("green","lightseagreen", "blue")) + geom_hline(yintercept = 0, color = "black", size = 1.5)
       ggplotly(financevarpline)
     })
