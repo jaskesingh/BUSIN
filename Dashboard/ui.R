@@ -45,7 +45,6 @@ countriesafinfrastructure <- dbReadTable(con, "countriesafinfrastructure")
 #Close connection with the database
 dbDisconnect(con)
 
-      
 #Define UI for application that draws a map
 shinyUI(
   dashboardPage(skin = 'red',
