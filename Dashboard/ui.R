@@ -27,7 +27,7 @@ library(tidyquant)
 library(quantmod)
 library(RSQLite)
 
-# Establish connection with the database
+#Establish connection with the database
 con <- dbConnect(drv = SQLite(), "Tesla_database.sqlite")
 
 #Read tables
@@ -42,6 +42,7 @@ verkoo <- dbReadTable(con, "verkoo")
 countriesafpassengercars <- dbReadTable(con, "countriesafpassengercars")
 countriesafinfrastructure <- dbReadTable(con, "countriesafinfrastructure")
 
+#Close connection with the database
 dbDisconnect(con)
 
       
