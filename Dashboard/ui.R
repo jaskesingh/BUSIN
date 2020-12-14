@@ -108,7 +108,7 @@ shinyUI(
                 dashboardBody(
                   tabItems(
                     
-                #¯Growth
+                #Growth
                     tabItem(
                       tabName = "Salespersegment",
                       fluidRow(
