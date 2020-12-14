@@ -222,21 +222,21 @@ shinyServer(function(input, output, session) {
   ###Infoboxes
   #### Shows sales of Tesla Model S in 2019
     output$teslas <- renderValueBox({
-      groco_data_gather_4 <- groco_data_gather %>% filter(Submodel == "Tesla Model S", Type == "Sales In 2019")
+      groco_data_gather_4 <- groco_data_gather %>% filter(Submodel == "Tesla Model S", Type == "Sales In 2019 (units)")
       valueBox(
         paste0(format(groco_data_gather_4$Value, decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
         subtitle= paste("Tesla model S sales 2019"), icon = icon('car-side'), color = "red")
     })
   #### Shows sales of Tesla Model S in 2019
     output$teslax <- renderValueBox({
-      groco_data_gather_3 <- groco_data_gather %>% filter(Submodel == "Tesla Model X", Type == "Sales In 2019")
+      groco_data_gather_3 <- groco_data_gather %>% filter(Submodel == "Tesla Model X", Type == "Sales In 2019 (units)")
         valueBox(
           paste0(format(groco_data_gather_3$Value, decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
           subtitle= paste("Tesla model X sales 2019"), icon = icon('car-side'), color = "red")
     })
   #### Shows sales of Tesla Model S in 2019
     output$tesla3 <- renderValueBox({
-      groco_data_gather_2 <- groco_data_gather %>% filter(Submodel == "Tesla Model 3", Type == "Sales In 2019")
+      groco_data_gather_2 <- groco_data_gather %>% filter(Submodel == "Tesla Model 3", Type == "Sales In 2019 (units)")
       valueBox(
         paste0(format(groco_data_gather_2$Value, decimal.mark = ",", big.mark = " ", small.mark = " ", small.interval = 3)),
         subtitle= paste("Tesla model 3 sales 2019"), icon = icon('car-side'), color = "red")
