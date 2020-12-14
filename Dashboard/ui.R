@@ -44,42 +44,6 @@ countriesafinfrastructure <- dbReadTable(con, "countriesafinfrastructure")
 
 dbDisconnect(con)
 
-#Caro
-
-#Map + table01 + infoboxes
-#superchargers <- read_xlsx("Data/Superchargers.xlsx")
-#superchargers <- superchargers %>% separate(GPS, sep = ",", into = c("Latitude", "Longitude"))
-#superchargers$Longitude <- as.double(superchargers$Longitude)
-#superchargers$Latitude <- as.double(superchargers$Latitude)
-#superchargers <- data.frame(superchargers)
-
-#Histogram01
-#verkoo <- read_xlsx("Data/Yearly Tesla Sales Country Split (Europe).xlsx")
-
-#Growth: Sale of all brands per segment
-#VPS <- read_xlsx("Data/New cars sold in the EU by segment in million units.xlsx")
-
-#Growth: Share of electric vehicles on Belgian and European market
-#nieuw <- read_xlsx("Data/Verkoop per brandstof (België) met market share.xlsx", sheet = "Nieuw")
-#Nieuw <- nieuw %>% gather('2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', key = "Year", value = "Cars sold",na.rm = FALSE, convert = FALSE, factor_key = FALSE)
-#eu <- read_xlsx("Data/% share of new passenger cars by fuel type in the EU.xlsx")
-
-#Customers: Purchase process
-#aankoopproces <- read_xlsx("Data/Online.xlsx")
-#aankoopproces <- aankoopproces %>% gather('Not at all interested/not very interested':'Somewhat interested/very interested', key = "Interest", value="Percentage")
-
-#Sale: Periodic tesla sales
-#data <- read_xlsx("Data/Monthly Tesla Vehicle Sales.xlsx")
-#Data <- data %>% gather(January:December, key=  "Month", value="Sales") %>% mutate(Month = str_replace(Month, "January", "1"), Month = str_replace(Month, "February", "2"), Month = str_replace(Month, "March", "3"), Month = str_replace(Month, "April", "4"), Month = str_replace(Month, "May", "5"), Month = str_replace(Month, "June", "6"), Month = str_replace(Month, "July", "7"), Month = str_replace(Month, "August", "8"), Month = str_replace(Month, "September", "9"), Month = str_replace(Month, "October", "10"), Month = str_replace(Month, "November", "11"), Month = str_replace(Month, "December", "12"))
-#Data$Month <- as.integer(Data$Month)
-#Data$Year <- as.factor(Data$Year) 
-
-#Jaske
-
-#Survey in the EU about consumer behavior related to the automotive sector
-#eusurvey <- read.csv("data/hev1.csv")
-
-
       
 #Define UI for application that draws a map
 shinyUI(
@@ -266,7 +230,6 @@ shinyUI(
                           )
                         )
                     ),
-                ## Creates a 
                    tabItem(
                     tabName = "survey",
                       h2("Survey taken in 2018 in EU-countries"),
