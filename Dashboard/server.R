@@ -58,6 +58,7 @@ countriesafpassengercars <- dbReadTable(con, "countriesafpassengercars")
 countriesafinfrastructure <- dbReadTable(con, "countriesafinfrastructure")
 tesla.eu.map <- dbReadTable(con, "tesla.eu.map")
 
+#Close connection with the database
 dbDisconnect(con)
 
 ## Financial numbers, functions
