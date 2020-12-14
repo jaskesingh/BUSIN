@@ -89,26 +89,26 @@ dbWriteTable(con, "EuMS", EuMS)
 
 ##Best selling EV's compared
 #[Load data]
-groco_data <- read_xlsx("Data/growth_comparison_v7.xlsx")
+groco_data <- read_xlsx("Data/growth_comparison.xlsx")
 #[Assign the right datatype to the different variables]
 groco_data$'Change In Sales From 2018 To 2019 (%)'  <- as.numeric(groco_data$'Change In Sales From 2018 To 2019 (%)')
-groco_data$'Share In EV Market In 2018'  <- as.numeric(groco_data$'Share In EV Market In 2018')
+groco_data$'Share In EV Market In 2018 (%)'  <- as.numeric(groco_data$'Share In EV Market In 2018 (%)')
 #[Prepare the data for further steps in the server: gather the columns and collapse them into key-value pairs]
-groco_data_gather <- groco_data %>% gather("Sales In 2019",
-                                         "Sales In 2018",
+groco_data_gather <- groco_data %>% gather("Sales In 2019 (units)",
+                                         "Sales In 2018 (units)",
                                          "Change In Sales From 2018 To 2019 (%)",
-                                         "Share In EV Market In 2019",
-                                         "Share In EV Market In 2018",
+                                         "Share In EV Market In 2019 (%)",
+                                         "Share In EV Market In 2018 (%)",
                                          "Proportion Of Sales Of This Model That Was EV In 2019 (%)",
                                          "Proportion Of Sales Of This Model That Was EV In 2018 (%)",
-                                         "Range",
+                                         "Range (km)",
                                          "Top Speed (km/h)",
                                          "Acceleration (0-100 km/h)",
-                                         "Horsepower",
+                                         "Horsepower (units)",
                                          "Top Charging Speed (km/h)",
-                                         "Price",
-                                         "Trunk Space (Including Frunk If Applicable)",
-                                         "NCAP Stars",
+                                         "Price (EUR)",
+                                         "Trunk Space (Including Frunk If Applicable) (l)",
+                                         "NCAP Stars (0-5)",
                                          "NCAP Adult Occupant Score (%)",
                                          "NCAP Child Occupant Score (%)",
                                          "NCAP Vulnerable Road Users Score (%)",
@@ -123,6 +123,8 @@ groco_data_gather$"Type"  <- as.character(groco_data_gather$"Type")
 
 #[Save tables in database]
 dbWriteTable(con, "groco_data_gather", groco_data_gather)
+
+
 
 ```
 

@@ -58,6 +58,7 @@ countriesafpassengercars <- dbReadTable(con, "countriesafpassengercars")
 countriesafinfrastructure <- dbReadTable(con, "countriesafinfrastructure")
 tesla.eu.map <- dbReadTable(con, "tesla.eu.map")
 
+#Close connection with the database
 dbDisconnect(con)
 
 ## Financial numbers, functions
@@ -415,7 +416,7 @@ shinyServer(function(input, output, session) {
         geom_bar(position = "dodge") +
         labs(y = "Number of respondents", fill = "Buy EV") +
         theme(axis.text.x = element_text(angle = 60, hjust = 1)) + theme_minimal() + 
-        scale_fill_manual(values = c("red", "lightseagreen"))
+        scale_fill_manual(values = c("black", "red"))
       ggplotly(p3, tooltip = c("count", "x", "text"))
     })
   #### Shows the number of respondents per different employment status and whether they are willing to buy an ev
@@ -426,7 +427,7 @@ shinyServer(function(input, output, session) {
         geom_bar(aes(fill = as.logical(buy_electric)), position = "dodge") +
         labs(y = "Number of respondents", fill = "Buy EV") +
         theme(axis.text.x = element_text(angle = 60, hjust = 1)) + theme_minimal() + 
-        scale_fill_manual(values = c("red", "lightseagreen"))
+        scale_fill_manual(values = c("black", "red"))
       ggplotly(p1, tooltip = c("count", "x", "text")) %>% 
         layout( 
           xaxis = list(automargin=TRUE), 
@@ -442,7 +443,7 @@ shinyServer(function(input, output, session) {
         geom_bar(aes(fill = as.logical(buy_electric)), position = "dodge") +
         facet_wrap(~Country) + 
         labs(y = "Number of respondents", fill = "Buy EV") + theme_minimal() + 
-        scale_fill_manual(values = c("red", "lightseagreen"))
+        scale_fill_manual(values = c("black", "red"))
       ggplotly(p2, tooltip = c("count", "x", "Country", "text")) %>% 
         layout( 
           xaxis = list(automargin=TRUE), 
@@ -458,7 +459,7 @@ shinyServer(function(input, output, session) {
         geom_bar(aes(fill = as.logical(buy_electric)), position = "dodge") + 
         labs(y = "Number of respondents", x = "Plan to buy car", fill = "Buy EV") + theme_minimal() +
         theme(axis.text.x = element_text(angle = 60, hjust = 1)) +  
-        scale_fill_manual(values = c("red", "lightseagreen"))
+        scale_fill_manual(values = c("black", "red"))
       ggplotly(p4, tooltip = c("count", "x", "text"))
       
     })
