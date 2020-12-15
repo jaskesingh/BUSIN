@@ -286,8 +286,8 @@ shinyServer(function(input, output, session) {
     output$hist07 <- renderPlotly({
       aankoopprocesC2 <- aankoopproces %>% filter(Country %in% input$Country4, Interest %in% input$Interest)
       aankoopprocesC2 <- aankoopprocesC2 %>% group_by(Interest) %>% mutate(Level = ifelse(Percentage == max(Percentage), "Highest", ifelse(Percentage == min(Percentage), "Lowest", "Between")))
-      h7 <- aankoopprocesC2 %>% ggplot(aes(x = Country, y = Percentage, fill = Level)) + geom_col() + facet_wrap(Interest~.) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-        scale_y_continuous(limits = c(0, 70), breaks = seq(0,70, by= 10)) + theme_minimal() + scale_fill_manual(values = c("red", "green", "blue")) 
+      h7 <- ggplot(transform(aankoopprocesC2, Interest = factor(Interest,levels=c("Not at all interested/not very interested", "Neutral", "Somewhat interested/very interested")))) + geom_col(aes(x = Country, y = Percentage, fill = Level)) + facet_wrap(Interest~.) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+        scale_y_continuous(limits = c(0, 70), breaks = seq(0,70, by= 10)) + theme_minimal() + scale_fill_manual(values = c("blue", "green", "red")) 
       ggplotly(h7)})
   
   ## Brand loyalty
