@@ -161,28 +161,28 @@ shinyUI(
                                                height = "580px"),
                                   selectInput(inputId = "growth_select_box",
                                               label = "Select parameter for comparison",
-                                              choices = c("Sales In 2019",
-                                                          "Sales In 2018",
+                                              choices = c("Sales In 2019 (units)",
+                                                          "Sales In 2018 (units)",
                                                           "Change In Sales From 2018 To 2019 (%)",
-                                                          "Share In EV Market In 2019",
-                                                          "Share In EV Market In 2018",
+                                                          "Share In EV Market In 2019 (%)",
+                                                          "Share In EV Market In 2018 (%)",
                                                           "Proportion Of Sales Of This Model That Was EV In 2019 (%)",
                                                           "Proportion Of Sales Of This Model That Was EV In 2018 (%)",
-                                                          "Range",
+                                                          "Range (km)",
                                                           "Top Speed (km/h)",
                                                           "Acceleration (0-100 km/h)",
-                                                          "Horsepower",
+                                                          "Horsepower (units)",
                                                           "Top Charging Speed (km/h)",
-                                                          "Price",
-                                                          "Trunk Space (Including Frunk If Applicable)",
-                                                          "NCAP Stars",
+                                                          "Price (EUR)",
+                                                          "Trunk Space (Including Frunk If Applicable) (l)",
+                                                          "NCAP Stars (0-5)",
                                                           "NCAP Adult Occupant Score (%)",
                                                           "NCAP Child Occupant Score (%)",
                                                           "NCAP Vulnerable Road Users Score (%)",
                                                           "NCAP Safety Assist Score (%)",
                                                           "NCAP Average Score (%)"
                                               ),
-                                              selected = "Sales in 2019"
+                                              selected = "Sales in 2019 (units)"
                                   )
                               )
                             )
